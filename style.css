@@ -1,0 +1,24 @@
+/* Color Palatte
+ * #f0f2ea // white
+ * #1E1514 // black
+ * #ECD5BB // beige
+ * #013A20 // dark green
+ */
+
+body {
+  background: #f0f2ea;
+  color: #1E1514;
+}
+
+a {
+  color: #b6cdf4;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
