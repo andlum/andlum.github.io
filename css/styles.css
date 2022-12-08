@@ -41,6 +41,7 @@ body {
   flex-direction: column;
   background: var(--color-background);
   min-height: 100vh;
+  padding-bottom: 4rem;
 }
 
 h1,
