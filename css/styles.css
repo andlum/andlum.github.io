@@ -15,7 +15,10 @@
   --color-secondary-text: var(--color-burnt-orange);
   --color-body-text: var(--color-off-black);
   --color-background: var(--color-white);
+}
 
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -93,7 +96,7 @@ p + p {
 header,
 main {
   position: relative;
-  /* width: 100%; */
+  width: 100%;
   max-width: 940px;
   margin: 0 auto;
   padding: 0 4vw;
