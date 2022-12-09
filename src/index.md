@@ -4,8 +4,8 @@ layout: "home.njk"
 ---
 
 <section class="title-section">
-  <h1>Hi, I'm Andrew &nbsp;<span class="animate-wave">&#128075;</span></h1>
-  <p class="tagline">I'm an independent software developer based in NYC.</p>
+  <h1 class="animate-fade-up">Hi, I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
+  <p class="tagline animate-fade-up animate-delay">I'm an independent software developer based in NYC.</p>
 </section>
 <section class="about-row">
   <h2 class="section-header header-2">Currently</h2>
