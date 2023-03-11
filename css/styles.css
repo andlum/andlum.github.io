@@ -70,15 +70,6 @@ p {
   margin: 0;
 }
 
-h1 + *,
-h2 + *,
-h3 + *,
-h4 + *,
-h5 + *,
-h6 + * {
-  margin-top: 1rem;
-}
-
 a {
   text-decoration: none;
   color: var(--color-primary);
@@ -133,8 +124,6 @@ nav a + a {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 200px;
-  max-height: 450px;
 }
 
 .tagline {
@@ -147,11 +136,36 @@ nav a + a {
   margin: 2em 0 0.5em;
 }
 
+.animate-delay {
+  animation-delay: 500ms;
+}
+
+.animate-delay--2 {
+  animation-delay: 2s;
+}
+
+.animate-fade-up {
+  opacity: 1;
+  animation-fill-mode: backwards;
+  animation-name: fade-up;
+  animation-duration: 1.5s;
+}
+
+@keyframes fade-up {
+  from {
+    transform: translate3d(0, 40px, 0);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
 .animate-wave {
   animation-name: wave-animation;  /* Refers to the name of your @keyframes element below */
-  animation-delay: 2s;
   animation-duration: 2.5s;        /* Change to speed up or slow down */
-  animation-iteration-count: 1;  /* Never stop waving :) */
   transform-origin: 70% 70%;       /* Pivot around the bottom-left palm */
   display: inline-block;
 }
