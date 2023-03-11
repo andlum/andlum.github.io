@@ -70,15 +70,6 @@ p {
   margin: 0;
 }
 
-h1 + *,
-h2 + *,
-h3 + *,
-h4 + *,
-h5 + *,
-h6 + * {
-  margin-top: 1rem;
-}
-
 a {
   text-decoration: none;
   color: var(--color-primary);
@@ -133,8 +124,6 @@ nav a + a {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 200px;
-  max-height: 450px;
 }
 
 .tagline {
