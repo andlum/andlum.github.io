@@ -1,6 +1,9 @@
+const eleventyVue = require("@11ty/eleventy-plugin-vue"); // import the plugin
+
 module.exports = function(eleventyConfig) {
-  eleventyConfig.addPassthroughCopy('css')
+  eleventyConfig.addPassthroughCopy('src/css')
   eleventyConfig.addPassthroughCopy("CNAME");
+  eleventyConfig.addPlugin(eleventyVue);
 
   return {
     dir: {

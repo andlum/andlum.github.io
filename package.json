@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/andlum/andlum.github.io#readme",
   "devDependencies": {
-    "@11ty/eleventy": "^2.0.1"
+    "@11ty/eleventy": "^2.0.1",
+    "@11ty/eleventy-plugin-vue": "^0.8.0"
   }
 }

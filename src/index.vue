@@ -1,25 +1,30 @@
-:root {
-  /* Color Palette */
-  --color-black: #001858;
-  --color-off-black: #172c66;
-  --color-beige: #f3d2c1;
-  --color-blue: #8bd3dd;
-  --color-pink: #f582ae;
-  --color-white: #fffffe;
+<template>
+  <main>
+    <section class="title-section">
+      <h1 class="animate-fade-up">Hi, I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
+      <p class="tagline animate-fade-up animate-delay">I'm an software developer based in NYC.</p>
+    </section>
+    <section class="about-row">
+      <h2 class="section-header header-2">Currently</h2>
+      <p>Leveraging technology to reduce carbon emissions on the ocean supply chain at <a class="fancy-link"
+          href="https://nautiluslabs.com/">Nautilus Labs</a>.</p>
+    </section>
+    <section class="about-row">
+      <h2 class="section-header header-2">Previously</h2>
+      <p>
+        Worked in payments, design systems, and frontend at-large at <a class="fancy-link"
+          href="https://www.justworks.com/">Justworks</a> and on the platform and mobile SDKs at <a class="fancy-link"
+          href="https://radar.com/">Radar</a>.
+      </p>
+      <p>
+        If you want to get in touch, feel free to message me on <a class="fancy-link"
+          href="https://www.linkedin.com/in/andlum/">LinkedIn</a>.
+      </p>
+    </section>
+  </main>
+</template>
 
-  /* UI Colors */
-  --color-primary: var(--color-blue);
-  --color-secondary: var(--color-pink);
-  --color-tertiary: var(--color-beige);
-  --color-headline-text: var(--color-black);
-  --color-body-text: var(--color-off-black);
-  --color-background: var(--color-white);
-}
-
-* {
-  box-sizing: border-box;
-}
-
+<style>
 body {
   /* Reset */
   margin: 0;
@@ -79,7 +84,7 @@ a:hover {
   color: var(--color-secondary);
 }
 
-p + p {
+p+p {
   margin-top: 1em;
 }
 
@@ -99,7 +104,7 @@ nav {
   justify-content: space-between;
 }
 
-nav a + a {
+nav a+a {
   margin-left: .5em;
 }
 
@@ -160,19 +165,48 @@ nav a + a {
 }
 
 .animate-wave {
-  animation-name: wave-animation;  /* Refers to the name of your @keyframes element below */
-  animation-duration: 2.5s;        /* Change to speed up or slow down */
-  transform-origin: 70% 70%;       /* Pivot around the bottom-left palm */
+  animation-name: wave-animation;
+  /* Refers to the name of your @keyframes element below */
+  animation-duration: 2.5s;
+  /* Change to speed up or slow down */
+  transform-origin: 70% 70%;
+  /* Pivot around the bottom-left palm */
   display: inline-block;
 }
 
 @keyframes wave-animation {
-    0% { transform: rotate( 0.0deg) }
-   10% { transform: rotate(14.0deg) }  /* The following five values can be played with to make the waving more or less extreme */
-   20% { transform: rotate(-8.0deg) }
-   30% { transform: rotate(14.0deg) }
-   40% { transform: rotate(-4.0deg) }
-   50% { transform: rotate(10.0deg) }
-   60% { transform: rotate( 0.0deg) }  /* Reset for the last half to pause */
-  100% { transform: rotate( 0.0deg) }
+  0% {
+    transform: rotate(0.0deg)
+  }
+
+  10% {
+    transform: rotate(14.0deg)
+  }
+
+  /* The following five values can be played with to make the waving more or less extreme */
+  20% {
+    transform: rotate(-8.0deg)
+  }
+
+  30% {
+    transform: rotate(14.0deg)
+  }
+
+  40% {
+    transform: rotate(-4.0deg)
+  }
+
+  50% {
+    transform: rotate(10.0deg)
+  }
+
+  60% {
+    transform: rotate(0.0deg)
+  }
+
+  /* Reset for the last half to pause */
+  100% {
+    transform: rotate(0.0deg)
+  }
 }
+</style>
