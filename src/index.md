@@ -1,6 +1,6 @@
 ---
 title: Andrew Lum
-layout: "home.njk"
+layout: "layouts/home.njk"
 ---
 
 <section class="title-section">
