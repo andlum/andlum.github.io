@@ -1,114 +1,57 @@
 <template>
-  <main>
-    <section class="title-section">
-      <h1 class="animate-fade-up">Hi, I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
-      <p class="tagline animate-fade-up animate-delay">I'm an software developer based in NYC.</p>
-    </section>
-    <section class="about-row">
-      <h2 class="section-header header-2">Currently</h2>
-      <p>Leveraging technology to reduce carbon emissions on the ocean supply chain at <a class="fancy-link"
-          href="https://nautiluslabs.com/">Nautilus Labs</a>.</p>
-    </section>
-    <section class="about-row">
-      <h2 class="section-header header-2">Previously</h2>
-      <p>
-        Worked in payments, design systems, and frontend at-large at <a class="fancy-link"
-          href="https://www.justworks.com/">Justworks</a> and on the platform and mobile SDKs at <a class="fancy-link"
-          href="https://radar.com/">Radar</a>.
-      </p>
-      <p>
-        If you want to get in touch, feel free to message me on <a class="fancy-link"
-          href="https://www.linkedin.com/in/andlum/">LinkedIn</a>.
-      </p>
-    </section>
-  </main>
+  <div class="wrapper">
+    <Header />
+    <main>
+      <section class="title-section">
+        <h1 class="animate-fade-up">Hi, I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
+        <p class="tagline animate-fade-up animate-delay">I'm an software developer based in NYC.</p>
+      </section>
+      <section class="about-row">
+        <h2 class="section-header header-2">Currently</h2>
+        <p>Leveraging technology to reduce carbon emissions on the ocean supply chain at <a class="fancy-link"
+            href="https://nautiluslabs.com/">Nautilus Labs</a>.</p>
+      </section>
+      <section class="about-row">
+        <h2 class="section-header header-2">Previously</h2>
+        <p>
+          Worked in payments, design systems, and frontend at-large at <a class="fancy-link"
+            href="https://www.justworks.com/">Justworks</a> and on the platform and mobile SDKs at <a class="fancy-link"
+            href="https://radar.com/">Radar</a>.
+        </p>
+        <p>
+          If you want to get in touch, feel free to message me on <a class="fancy-link"
+            href="https://www.linkedin.com/in/andlum/">LinkedIn</a>.
+        </p>
+      </section>
+    </main>
+  </div>
 </template>
 
-<style>
-body {
-  /* Reset */
-  margin: 0;
+<script>
+import Header from './_includes/header.vue'
 
-  /* Body Styles */
-  color: var(--color-body-text);
-  font-size: 1.5rem;
-  line-height: 1.6em;
-
-  font-family: sans-serif;
-}
-
-@media screen and (max-width: 600px) {
-  body {
-    font-size: 1.25rem;
+export default {
+  components: {
+    Header
   }
 }
+</script>
 
+<style>
 .wrapper {
   display: flex;
   flex-direction: column;
-  background: var(--color-background);
-  min-height: 100vh;
-  padding-bottom: 4rem;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: normal;
-  color: var(--color-headline-text);
-  line-height: 1.15em;
-}
-
-/* Typography Space Reset */
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  margin: 0;
-}
-
-a {
-  text-decoration: none;
-  color: var(--color-primary);
-  transition: color 300ms ease;
-}
-
-a:hover {
-  color: var(--color-secondary);
-}
-
-p+p {
-  margin-top: 1em;
-}
-
-header,
-main {
-  position: relative;
+  margin: 0 auto;
   width: 100%;
   max-width: 940px;
-  margin: 0 auto;
   padding: 0 4vw;
 }
 
-nav {
-  padding: 2rem 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+main {
+  position: relative;
+  min-height: 100vh;
+  background: var(--color-background);
 }
-
-nav a+a {
-  margin-left: .5em;
-}
-
-/* Landing Page */
 
 .fancy-link {
   background-image: linear-gradient(var(--color-blue), var(--color-blue));
@@ -135,6 +78,18 @@ nav a+a {
   font-size: 1em;
   font-weight: 700;
   margin: 2em 0 0.5em;
+}
+
+.tagline {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+p+p {
+  margin-top: 1em;
 }
 
 .animate-delay {

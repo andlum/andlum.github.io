@@ -19,3 +19,45 @@
 * {
   box-sizing: border-box;
 }
+
+/* Typography Space Reset */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+  color: var(--color-headline-text);
+  line-height: 1.15em;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-primary);
+  transition: color 300ms ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+}
+
+body {
+  /* Reset */
+  margin: 0;
+
+  /* Body Styles */
+  color: var(--color-body-text);
+  font-size: 1.5rem;
+  line-height: 1.6em;
+
+  font-family: sans-serif;
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    font-size: 1.25rem;
+  }
+}
