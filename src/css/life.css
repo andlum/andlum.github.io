@@ -1,0 +1,17 @@
+/* Color Palattes for Life Project */
+
+/* Geo Layer
+ * Inspired by the Olympic Color Palatte
+ */
+
+.geo {
+--olympic-blue: #0078D0;
+--olympic-yellow: #FFB114;
+--olympic-green: ##00A651;
+--olytpic-red: #F0282D;
+--olympic-orange: ##FA841E;
+}
+
+.geo-nyc::after {
+  border-color: var(--olympic-blue);
+}
