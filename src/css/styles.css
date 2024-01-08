@@ -44,6 +44,16 @@ a:hover {
   color: var(--color-secondary);
 }
 
+main {
+  position: relative;
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.underline {
+  text-decoration: underline 0.12em solid var(--color-secondary);
+}
+
 body {
   /* Reset */
   margin: 0;
