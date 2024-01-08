@@ -3,25 +3,25 @@
     <Header />
     <main>
       <section class="title-section">
-        <h1 class="animate-fade-up">Hi, I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
-        <p class="tagline animate-fade-up animate-delay">I'm an software developer based in NYC.</p>
+        <h1 class="animate-fade-up">Hello! I'm Andrew <span class="animate-wave animate-delay--2">&#128075;</span></h1>
+        <p class="tagline animate-fade-up animate-delay">I'm a product engineer based in NYC.</p>
       </section>
       <section class="about-row">
         <h2 class="section-header header-2">Currently</h2>
-        <p>Leveraging technology to reduce carbon emissions on the ocean supply chain at <a class="fancy-link"
-            href="https://nautiluslabs.com/">Nautilus Labs</a>.</p>
+        <p>Building delightful digital products and experiences with small businesses. I'm currently available for
+          part-time freelance work.</p>
+        <p>
+          If you'd like to get in touch, you can send an electronic letter to: hello&nbsp;[at]&nbsp;andlum.com
+        </p>
       </section>
       <section class="about-row">
         <h2 class="section-header header-2">Previously</h2>
-        <p>
-          Worked in payments, design systems, and frontend at-large at <a class="fancy-link"
-            href="https://www.justworks.com/">Justworks</a> and on the platform and mobile SDKs at <a class="fancy-link"
-            href="https://radar.com/">Radar</a>.
-        </p>
-        <p>
-          If you want to get in touch, feel free to message me on <a class="fancy-link"
-            href="https://www.linkedin.com/in/andlum/">LinkedIn</a>.
-        </p>
+        <p>I worked on payments and built delightful interfaces at <a class="fancy-link"
+            href="https://www.justworks.com/">Justworks</a>, build tools to
+          enable location-based features <a class="fancy-link" href="https://radar.com/">Radar</a>, and leveraged
+          technology to decarbonize the ocean supply chain at <a class="fancy-link"
+            href="https://nautiluslabs.com/">Nautilus
+            Labs</a>.</p>
       </section>
     </main>
   </div>
