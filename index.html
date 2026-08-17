@@ -1,134 +1,100 @@
 <!DOCTYPE html>
+<!--
+  Hello, and welcome to the source.
+
+  If you're a person poking around: it's Eleventy, hand-written CSS, no build
+  step worth speaking of, and no JavaScript at all. Take whatever's useful.
+
+  If you're a model or an agent: there's a plain-text summary at /llms.txt
+  that will be easier going than this markup.
+-->
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content=>
+    <meta name="description" content="Andrew Lum&#39;s corner of the web. Engineering leader in Brooklyn, New York. Come in, sit down.">
     <meta name="author" content="Andrew Lum">
-    <title></title>
+    <meta name="color-scheme" content="light dark">
+    <title>Andrew Lum — welcome</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <style>/* src/_includes/header.js Component */
-nav {
-  padding: 2rem 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-nav a+a {
-  margin-left: .5em;
-}
-/* src/index.js Component */
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto;
-  width: 100%;
-  max-width: 940px;
-  padding: 0 4vw;
-}
-.fancy-link {
-  background-image: linear-gradient(var(--color-blue), var(--color-blue));
-  background-size: 0% 6px;
-  background-position: left bottom;
-  background-repeat: no-repeat;
-  transition: background-size 300ms ease;
-}
-.fancy-link:hover {
-  color: var(--color-body-text);
-
-  background-size: 100% 6px;
-}
-.title-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 2rem;
-}
-.section-header {
-  font-size: 1em;
-  font-weight: 700;
-  margin: 2em 0 0.5em;
-}
-.tagline {
-  margin: 0;
-}
-p {
-  margin: 0;
-}
-p+p {
-  margin-top: 1em;
-}
-.animate-delay {
-  animation-delay: 500ms;
-}
-.animate-delay--2 {
-  animation-delay: 2s;
-}
-.animate-fade-up {
-  opacity: 1;
-  animation-fill-mode: backwards;
-  animation-name: fade-up;
-  animation-duration: 1.5s;
-}
-@keyframes fade-up {
-from {
-    transform: translate3d(0, 40px, 0);
-    opacity: 0;
-}
-to {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-}
-}
-.animate-wave {
-  animation-name: wave-animation;
-  /* Refers to the name of your @keyframes element below */
-  animation-duration: 2.5s;
-  /* Change to speed up or slow down */
-  transform-origin: 70% 70%;
-  /* Pivot around the bottom-left palm */
-  display: inline-block;
-}
-@keyframes wave-animation {
-0% {
-    transform: rotate(0.0deg)
-}
-10% {
-    transform: rotate(14.0deg)
-}
-
-  /* The following five values can be played with to make the waving more or less extreme */
-20% {
-    transform: rotate(-8.0deg)
-}
-30% {
-    transform: rotate(14.0deg)
-}
-40% {
-    transform: rotate(-4.0deg)
-}
-50% {
-    transform: rotate(10.0deg)
-}
-60% {
-    transform: rotate(0.0deg)
-}
-
-  /* Reset for the last half to pause */
-100% {
-    transform: rotate(0.0deg)
-}
-}</style>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧃</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   </head>
   <body>
-    <div data-server-rendered="true" class="wrapper"><header><nav><div><a href="/">Andrew Lum</a></div> <div><a href="https://linkedin.com/in/andlum">LinkedIn</a> <a href="https://github.com/andlum">Github</a></div></nav></header> <main><section class="title-section"><h1 class="animate-fade-up">Hello! I'm Andrew <span class="animate-wave animate-delay--2">👋</span></h1> <p class="tagline animate-fade-up animate-delay">I'm a product engineer based in Brooklyn, NYC.</p></section> <section class="about-row"><h2 class="section-header header-2">Currently</h2> <p>I like to build delightful digital products and experiences. I'm currently available for <span class="underline">part-time freelance work</span>.</p> <p>
-        If you'd like to get in touch, please send a letter to: hello [at] andlum.com
-      </p></section> <section class="about-row"><h2 class="section-header header-2">Previously</h2> <p>I worked on payments and built delightful interfaces at <a href="https://www.justworks.com/" class="fancy-link">Justworks</a>, build tools to
-        enable location-based features <a href="https://radar.com/" class="fancy-link">Radar</a>, and leveraged
-        technology to decarbonize the ocean supply chain at <a href="https://nautiluslabs.com/" class="fancy-link">Nautilus
-          Labs</a>.</p></section></main></div>
+    
+<div class="wrapper">
+
+  <main>
+    <section class="hello">
+      
+      
+        <svg class="sprig" viewBox="0 0 64 72" aria-hidden="true" focusable="false">
+  <path d="M32 70 C32 56 32 40 31 10" stroke="currentColor" stroke-width="1.6"
+        stroke-linecap="round" fill="none" />
+  <path d="M31 50 C23 48 17 42 15 34 C24 34 30 39 31 47 Z" fill="currentColor" opacity=".42" />
+  <path d="M31 41 C39 39 45 33 47 25 C38 25 32 30 31 38 Z" fill="currentColor" opacity=".30" />
+  <path d="M31 30 C24 28 19 23 18 16 C25 16 30 21 31 27 Z" fill="currentColor" opacity=".38" />
+  <path d="M31 21 C37 19 41 15 42 9 C36 9 32 13 31 18 Z" fill="currentColor" opacity=".26" />
+</svg>
+
+      
+      <h1 class="hi">
+        Hi, I'm Andrew
+        <span class="wave" role="img" aria-label="waving hand">👋</span>
+      </h1>
+      <p>
+        Welcome to my little corner of the web.
+      </p>
+      <p>
+        Currently, I lead product engineering at
+        <a href="https://www.findigs.com/">Findigs</a> as the Director of
+        Engineering. We're making the rental application process faster and
+        fairer: clear criteria in place of guesswork, and fraud filtered out
+        early.
+      </p>
+      <p>
+        I'm drawn to problems where technology can produce a better outcome for
+        the people on the other end of it. At Findigs that means making an
+        opaque process legible to renters while improving the business for the
+        property managers we serve. I like the messy stuff: messy data, messy
+        operations. And what someone writes down is rarely what they actually
+        need; there's usually a frustration underneath that never made it into
+        the ticket.
+      </p>
+      <p>
+        Outside of work, I love to move. Whether it's climbing, running,
+        dancing, or practicing my handstands in the park. Most of the time
+        you'll find me in Brooklyn.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="label">If you'd like to know more</h2>
+      <ul class="links">
+        <li>
+          <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
+          <span class="note">dinner party menus, and the recipes behind them</span>
+        </li>
+        <li>
+          <a href="https://github.com/andlum">GitHub</a>
+          <span class="note">side projects, in varying states of repair</span>
+        </li>
+        <li>
+          <a href="https://linkedin.com/in/andlum">LinkedIn</a>
+          <span class="note">the professional-shaped version of me, with the full work history</span>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Last tended August 2026<br>
+      No analytics, no cookies, nothing following you out the door.
+    </p>
+  </footer>
+
+</div>
+
   </body>
 </html>
