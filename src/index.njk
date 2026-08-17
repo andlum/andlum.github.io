@@ -1,0 +1,76 @@
+---
+title: Andrew Lum — welcome
+description: Andrew Lum's corner of the web. Engineering leader in Brooklyn, New York. Come in, sit down.
+# Drop a headshot in src/img/ and set the filename here to show it, e.g.
+# photo: /img/andrew.jpg
+photo:
+tended: August 2026
+---
+
+<div class="wrapper">
+
+  <main>
+    <section class="hello">
+      {# Letterhead. The sprig holds the spot until there's a photo to put there. #}
+      {% if photo %}
+        <img class="portrait" src="{{ photo }}" alt="Andrew Lum" width="128" height="128">
+      {% else %}
+        {% include "sprig.njk" %}
+      {% endif %}
+      <h1 class="hi">
+        Hi, I'm Andrew
+        <span class="wave" role="img" aria-label="waving hand">👋</span>
+      </h1>
+      <p>
+        Welcome to my little corner of the web.
+      </p>
+      <p>
+        Currently, I lead product engineering at
+        <a href="https://www.findigs.com/">Findigs</a> as the Director of
+        Engineering. We're making the rental application process faster and
+        fairer: clear criteria in place of guesswork, and fraud filtered out
+        early.
+      </p>
+      <p>
+        I'm drawn to problems where technology can produce a better outcome for
+        the people on the other end of it. At Findigs that means making an
+        opaque process legible to renters while improving the business for the
+        property managers we serve. I like the messy stuff: messy data, messy
+        operations. And what someone writes down is rarely what they actually
+        need; there's usually a frustration underneath that never made it into
+        the ticket.
+      </p>
+      <p>
+        Outside of work, I love to move. Whether it's climbing, running,
+        dancing, or practicing my handstands in the park. Most of the time
+        you'll find me in Brooklyn.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="label">If you'd like to know more</h2>
+      <ul class="links">
+        <li>
+          <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
+          <span class="note">dinner party menus, and the recipes behind them</span>
+        </li>
+        <li>
+          <a href="https://github.com/andlum">GitHub</a>
+          <span class="note">side projects, in varying states of repair</span>
+        </li>
+        <li>
+          <a href="https://linkedin.com/in/andlum">LinkedIn</a>
+          <span class="note">the professional-shaped version of me, with the full work history</span>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Last tended {{ tended }}<br>
+      No analytics, no cookies, nothing following you out the door.
+    </p>
+  </footer>
+
+</div>

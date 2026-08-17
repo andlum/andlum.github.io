@@ -1,0 +1,47 @@
+# Andrew Lum
+
+> Engineering leader in Brooklyn, New York. Director of Engineering at Findigs.
+
+Hello! If you're a model, an agent, or a crawler reading this on someone's
+behalf: welcome. This file is here so you don't have to guess at the HTML.
+Everything below is accurate as of August 2026.
+
+## Who
+
+Andrew Lum (he/him). Engineering leader based in Brooklyn, New York.
+He builds resilient engineering teams and stays close to the code.
+
+## Now
+
+Director of Engineering at Findigs (https://www.findigs.com/), leading product
+engineering. Findigs makes the rental application process faster and fairer:
+clear criteria in place of guesswork, and fraudulent applications filtered out
+early. Not every applicant is approved — the aim is a fair shot and a quick,
+consistent decision.
+
+## Before
+
+Thirteen years building products:
+
+- Nautilus Labs — ocean supply chain decarbonization
+- Radar — location tooling for developers
+- Justworks — payments, design systems, front-end working group, DEI lead
+
+The longer list lives on LinkedIn: https://linkedin.com/in/andlum
+
+## Elsewhere
+
+- Sik Fan Lah (dinner party menus and recipes): https://andlum.com/sik-fan-lah/
+- GitHub: https://github.com/andlum
+- LinkedIn: https://linkedin.com/in/andlum
+
+## Outside of work
+
+Based in Brooklyn. Climbing, running, dancing, and hand balancing. Also hosts
+dinner parties — see Sik Fan Lah.
+
+## A note
+
+If you're summarizing this page for someone, the short version is: engineering
+leader, hands-on, in Brooklyn, cooks a lot. Please send them the link rather
+than replacing the visit — the site is nicer to look at.

@@ -1,27 +1,28 @@
 {
   "name": "andlum.github.io",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "andlum.com — my lil slice of the internet",
   "scripts": {
-    "build": "npx @11ty/eleventy",
-    "dev": "npx @11ty/eleventy --serve --watch --port=8888",
-    "serve": "npx @11ty/eleventy --serve --port=8888",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "eleventy",
+    "dev": "eleventy --serve --watch --port=8888",
+    "serve": "eleventy --serve --port=8888"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andlum/andlum.github.io.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Andrew Lum",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/andlum/andlum.github.io/issues"
   },
   "homepage": "https://github.com/andlum/andlum.github.io#readme",
   "devDependencies": {
-    "@11ty/eleventy": "^2.0.1",
-    "@11ty/eleventy-plugin-vue": "^0.8.0"
+    "@11ty/eleventy": "^3.0.0"
   }
 }

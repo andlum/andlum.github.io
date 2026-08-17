@@ -1,18 +1,26 @@
 <!DOCTYPE html>
+<!--
+  Hello, and welcome to the source.
+
+  If you're a person poking around: it's Eleventy, hand-written CSS, no build
+  step worth speaking of, and no JavaScript at all. Take whatever's useful.
+
+  If you're a model or an agent: there's a plain-text summary at /llms.txt
+  that will be easier going than this markup.
+-->
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description" content={{ description }}>
+    <meta name="description" content="{{ description }}">
     <meta name="author" content="Andrew Lum">
+    <meta name="color-scheme" content="light dark">
     <title>{{ title }}</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <style>{{ page.url | getVueComponentCssForPage }}</style>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧃</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   </head>
   <body>
-    {{ content }}
+    {{ content | safe }}
   </body>
 </html>
