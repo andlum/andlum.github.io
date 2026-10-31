@@ -1,0 +1,11 @@
+    {% if collections.fieldnotes.length %}
+    <section>
+      <h2 class="label">Field Notes · notes on technical leadership</h2>
+      <ul class="notes">
+        {%- for note in collections.fieldnotes.slice(0, 3) %}
+        <li><a href="{{ note.url }}">{{ note.data.title }}</a></li>
+        {%- endfor %}
+        <li class="more"><a href="/field-notes/">All notes →</a></li>
+      </ul>
+    </section>
+    {% endif %}

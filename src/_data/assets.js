@@ -1,13 +1,15 @@
 const fs = require("fs");
 const crypto = require("crypto");
 
-// Short content hash of the stylesheet, used as a cache-busting query string in
-// the layout. GitHub Pages serves /css/styles.css with a four-hour max-age, so
+// Short content hashes of the stylesheet and the field script, used as
+// cache-busting query strings. GitHub Pages serves /css/styles.css with a four-hour max-age, so
 // without this a deploy can leave the CDN handing out the previous stylesheet
 // against the new HTML. The hash only changes when the CSS actually changes.
 module.exports = () => {
-  const css = fs.readFileSync("src/css/styles.css");
+  const hash = (path) =>
+    crypto.createHash("sha1").update(fs.readFileSync(path)).digest("hex").slice(0, 8);
   return {
-    cssHash: crypto.createHash("sha1").update(css).digest("hex").slice(0, 8),
+    cssHash: hash("src/css/styles.css"),
+    jsHash: hash("src/js/field.js"),
   };
 };
