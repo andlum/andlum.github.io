@@ -125,6 +125,8 @@
   // A composition may take the whole palette, or be keyed to one hue: a
   // duotone (one hue in lightness steps plus one accent, like a two-colour
   // print) or ink (one near-grey hue and nothing else, like a woodcut).
+  // Most days are polychrome: about three in four take the whole palette,
+  // one in six is a duotone, and one in twelve is ink.
   var KEYS = ["full", "duo", "ink"];
   var DENSITIES = { sparse: 0.5, usual: 1, dense: 1.6 };
   var keyName, density, D;
@@ -590,7 +592,7 @@
     study = STUDIES.indexOf(sp) >= 0 ? sp : pick(STUDIES);
     paletteName = PALETTES[q.get("palette")] ? q.get("palette") : pick(PNAMES);
     var kr = rand(), dr = rand(), kp = q.get("key"), dp = q.get("density");
-    keyName = KEYS.indexOf(kp) >= 0 ? kp : kr < 0.5 ? "full" : kr < 0.85 ? "duo" : "ink";
+    keyName = KEYS.indexOf(kp) >= 0 ? kp : kr < 0.75 ? "full" : kr < 0.92 ? "duo" : "ink";
     density = DENSITIES[dp] ? dp : dr < 0.3 ? "sparse" : dr < 0.8 ? "usual" : "dense";
     D = DENSITIES[density];
     P = keyed(PALETTES[paletteName], keyName);
