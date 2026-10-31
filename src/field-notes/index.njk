@@ -1,0 +1,31 @@
+---
+title: Field Notes — Andrew Lum
+description: Notes on technical leadership. Essays by Andrew Lum on leading engineering teams, written while building.
+permalink: /field-notes/
+---
+
+<div class="wrapper">
+
+  <main>
+    <section class="hello">
+      <h1 class="hi">Field Notes</h1>
+      <p class="label">Notes on technical leadership</p>
+      <p>Essays on leading engineering teams, written while building.</p>
+    </section>
+
+    <section>
+      <ul class="notes">
+        {%- for note in collections.fieldnotes %}
+        <li><a href="{{ note.url }}">{{ note.data.title }}</a></li>
+        {%- endfor %}
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      <a href="/">Andrew Lum</a> · <a href="/feed.xml">RSS</a>
+    </p>
+  </footer>
+
+</div>

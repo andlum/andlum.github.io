@@ -1,0 +1,18 @@
+---
+layout: layout.html
+---
+<div class="wrapper essay">
+
+  <main>
+    <h1 class="essay-title">{{ title }}</h1>
+    <p class="label">{{ page.date | monthYear }}</p>
+    {{ content | safe }}
+  </main>
+
+  <footer>
+    <p>
+      <a href="/">Andrew Lum</a> · <a href="/field-notes/">All notes</a> · <a href="/feed.xml">RSS</a>
+    </p>
+  </footer>
+
+</div>

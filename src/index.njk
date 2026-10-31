@@ -1,10 +1,10 @@
 ---
 title: Andrew Lum — welcome
-description: Andrew Lum's corner of the web. Engineering leader in Brooklyn, New York. Come in, sit down.
+description: Andrew Lum builds software, and the teams that build it. Engineering leader in Brooklyn, New York. Come in, sit down.
 # Drop a headshot in src/img/ and set the filename here to show it, e.g.
 # photo: /img/andrew.jpg
 photo:
-tended: August 2026
+tended: November 2026
 ---
 
 <div class="wrapper">
@@ -21,24 +21,24 @@ tended: August 2026
         Hi, I'm Andrew
         <span class="wave" role="img" aria-label="waving hand">👋</span>
       </h1>
-      <p>
-        Welcome to my little corner of the web.
+      <p class="tagline">
+        I build software, and the teams that build it.
       </p>
       <p>
-        Currently, I lead product engineering at
-        <a href="https://www.findigs.com/">Findigs</a> as the Director of
-        Engineering. We're making the rental application process faster and
-        fairer: clear criteria in place of guesswork, and fraud filtered out
-        early.
+        Most recently I was Director of Engineering at Findigs, where I led
+        product engineering on a platform that made renting an apartment faster
+        and fairer. I left at the end of August 2026 to build again. Right now
+        that means <a href="https://satsuma.works">Studio Satsuma</a>, a small
+        studio for the apps I've wanted to exist. I'm always glad to talk about
+        engineering leadership roles.
       </p>
       <p>
-        I'm drawn to problems where technology can produce a better outcome for
-        the people on the other end of it. At Findigs that means making an
-        opaque process legible to renters while improving the business for the
-        property managers we serve. I like the messy stuff: messy data, messy
-        operations. And what someone writes down is rarely what they actually
-        need; there's usually a frustration underneath that never made it into
-        the ticket.
+        I don't think leading and building are different jobs. A team is a
+        system too. It has interfaces, feedback loops, and failure modes, and it
+        gets better the same way software does: someone who cares pays attention
+        to the details. I like the messy stuff, messy data and messy operations.
+        And what someone writes down is rarely what they actually need; there's
+        usually a frustration underneath that never made it into the ticket.
       </p>
       <p>
         Outside of work, I love to move. You'll usually find me climbing,
@@ -47,9 +47,25 @@ tended: August 2026
       </p>
     </section>
 
+    {% if collections.fieldnotes.length %}
+    <section>
+      <h2 class="label">Field Notes · notes on technical leadership</h2>
+      <ul class="notes">
+        {%- for note in collections.fieldnotes.slice(0, 3) %}
+        <li><a href="{{ note.url }}">{{ note.data.title }}</a></li>
+        {%- endfor %}
+        <li class="more"><a href="/field-notes/">All notes →</a></li>
+      </ul>
+    </section>
+    {% endif %}
+
     <section>
       <h2 class="label">If you'd like to know more</h2>
       <ul class="links">
+        <li>
+          <a href="https://satsuma.works">Studio Satsuma</a>
+          <span class="note">the studio where I build and ship small apps</span>
+        </li>
         <li>
           <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
           <span class="note">dinner party menus, and the recipes behind them</span>
@@ -60,7 +76,7 @@ tended: August 2026
         </li>
         <li>
           <a href="https://linkedin.com/in/andlum">LinkedIn</a>
-          <span class="note">the professional-shaped version of me, with the full work history</span>
+          <span class="note">the professional-shaped version of me, with the full work history. The best place to reach me.</span>
         </li>
       </ul>
     </section>
