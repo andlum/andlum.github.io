@@ -211,6 +211,18 @@
     };
   }
   function fieldPair() { var a = pick(P.field); return [a, rand() < 0.5 ? pickOther(P.field, a) : shift(a, -14)]; }
+  // A lead hue for a composition: most shapes are near it, in hue and in
+  // lightness, and about one in six takes the accent instead. This is what
+  // keeps a polychrome day from being every colour at once.
+  function leadHue(pool, spread) {
+    var lead = pick(pool), accent = pick(P.bloom), sp = spread || 16;
+    if (hueDist(accent[0], lead[0]) < 30) accent = pick(P.accent);
+    return {
+      lead: lead, accent: accent,
+      near: function (dl) { return shift(lead, rnd(-sp, sp), dl == null ? rnd(-10, 6) : dl); },
+      pair: function (dl) { var c = rand() < 0.16 ? accent : this.near(dl); return [c, shift(c, -10)]; }
+    };
+  }
   function massPair() { var a = pick(P.mass); return [a, rand() < 0.4 ? pickOther(P.mass, a) : shift(a, -16)]; }
 
   function buildMeadow() {
@@ -234,17 +246,19 @@
     for (i = 0; i < n; i++) ribbon(rnd(6, 24), horizon, H);
   }
   function buildThicket() {
-    below("band", function () { return 0; }, P.ground, shift(P.line, 18));
-    shapes[0].medium = pick(["contour", "flat", "stubble", "dots"]);
+    var L = leadHue(P.mass.concat(P.field), 18);
+    below("band", function () { return 0; }, L.near(rnd(18, 30)), L.near(rnd(8, 18)));
+    shapes[0].medium = pick(["contour", "flat", "flat", "stubble", "dots"]);
     var n = count(2, 4);
-    for (var i = 0; i < n; i++) { var fp = fieldPair(); mound("ground", W * rnd(0.1, 0.9), H * rnd(0.5, 1.1), W * rnd(0.25, 0.6), H * rnd(0.1, 0.3), 0, fp[0], fp[1]); }
+    for (var i = 0; i < n; i++) { var fp = L.pair(rnd(6, 16)); mound("ground", W * rnd(0.1, 0.9), H * rnd(0.5, 1.1), W * rnd(0.25, 0.6), H * rnd(0.1, 0.3), 0, fp[0], fp[1]); }
     n = count(6, 12);
     for (i = 0; i < n; i++) {
-      var rx = W * rnd(0.06, 0.2), mp = massPair();
-      mound("mass", W * rnd(0, 1), H * rnd(0.1, 1), rx, Math.min(H * 0.35, rx * rnd(0.6, 1.3)), Math.round(rnd(0, 2)), mp[0], mp[1]);
+      var rx = W * rnd(0.06, 0.2), mp = L.pair();
+      var sh = mound("mass", W * rnd(0, 1), H * rnd(0.1, 1), rx, Math.min(H * 0.35, rx * rnd(0.6, 1.3)), Math.round(rnd(0, 2)), mp[0], mp[1]);
+      sh.medium = pick(["flat", "flat", "flat", "dither", "stubble", "posterize", "hatch", "contour"]);
     }
     n = count(0, 2);
-    for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), H * rnd(0.1, 0.9), W * rnd(0.02, 0.06), W * rnd(0.02, 0.06), 0, pick(P.bloom), pick(P.accent));
+    for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), H * rnd(0.1, 0.9), W * rnd(0.02, 0.06), W * rnd(0.02, 0.06), 0, L.accent, shift(L.accent, -10));
   }
   function buildHeath() {
     var n = count(3, 5), y = 0;
@@ -262,13 +276,13 @@
     }
   }
   function buildBlossom() {
-    var fp = fieldPair();
-    below("band", function () { return 0; }, fp[0], fp[1]);
+    var L = leadHue(P.bloom.concat(P.field), 14), bg = L.near(rnd(20, 32));
+    below("band", function () { return 0; }, bg, shift(bg, -8));
     var n = count(5, 10);
     for (var i = 0; i < n; i++) {
-      var r = W * rnd(0.06, 0.18), c1 = pick(P.bloom);
+      var r = W * rnd(0.06, 0.18), c1 = rand() < 0.2 ? L.accent : L.near(rnd(-8, 8));
       add({ kind: "rings", cx: W * rnd(0, 1), cy: H * rnd(0, 1), r: r, ry: r * rnd(0.75, 1.1), ringW: rnd(10, 22),
-        seed: rnd(0, 100), c1: c1, c2: rand() < 0.5 ? pick(P.accent) : pickOther(P.bloom, c1), medium: pick(MEDIA.ring) });
+        seed: rnd(0, 100), c1: c1, c2: rand() < 0.3 ? L.accent : shift(c1, rand() < 0.5 ? 16 : -14), medium: pick(MEDIA.ring) });
     }
   }
   function buildStrata() {
@@ -367,7 +381,7 @@
   }
   // Patchwork: the land from above, a quilt of plots with a river through it.
   function buildPatchwork() {
-    var fp = fieldPair(), i, j;
+    var L = leadHue(P.field.concat(P.mass), 20), fp = L.pair(rnd(10, 20)), i, j;
     var bg = below("band", function () { return 0; }, fp[0], fp[1]);
     bg.medium = pick(["flat", "flat", "stubble", "dots"]);
     var R = Math.max(2, Math.round(rnd(3, 6) * Math.sqrt(D))), C = Math.max(2, Math.round(rnd(3, 7) * Math.sqrt(D)));
@@ -385,14 +399,14 @@
     for (j = 0; j < R; j++) {
       for (i = 0; i < C; i++) {
         if (rand() < 0.1) continue;
-        var cp = fieldPair();
+        var cp = L.pair(rnd(-14, 18));
         add({ kind: "poly", role: "patch", pts: [v[j][i], v[j][i + 1], v[j + 1][i + 1], v[j + 1][i]], c1: cp[0], c2: cp[1],
           medium: pick(["flat", "flat", "flat", "hatch", "rows", "checks", "dots", "dither", "stubble", "posterize"]), outline: rand() < 0.5 });
       }
     }
     ribbon(rnd(10, 28), 0, H);
     var n = count(1, 4);
-    for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), H * rnd(0.05, 0.95), W * rnd(0.02, 0.05), W * rnd(0.015, 0.04), Math.round(rnd(0, 2)), mp[0], mp[1]); }
+    for (i = 0; i < n; i++) { var mp = L.pair(rnd(-26, -14)); mound("mass", W * rnd(0.05, 0.95), H * rnd(0.05, 0.95), W * rnd(0.02, 0.05), W * rnd(0.015, 0.04), Math.round(rnd(0, 2)), mp[0], mp[1]); }
   }
   // Terraces: contour rings around a summit, by turns one colour and the other.
   function buildTerraces() {
