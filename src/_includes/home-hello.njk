@@ -1,0 +1,29 @@
+    <section class="hello">
+      {# Letterhead. The sprig holds the spot until there's a photo to put there. #}
+      {% if photo %}
+        <img class="portrait" src="{{ photo }}" alt="Andrew Lum" width="128" height="128">
+      {% else %}
+        {% include "sprig.njk" %}
+      {% endif %}
+      <h1 class="hi">
+        Welcome to my little corner of the web
+        <span class="wave" role="img" aria-label="waving hand">👋</span>
+      </h1>
+      <p>
+        I build software, and the teams that build it. Most recently I was
+        Director of Engineering at Findigs, where I led product engineering on
+        a platform that made renting an apartment faster and fairer. These days
+        I'm building <a href="https://satsuma.works">Studio Satsuma</a>, a
+        small studio for the apps I've wanted to exist.
+      </p>
+      <p>
+        I'm drawn to problems where technology can produce a better outcome for
+        the people on the other end of it. Wrestling with a hairy
+        architecture or engineering team problem? Let's talk!
+      </p>
+      <p>
+        Outside of work, I love to move. You'll usually find me climbing,
+        cooking, running, dancing, or practicing handstands in the park. Most
+        of the time, in Brooklyn.
+      </p>
+    </section>

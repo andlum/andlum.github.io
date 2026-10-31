@@ -1,73 +1,11 @@
+  {# The homepage body, in four pieces so a lab page can lay them out
+     differently without retyping the copy. #}
   <main>
-    <section class="hello">
-      {# Letterhead. The sprig holds the spot until there's a photo to put there. #}
-      {% if photo %}
-        <img class="portrait" src="{{ photo }}" alt="Andrew Lum" width="128" height="128">
-      {% else %}
-        {% include "sprig.njk" %}
-      {% endif %}
-      <h1 class="hi">
-        Welcome to my little corner of the web
-        <span class="wave" role="img" aria-label="waving hand">👋</span>
-      </h1>
-      <p>
-        I build software, and the teams that build it. Most recently I was
-        Director of Engineering at Findigs, where I led product engineering on
-        a platform that made renting an apartment faster and fairer. These days
-        I'm building <a href="https://satsuma.works">Studio Satsuma</a>, a
-        small studio for the apps I've wanted to exist.
-      </p>
-      <p>
-        I'm drawn to problems where technology can produce a better outcome for
-        the people on the other end of it. Wrestling with a hairy
-        architecture or engineering team problem? Let's talk!
-      </p>
-      <p>
-        Outside of work, I love to move. You'll usually find me climbing,
-        cooking, running, dancing, or practicing handstands in the park. Most
-        of the time, in Brooklyn.
-      </p>
-    </section>
+    {% include "home-hello.njk" %}
 
-    {% if collections.fieldnotes.length %}
-    <section>
-      <h2 class="label">Field Notes · notes on technical leadership</h2>
-      <ul class="notes">
-        {%- for note in collections.fieldnotes.slice(0, 3) %}
-        <li><a href="{{ note.url }}">{{ note.data.title }}</a></li>
-        {%- endfor %}
-        <li class="more"><a href="/field-notes/">All notes →</a></li>
-      </ul>
-    </section>
-    {% endif %}
+    {% include "home-notes.njk" %}
 
-    <section>
-      <h2 class="label">If you'd like to know more</h2>
-      <ul class="links">
-        <li>
-          <a href="https://satsuma.works">Studio Satsuma</a>
-          <span class="note">the studio where I build and ship small apps</span>
-        </li>
-        <li>
-          <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
-          <span class="note">dinner party menus, and the recipes behind them</span>
-        </li>
-        <li>
-          <a href="https://github.com/andlum">GitHub</a>
-          <span class="note">side projects, in varying states of repair</span>
-        </li>
-        <li>
-          <a href="https://linkedin.com/in/andlum">LinkedIn</a>
-          <span class="note">the professional-shaped version of me, with the full work history. The best place to reach me.</span>
-        </li>
-      </ul>
-    </section>
+    {% include "home-links.njk" %}
   </main>
 
-  <footer>
-    <p>
-      Last tended {{ tended }}<br>
-      No analytics, no cookies, nothing following you out the door.
-    </p>
-  </footer>
-
+  {% include "home-footer.njk" %}
