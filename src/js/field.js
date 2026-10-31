@@ -1,13 +1,13 @@
 // The field behind the homepage: a digital collage of vector shapes filled
 // with flat colour, gradients, two-colour ordered dither, pixel patterns,
 // coarse blocks and contour lines, in one of five palettes, keyed to the
-// whole palette or to a single hue, composed one of eleven ways, seeded by
+// whole palette or to a single hue, composed one of twelve ways, seeded by
 // today's date. Everyone who visits on the same day at the same window size
 // sees the same field. The prose column is a clearing dissolved into it as a
 // dither. Nothing moves.
 //
 // Query string knobs, for the curious:
-//   ?study=meadow|thicket|heath|blossom|strata|fog|dunes|sky|grove|patchwork|terraces
+//   ?study=meadow|thicket|heath|blossom|strata|fog|dunes|sky|grove|patchwork|terraces|garden
 //   ?palette=dusk|hot|chalk|spring|ember
 //   ?key=full|duo|ink        the whole palette, one hue plus an accent, or one hue
 //   ?density=sparse|usual|dense
@@ -17,7 +17,7 @@
   var canvas = document.querySelector(".field");
   var column = document.querySelector(".stage");
   var q = new URLSearchParams(location.search);
-  var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata", "fog", "dunes", "sky", "grove", "patchwork", "terraces"];
+  var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata", "fog", "dunes", "sky", "grove", "patchwork", "terraces", "garden"];
 
   // The day's seed. Everyone who visits on the same day gets the same field
   // at the same window size.
@@ -424,8 +424,118 @@
     n = count(0, 3);
     for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), H * rnd(0.05, 0.95), W * rnd(0.015, 0.04), W * rnd(0.012, 0.03), Math.round(rnd(0, 1)), mp[0], mp[1]); }
   }
+  // --- Marks -------------------------------------------------------------
+  // The painter's medium rather than the collagist's. A region is not an
+  // outline with a fill but a cloud of small marks: dots far off, dabs in
+  // the middle distance, upright strokes underfoot. Each cloud keeps to one
+  // family of colour with a pepper of another, and the pale ground shows
+  // through between the marks. Form is the cluster, not the edge.
+  function marksOf(base, o) {
+    return add({ kind: "marks", base: base, size: o.size, cover: o.cover, c: o.c, spread: o.spread == null ? 10 : o.spread,
+      dl: o.dl || [-12, 12], pepper: o.pepper || o.c, rate: o.rate || 0, slant: o.slant || 0, shade: o.shade || 0, until: o.until,
+      edge: o.edge, fade: o.fade || 0, fall: o.fall || 0 });
+  }
+  function stamp(sh, bb) {
+    var bx = bb[0], by = bb[1], bw = bb[2] - bb[0], bh = bb[3] - bb[1];
+    if (bw <= 0 || bh <= 0) return;
+    var cols = Math.ceil(bw / CELL), rows = Math.ceil(bh / CELL);
+    var off = document.createElement("canvas");
+    off.width = cols; off.height = rows;
+    var octx = off.getContext("2d"), img = octx.createImageData(cols, rows), px = img.data;
+    var mw = sh.size[0], mh = sh.size[1], n = Math.round(cols * rows * sh.cover / (mw * mh));
+    for (var m = 0; m < n; m++) {
+      var i = Math.floor(rand() * (cols + mw)) - mw, j = Math.floor(rand() * (rows + mh)) - mh;
+      // Marks thin out toward a band's top edge and a cloud's rim, so no
+      // region ends in a line.
+      var mx = bx + (i + mw / 2) * CELL, my = by + (j + mh / 2) * CELL;
+      if (sh.edge && rand() > clamp01((my - sh.edge(mx) + sh.fade) / (sh.fade * 1.4))) continue;
+      if (sh.fall) {
+        var nd = Infinity;
+        for (var q2 = 0; q2 < sh.base.lobes.length; q2++) {
+          var lb2 = sh.base.lobes[q2], ddx = (mx - lb2.cx) / lb2.rx, ddy = (my - lb2.cy) / lb2.ry;
+          nd = Math.min(nd, Math.sqrt(ddx * ddx + ddy * ddy));
+        }
+        if (rand() > clamp01((1.05 - nd) / sh.fall)) continue;
+      }
+      var c = rand() < sh.rate ? sh.pepper : sh.c;
+      var l = c[2] + rnd(sh.dl[0], sh.dl[1]) - (sh.shade ? (j / rows - 0.5) * sh.shade : 0);
+      var col = rgb([(c[0] + rnd(-sh.spread, sh.spread) + 360) % 360, cl(c[1] + rnd(-6, 6)), cl(l)]);
+      var sl = sh.slant ? rnd(-sh.slant, sh.slant) : 0;
+      for (var dy = 0; dy < mh; dy++) {
+        var ox = Math.round(sl * dy), y = j + dy;
+        if (y < 0 || y >= rows) continue;
+        for (var dx = 0; dx < mw; dx++) {
+          var x = i + dx + ox;
+          if (x < 0 || x >= cols) continue;
+          var k = (y * cols + x) * 4;
+          px[k] = col[0]; px[k + 1] = col[1]; px[k + 2] = col[2]; px[k + 3] = 255;
+        }
+      }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, bx, by, cols * CELL, rows * CELL);
+  }
+  // A colour from the pool at least `far` degrees of hue from `not`.
+  function pickFar(pool, not, far) {
+    var c = pick(pool);
+    for (var t = 0; t < 8 && not && hueDist(c[0], not[0]) < far; t++) c = pick(pool);
+    return c;
+  }
+
+  // A terraced garden seen from where you stand: bands of ground step back
+  // to a high horizon, each its own colour family, dots in the distance and
+  // tall strokes at your feet, with bushes sitting on the terrace edges.
+  // Nothing has an edge: each band thins into the one behind it.
+  function cloud(cx, cy, rx, ry, lobes) {
+    var ls = [lobe(cx, cy, rx, ry, 0.5)];
+    for (var l = 1; l < lobes; l++) ls.push(lobe(cx + rx * rnd(-0.7, 0.7), cy + ry * rnd(-0.5, 0.4), rx * rnd(0.45, 0.8), ry * rnd(0.45, 0.8), 0.5));
+    return { kind: "blob", lobes: ls };
+  }
+  function buildGarden() {
+    var hz = H * rnd(0.16, 0.4), n = Math.round(rnd(4, 7)), k, b, nb, fam;
+    var pale = [P.ground[0], Math.min(35, P.ground[1]), 85];
+    var groundPool = P.field.concat(P.mass), massPool = P.mass.concat(P.bloom, P.field);
+    below("band", function () { return 0; }, pale, pale).medium = "flat";
+    var skyed = rand() < 0.4;
+    if (skyed) { var sc = pick(P.sky); below("sky", function () { return 0; }, shift(sc, 6), sc).medium = rand() < 0.5 ? "gradient" : "flat"; }
+    // The far masses along the horizon. Without a sky they fill the top.
+    var last = null;
+    nb = count(skyed ? 3 : 5, skyed ? 7 : 9);
+    for (b = 0; b < nb; b++) {
+      var fx = W * rnd(-0.05, 1.05), frx = W * rnd(0.08, 0.2), fry = H * rnd(0.1, skyed ? 0.22 : 0.34);
+      var fy = hz + H * rnd(-0.03, 0.03) - fry * (skyed ? 0.6 : rnd(0.3, 0.8));
+      fam = pickFar(massPool, last, 28); last = fam;
+      marksOf(cloud(fx, fy, frx, fry, Math.round(rnd(1, 3))),
+        { size: rand() < 0.5 ? [1, 1] : [2, 1], cover: 1.1, c: fam, spread: 8, dl: [-14, 10], pepper: pickFar(massPool, fam, 40), rate: rnd(0.1, 0.22), shade: 22, fall: 0.5 });
+    }
+    // The terraces, far to near. Near bands are taller, as they would be.
+    var tops = [];
+    for (k = 0; k <= n; k++) tops.push(hz + (H - hz) * Math.pow(k / n, 1.5));
+    for (k = 0; k < n; k++) {
+      var depth = 1 - (k + 0.5) / n, until = Math.min(H, tops[k + 1] + H * 0.1), fade = H * (0.03 + (1 - depth) * 0.05);
+      var top = wobbleTop(tops[k], H * (0.03 + (1 - depth) * 0.08));
+      var raised = (function (t, f) { return function (x) { return t(x) - f; }; })(top, fade);
+      fam = pickFar(groundPool, last, 28); last = fam;
+      var near = depth < 0.34, mid = !near && depth < 0.67;
+      var size = near ? [rand() < 0.4 ? 2 : 1, Math.round(rnd(3, 7))] : mid ? [2, 2] : [1, 1];
+      marksOf({ kind: "below", top: raised }, { size: size, cover: near ? rnd(0.9, 1.2) : mid ? rnd(0.7, 1) : 1, c: fam, spread: 10,
+        dl: [-12, 14], pepper: pick(P.bloom), rate: near ? rnd(0.1, 0.3) : rnd(0.06, 0.18), slant: near ? 0.35 : 0, shade: -10,
+        until: until, edge: top, fade: fade });
+      // Flowers among the near strokes.
+      if (near && rand() < 0.7) marksOf({ kind: "below", top: raised }, { size: [2, 2], cover: rnd(0.06, 0.16), c: pickFar(P.bloom, fam, 30), spread: 8, dl: [-6, 10], until: until, edge: top, fade: fade });
+      // Bushes on the terrace edge.
+      nb = count(0, depth > 0.5 ? 3 : 1);
+      for (b = 0; b < nb; b++) {
+        var bx = W * rnd(0, 1), brx = W * rnd(0.04, 0.12) * (1 - depth * 0.4), bry = brx * rnd(0.6, 1.1), by = top(bx) + H * 0.01 - bry * 0.7;
+        var bf = pickFar(massPool, fam, 30);
+        marksOf(cloud(bx, by, brx, bry, Math.round(rnd(1, 2))),
+          { size: depth > 0.5 ? [2, 2] : [2, 3], cover: 1.1, c: bf, spread: 8, dl: [-16, 10], pepper: pick(P.bloom), rate: 0.15, shade: 24, fall: 0.45 });
+      }
+    }
+  }
   var BUILD = { meadow: buildMeadow, thicket: buildThicket, heath: buildHeath, blossom: buildBlossom, strata: buildStrata,
-    fog: buildFog, dunes: buildDunes, sky: buildSky, grove: buildGrove, patchwork: buildPatchwork, terraces: buildTerraces };
+    fog: buildFog, dunes: buildDunes, sky: buildSky, grove: buildGrove, patchwork: buildPatchwork, terraces: buildTerraces, garden: buildGarden };
 
   // --- Paths -------------------------------------------------------------
   function smoothClosed(path, pts) {
@@ -584,6 +694,12 @@
       for (var k = 1; k < p.length - 1; k++) ctx.quadraticCurveTo(p[k][0], p[k][1], (p[k][0] + p[k + 1][0]) / 2, (p[k][1] + p[k + 1][1]) / 2);
       ctx.stroke();
       ctx.restore();
+      return;
+    }
+    if (sh.kind === "marks") {
+      var mb = bbox(sh.base);
+      if (sh.until != null) mb[3] = Math.min(mb[3], sh.until);
+      ctx.save(); ctx.clip(shapePath(sh.base)); stamp(sh, mb); ctx.restore();
       return;
     }
     if (sh.kind === "rings") {
