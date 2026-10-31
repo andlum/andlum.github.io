@@ -7,9 +7,9 @@
   --paper: #f6f2e9;
   --paper-raised: #fbf8f2;
   --ink: #33302a;
-  --ink-soft: #7c7466;
+  --ink-soft: #6b6356; /* 5.3:1 on paper, for small text */
   --rule: #e2d9c8;
-  --clay: #a9704f;
+  --clay: #8f5a3c; /* 5.1:1 on paper; also used as text on hover and labels */
   --moss: #6f8065;
 
   --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino,
@@ -273,9 +273,10 @@ footer {
   height: 100%;
   z-index: -2;
   pointer-events: none;
-  display: block;
+  display: none;
   image-rendering: pixelated;
 }
+.js .field { display: block; }
 .stage .sprig { display: none; }
 
 /* The first screen holds the nav and the prose; the footer sits below it
@@ -304,25 +305,47 @@ footer {
   border: 0;
 }
 /* Each link's note waits underneath it and shows on hover or focus. It is
-   positioned out of flow so the nav never shifts. */
+   positioned out of flow so the nav never shifts, and hidden with clip-path
+   rather than visibility so it stays in the accessibility tree: each link
+   points at its note with aria-describedby. */
 .top .note {
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 0;
   width: 16rem;
   max-width: 70vw;
+  padding: 0.35rem 0;
+  background: var(--paper);
   font-size: 0.8125rem;
   line-height: 1.5;
   letter-spacing: 0;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 200ms ease, visibility 0s linear 200ms;
+  clip-path: inset(50%);
+  transition: opacity 200ms ease;
 }
 .top li:hover .note,
 .top li:focus-within .note {
   opacity: 1;
-  visibility: visible;
-  transition-delay: 0s;
+  clip-path: none;
+}
+/* No pointer to hover with: the notes sit in flow under their links. */
+@media (hover: none) {
+  .top .links { display: block; }
+  .top .links li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .top .links li:last-child { border-bottom: 0; }
+  .top .note,
+  .top li:last-child .note {
+    position: static;
+    width: auto;
+    max-width: none;
+    padding: 0;
+    background: none;
+    opacity: 1;
+    clip-path: none;
+  }
 }
 /* The last link sits at the column's edge, so its note hangs left. */
 .top li:last-child .note {
@@ -365,8 +388,7 @@ footer {
     justify-content: flex-start;
     padding-top: 1.5rem;
   }
-  /* On phones a note spans the nav and sits over the top of the field,
-     so it brings its own paper. */
+  /* On phones a revealed note spans the nav. */
   .top .links { position: relative; }
   .top .links li { position: static; }
   .top .note,
@@ -375,8 +397,6 @@ footer {
     right: 0;
     width: auto;
     max-width: none;
-    padding: 0.35rem 0;
-    background: var(--paper);
   }
 }
 
@@ -391,6 +411,13 @@ footer {
     font-size: 2.125rem;
   }
 
+}
+
+@media (forced-colors: active) {
+  .field,
+  body::before {
+    display: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
