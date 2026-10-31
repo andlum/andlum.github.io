@@ -10,7 +10,8 @@
 //   ?palette=dusk|hot|chalk|spring|ember
 //   ?key=full|duo|ink        the whole palette, one hue plus an accent, or one hue
 //   ?density=sparse|usual|dense
-//   ?seed=123    any integer; the default is today's date
+//   ?seed=123    any integer; the default is today's date. The footer's
+//                "Paint another" link draws a fresh one in place.
 //   ?cell=4      mark cell size in CSS px, 2 to 10
 (function () {
   var canvas = document.querySelector(".field");
@@ -721,6 +722,23 @@
   // Draw after the text has had its first paint, and again when the window
   // or the colour scheme changes.
   requestAnimationFrame(function () { setTimeout(render, 0); });
+
+  // "Paint another": a fresh seed, painted in place, with the address kept
+  // in step so the picture can be shared or come back to.
+  var reseed = document.querySelector(".reseed");
+  function nextSeed() { return Math.floor(Math.random() * 1e6) + 1; }
+  function seedUrl(n) { var u = new URL(location.href); u.searchParams.set("seed", n); return u.pathname + u.search; }
+  if (reseed) {
+    reseed.href = seedUrl(nextSeed());
+    reseed.addEventListener("click", function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+      e.preventDefault();
+      seed = parseInt(new URL(reseed.href, location.href).searchParams.get("seed"), 10);
+      history.replaceState(null, "", seedUrl(seed));
+      render();
+      reseed.href = seedUrl(nextSeed());
+    });
+  }
   var timer;
   addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(render, 150); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);

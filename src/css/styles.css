@@ -365,6 +365,9 @@ footer {
   padding-bottom: 2.5rem;
 }
 .tail footer { margin-top: 0; }
+/* The reseed link only makes sense once the field is painted. */
+.reseed-line { display: none; }
+.js .reseed-line { display: inline; }
 .js .tail {
   opacity: 0;
   transform: translateY(0.75rem);
