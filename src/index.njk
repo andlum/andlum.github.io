@@ -7,6 +7,21 @@ photo:
 tended: November 2026
 ---
 
-<div class="wrapper">
-{% include "home.njk" %}
+{# The homepage: a top nav, the prose in a clearing in the field, and a footer
+   that waits below the fold. The copy lives in the home-*.njk partials. #}
+<div class="plate">
+  <nav class="wrapper top" aria-label="Elsewhere">
+    {% include "home-links.njk" %}
+  </nav>
+  <canvas class="field" aria-hidden="true"></canvas>
+  <main class="wrapper stage">
+    {% include "home-hello.njk" %}
+
+    {% include "home-notes.njk" %}
+  </main>
 </div>
+<div class="wrapper tail">
+  {% include "home-footer.njk" %}
+</div>
+
+<script src="/js/field.js?v={{ assets.jsHash }}" defer></script>

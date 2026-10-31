@@ -1,168 +1,18 @@
----
-layout: layout.html
-title: Dither lab — Andrew Lum
-description: A prototype. Not linked from anywhere.
-permalink: /lab/dither/
-eleventyExcludeFromCollections: true
-photo:
-tended: November 2026
----
-{# Lab page: the homepage split into a top nav, the prose, and a footer that
-   waits below the fold, over a field that is a digital collage: crisp vector
-   shapes filled flat, with two-colour ordered dither, with pixel patterns,
-   with coarse pixel blocks, with contour lines, with gradients. Five
-   compositions, five palettes, seeded by the date. The prose column is a
-   clearing that dissolves into the field as a dither. No motion.
-
-   Query string knobs:
-     ?study=meadow|thicket|heath|blossom|strata   pick the composition
-     ?palette=dusk|hot|chalk|spring|ember         pick the mood
-     ?seed=123    any integer; the default seed is today's date
-     ?cell=4      texture cell size in CSS px, 2 to 10 #}
-<style>
-  .field {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
-    pointer-events: none;
-    display: block;
-    image-rendering: pixelated;
-  }
-  .sprig { display: none; }
-
-  /* The first screen holds the nav and the prose; the footer sits below it
-     and is reached by scrolling. */
-  .plate {
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-  }
-  .top {
-    padding-top: 1.5rem;
-    padding-bottom: 0;
-  }
-  .top .label { display: none; }
-  .top .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1.5rem;
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    letter-spacing: 0.02em;
-  }
-  .top .links li {
-    position: relative;
-    padding: 0;
-    border: 0;
-  }
-  /* Each link's note waits underneath it and shows on hover or focus. It is
-     positioned out of flow so the nav never shifts. */
-  .top .note {
-    position: absolute;
-    top: calc(100% + 0.35rem);
-    left: 0;
-    width: 16rem;
-    max-width: 70vw;
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    letter-spacing: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 200ms ease, visibility 0s linear 200ms;
-  }
-  .top li:hover .note,
-  .top li:focus-within .note {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
-  }
-  /* The last link sits at the column's edge, so its note hangs left. */
-  .top li:last-child .note {
-    left: auto;
-    right: 0;
-  }
-  .stage {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-  }
-  .stage .hello { margin-top: 0; }
-  .tail {
-    padding-top: 0;
-    padding-bottom: 2.5rem;
-  }
-  .tail footer { margin-top: 0; }
-  .js .tail {
-    opacity: 0;
-    transform: translateY(0.75rem);
-    transition: opacity 600ms ease, transform 600ms ease;
-  }
-  .js .tail.in {
-    opacity: 1;
-    transform: none;
-  }
-  .field-line {
-    margin: 0.25rem 0 0;
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    color: var(--ink-soft);
-    text-align: center;
-  }
-
-  /* Phones: the field becomes a plate above the prose, dissolving into the
-     paper at its foot. */
-  @media (max-width: 44rem) {
-    .field {
-      position: static;
-      height: clamp(220px, 36vh, 340px);
-    }
-    .plate { min-height: 0; }
-    .stage {
-      justify-content: flex-start;
-      padding-top: 1.5rem;
-    }
-    /* On phones a note spans the nav and sits over the top of the field,
-       so it brings its own paper. */
-    .top .links { position: relative; }
-    .top .links li { position: static; }
-    .top .note,
-    .top li:last-child .note {
-      left: 0;
-      right: 0;
-      width: auto;
-      max-width: none;
-      padding: 0.35rem 0;
-      background: var(--paper);
-    }
-  }
-</style>
-
-<div class="plate">
-  <nav class="wrapper top" aria-label="Elsewhere">
-    {% include "home-links.njk" %}
-  </nav>
-  <canvas class="field" aria-hidden="true"></canvas>
-  <main class="wrapper stage">
-    {% include "home-hello.njk" %}
-
-    {% include "home-notes.njk" %}
-  </main>
-</div>
-<div class="wrapper tail">
-  {% include "home-footer.njk" %}
-  <p class="field-line"></p>
-</div>
-
-<script>
+// The field behind the homepage: a digital collage of vector shapes filled
+// with flat colour, gradients, two-colour ordered dither, pixel patterns,
+// coarse blocks and contour lines, in one of five palettes, composed one of
+// five ways, seeded by today's date. Everyone who visits on the same day at
+// the same window size sees the same field. The prose column is a clearing
+// dissolved into it as a dither. Nothing moves.
+//
+// Query string knobs, for the curious:
+//   ?study=meadow|thicket|heath|blossom|strata
+//   ?palette=dusk|hot|chalk|spring|ember
+//   ?seed=123    any integer; the default is today's date
+//   ?cell=4      texture cell size in CSS px, 2 to 10
 (function () {
   var canvas = document.querySelector(".field");
   var column = document.querySelector(".stage");
-  var line = document.querySelector(".field-line");
   var q = new URLSearchParams(location.search);
   var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata"];
 
@@ -613,7 +463,6 @@ tended: November 2026
     ctx.drawImage(off, 0, 0, cols * CELL, rows * CELL);
 
     canvas.setAttribute("data-field", study + " " + paletteName + " " + seed);
-    if (line) line.textContent = study + " · " + paletteName + " · " + seed;
   }
 
   // Draw after the text has had its first paint, and again when the window
@@ -635,4 +484,3 @@ tended: November 2026
     tail.classList.add("in");
   }
 })();
-</script>
