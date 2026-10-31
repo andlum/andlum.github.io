@@ -10,8 +10,8 @@ Companion spec: `~/Dev/satsuma-site/docs/spec-2026-11-rebrand.md`.
 Reposition andlum.com from "Director of Engineering at Findigs" to an
 engineering leader who left to build, and who treats teams and software as
 the same kind of work. The site must say, without a job title to lean on,
-that Andrew leads engineering teams, still ships, and is glad to talk about
-leadership roles.
+that Andrew leads engineering teams, still ships, and is glad to help with
+hard architecture and team problems.
 
 **Primary reader:** people recruiting engineering leaders. Everything on the
 page is written for them first. Friends and peers are served along the way.
@@ -21,7 +21,7 @@ page is written for them first. Friends and peers are served along the way.
 | Topic | Decision |
 |---|---|
 | Current status | Building under Studio Satsuma; quietly open. Findigs in past tense, ended end of August 2026. |
-| How open | One soft clause: "I'm always glad to talk about engineering leadership roles." No "available" language. |
+| How open | One playful offer of help, chosen 2026-10-31: "Wrestling with a hairy architecture or engineering team problem? Let's talk!" It replaced "I'm always glad to talk about engineering leadership roles", which read as job-seeking; the offer is closer to consulting. No "available" language. |
 | Tagline | "I build software, and the teams that build it." |
 | Essays section | **Field Notes**, chosen 2026-10-31. Subtitle always "Notes on technical leadership." |
 | Essay format | Paul Graham model: bare title list newest first, no dates or summaries in the list; each essay opens with month and year, then prose, no images by default. |
@@ -49,8 +49,8 @@ made renting an apartment faster and fairer. These days I'm building
 wanted to exist.
 
 I'm drawn to problems where technology can produce a better outcome for the
-people on the other end of it. I'm always glad to talk about engineering
-leadership roles.
+people on the other end of it. Wrestling with a hairy architecture or
+engineering team problem? Let's talk!
 
 Outside of work, I love to move. You'll usually find me climbing, cooking,
 running, dancing, or practicing handstands in the park. Most of the time, in
@@ -82,8 +82,9 @@ Notes on the copy:
   paragraph and the "end of August 2026" sentence were cut; the first read
   as explanation, the second was a date the footer already guards.
 - The second paragraph keeps the one sentence from the old site that said
-  what the work is for. The openness clause closes it, so it reads as the
-  kind of work Andrew wants to lead rather than a job-board footer.
+  what the work is for. The offer of help closes it. "Team problem" means a
+  team of builders, not HR; "people problem" was rejected for that reason.
+  The exclamation mark is the page's only one, and it is deliberate.
 - A delight line ("I got into technology because I loved the delight when
   something just works") was considered and set aside for a Field Note.
 - No year counts ("thirteen years") in the copy; they go stale annually.
@@ -136,7 +137,8 @@ Mirror the page. Specifically:
 - Header line: "Engineering leader in Brooklyn, New York. Builds software,
   and the teams that build it."
 - **Now:** building under Studio Satsuma (https://satsuma.works) since
-  September 2026; glad to talk about engineering leadership roles.
+  September 2026; open to helping with hairy architecture or engineering
+  team problems.
 - **Before:** add "Findigs — Director of Engineering, product engineering,
   through August 2026" to the top of the list.
 - **Elsewhere:** add Studio Satsuma and the Field Notes index.
