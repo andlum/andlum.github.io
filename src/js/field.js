@@ -332,25 +332,38 @@
     n = count(0, 2);
     for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), y0 + H * rnd(-0.01, 0.03), W * rnd(0.03, 0.1), H * rnd(0.02, 0.06), Math.round(rnd(0, 1)), mp[0], mp[1]); }
   }
-  // A grove: stems with canopies, nearer trees in front.
+  // A grove: stems with canopies, nearer trees in front. One hue leads the
+  // canopies, the rest are its neighbours, and one tree in five or so takes
+  // an accent. Canopies are mostly flat so the trees read as trees, not as
+  // noise, and they stand in clumps rather than evenly spaced.
   function buildGrove() {
     horizon = H * rnd(0.45, 0.75);
     var sc = pick(P.sky);
-    below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
-    var fp = fieldPair();
-    below("ground", wobbleTop(horizon, H * 0.05), fp[0], fp[1]);
-    var n = count(5, 12), trees = [], i;
-    for (i = 0; i < n; i++) trees.push({ x: W * rnd(0.02, 0.98), base: rnd(horizon + H * 0.02, H * 1.05), h: H * rnd(0.25, 0.7) });
+    var sky = below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
+    sky.medium = pick(["flat", "gradient", "gradient", "posterize"]);
+    var lead = pick(P.mass.concat(P.field)), gc = shift(lead, rnd(14, 26), -8);
+    var g = below("ground", wobbleTop(horizon, H * 0.05), gc, shift(gc, -8));
+    g.medium = pick(["flat", "flat", "dither", "stubble", "rows"]);
+    var clumps = count(1, 3), cs = [], i;
+    for (i = 0; i < clumps; i++) cs.push(W * rnd(0.05, 0.95));
+    var n = count(5, 11), trees = [];
+    for (i = 0; i < n; i++) {
+      var c0 = pick(cs);
+      trees.push({ x: c0 + W * rnd(-0.14, 0.14), base: rnd(horizon + H * 0.02, H * 1.05), h: H * rnd(0.25, 0.7) });
+    }
     trees.sort(function (a, b) { return a.base - b.base; });
-    var stem = shift(P.line, 10);
+    var stem = shift(P.line, 8), accent = pick(P.bloom);
     trees.forEach(function (t) {
-      var w = W * rnd(0.004, 0.012), mp = massPair(), tilt = rnd(-0.06, 0.06);
+      var w = W * rnd(0.005, 0.014), tilt = rnd(-0.05, 0.05);
       disc("mass", t.x + tilt * t.h * 0.5, t.base - t.h * 0.5, w, t.h * 0.5, stem, stem, "flat", 0.12);
-      var rx = Math.max(w * 3, W * rnd(0.03, 0.11));
-      mound("mass", t.x + tilt * t.h, t.base - t.h, rx, rx * rnd(0.45, 0.9), Math.round(rnd(0, 3)), mp[0], mp[1]);
+      var rx = Math.max(w * 3, W * rnd(0.04, 0.12));
+      var c1 = rand() < 0.18 ? accent : shift(lead, rnd(-16, 16), rnd(-10, 6));
+      var sh = mound("mass", t.x + tilt * t.h, t.base - t.h, rx, rx * rnd(0.5, 0.9), Math.round(rnd(0, 2)), c1, shift(c1, -10));
+      sh.medium = pick(["flat", "flat", "flat", "flat", "dither", "stubble", "posterize"]);
+      sh.outline = rand() < 0.3;
     });
     n = count(1, 3);
-    for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), H * rnd(0.85, 1.05), W * rnd(0.1, 0.3), H * rnd(0.04, 0.1), 0, fp[0], fp[1]); }
+    for (i = 0; i < n; i++) { var fc = shift(gc, rnd(-10, 10)); var m = mound("ground", W * rnd(0.05, 0.95), H * rnd(0.85, 1.05), W * rnd(0.1, 0.3), H * rnd(0.04, 0.1), 0, fc, shift(fc, -8)); m.medium = pick(["flat", "flat", "dots", "rows"]); }
   }
   // Patchwork: the land from above, a quilt of plots with a river through it.
   function buildPatchwork() {
