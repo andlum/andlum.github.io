@@ -1,0 +1,261 @@
+---
+layout: layout.html
+title: Landscrape lab — Andrew Lum
+description: A prototype. Not linked from anywhere.
+permalink: /lab/landscrape/
+eleventyExcludeFromCollections: true
+photo:
+tended: November 2026
+---
+{# Lab page: the real homepage body laid over a generated painting.
+
+   Query string knobs, so variants can be compared without editing:
+     ?mode=band   painting fills the lower part of the window (default)
+     ?mode=full   painting fills the whole window
+     ?seed=123    any integer; the default seed is today's date
+     ?density=1   stroke density multiplier, 0.5 to 2
+     ?still=1     paint instantly instead of over a few seconds #}
+<style>
+  .landscrape {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: -2;
+    pointer-events: none;
+    display: block;
+  }
+  .landscrape.band {
+    height: 52vh;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 38%);
+    mask-image: linear-gradient(to bottom, transparent, #000 38%);
+  }
+  .landscrape.full {
+    top: 0;
+    height: 100%;
+  }
+  /* The prose sits on a sheet of paper laid over the painting. */
+  .lab-card {
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    -webkit-backdrop-filter: blur(10px) saturate(0.9);
+    backdrop-filter: blur(10px) saturate(0.9);
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--rule) 60%, transparent);
+  }
+  /* On a narrow screen there is no room beside the prose, so the painting
+     becomes a header strip and the prose sits on plain paper below it. */
+  @media (max-width: 44rem) {
+    .landscrape, .landscrape.full, .landscrape.band {
+      position: static;
+      height: 42vh;
+      -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+      mask-image: linear-gradient(to bottom, #000 62%, transparent);
+    }
+    .lab-card {
+      margin-top: -3rem;
+      padding-top: 1rem;
+    }
+  }
+  @media (min-width: 44rem) {
+    .lab-card {
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+      padding-top: 3rem;
+      padding-bottom: 3rem;
+      padding-left: 3rem;
+      padding-right: 3rem;
+      max-width: calc(var(--measure) + 6rem);
+    }
+  }
+</style>
+
+<canvas class="landscrape" aria-hidden="true"></canvas>
+
+<div class="wrapper lab-card">
+{% include "home.njk" %}
+</div>
+<script>
+(function () {
+  var canvas = document.querySelector(".landscrape");
+  if (!canvas) return;
+  var q = new URLSearchParams(location.search);
+  var mode = q.get("mode") === "full" ? "full" : "band";
+  canvas.classList.add(mode);
+  var densityMul = Math.min(2, Math.max(0.5, parseFloat(q.get("density")) || 1));
+  var still = q.get("still") === "1" ||
+    (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  // --- Seeded randomness -------------------------------------------------
+  var today = new Date();
+  var seed = parseInt(q.get("seed"), 10) ||
+    today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  var s = seed | 0;
+  function rand() {
+    s = s + 0x6D2B79F5 | 0;
+    var t = Math.imul(s ^ s >>> 15, 1 | s);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  function rnd(a, b) { return a + rand() * (b - a); }
+  function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+
+  // Smooth value noise on a lattice, three octaves. Enough to make edges
+  // wander and colour drift the way a brush does.
+  var lattice = [];
+  for (var i = 0; i < 1024; i++) lattice.push(rand());
+  function lat(ix, iy) { return lattice[((ix * 73856093) ^ (iy * 19349663)) & 1023]; }
+  function noise(x, y) {
+    var ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
+    fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+    var a = lat(ix, iy), b = lat(ix + 1, iy), c = lat(ix, iy + 1), d = lat(ix + 1, iy + 1);
+    return (a + (b - a) * fx) * (1 - fy) + (c + (d - c) * fx) * fy;
+  }
+  function fbm(x, y) {
+    return noise(x, y) * 0.5 + noise(x * 2.1 + 7.3, y * 2.1 + 3.1) * 0.3 +
+      noise(x * 4.3 + 11.7, y * 4.3 + 5.9) * 0.2;
+  }
+
+  // --- Palette (HSL triples) --------------------------------------------
+  var SKY = [[272, 45, 72], [285, 38, 64], [262, 40, 78]];
+  var CANOPY = [[150, 55, 30], [140, 50, 42], [128, 55, 58], [100, 45, 50]];
+  var BLOOM = [[52, 82, 58], [56, 72, 72], [335, 58, 66]];
+  var GROUND = [[42, 55, 52], [22, 42, 40], [26, 40, 50], [268, 35, 72],
+                [50, 58, 80], [135, 45, 48], [88, 50, 55]];
+  var ACCENT = [[335, 60, 65], [350, 55, 45], [218, 65, 55], [52, 90, 60], [275, 50, 60]];
+  function hsla(c, dh, ds, dl, a) {
+    return "hsla(" + (c[0] + dh) + "," + Math.max(0, Math.min(100, c[1] + ds)) + "%," +
+      Math.max(0, Math.min(100, c[2] + dl)) + "%," + a + ")";
+  }
+
+  // --- Canvas ------------------------------------------------------------
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  var W = canvas.clientWidth, H = canvas.clientHeight;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  var ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.lineCap = "round";
+
+  // --- Composition -------------------------------------------------------
+  // A horizon, a few canopies above it, a few fields below it. Every edge
+  // is pushed around by noise so nothing reads as geometry.
+  var horizon = H * rnd(0.26, 0.4);
+  var blobs = [];
+  var canopies = Math.round(rnd(2, 4));
+  for (i = 0; i < canopies; i++) {
+    blobs.push({ type: "canopy", cx: W * rnd(0.1, 0.9), cy: horizon - H * rnd(0, 0.14),
+      rx: W * rnd(0.1, 0.26), ry: H * rnd(0.1, 0.24), color: pick(CANOPY), bloom: pick(BLOOM),
+      blooming: rand() < 0.6 });
+  }
+  var fields = Math.round(rnd(4, 7));
+  for (i = 0; i < fields; i++) {
+    blobs.push({ type: "ground", cx: W * rnd(0.05, 0.95), cy: rnd(horizon + H * 0.04, H),
+      rx: W * rnd(0.22, 0.55), ry: H * rnd(0.08, 0.24), color: pick(GROUND) });
+  }
+  var skyColor = pick(SKY), baseGround = pick(GROUND);
+
+  function inside(b, x, y) {
+    var dx = (x - b.cx) / b.rx, dy = (y - b.cy) / b.ry;
+    var r = 0.72 + 0.56 * fbm(x / 110 + b.cx, y / 110 + b.cy);
+    return dx * dx + dy * dy < r * r;
+  }
+  function regionAt(x, y) {
+    var hz = horizon + (fbm(x / 160, 3.3) - 0.5) * H * 0.08;
+    var r = y < hz ? { type: "sky", color: skyColor } : { type: "ground", color: baseGround };
+    for (var k = 0; k < blobs.length; k++) if (inside(blobs[k], x, y)) r = blobs[k];
+    return r;
+  }
+
+  // Fields first, flat and soft, as underpainting.
+  ctx.fillStyle = hsla(skyColor, 0, 0, 0, 1);
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = hsla(baseGround, 0, 0, 0, 1);
+  ctx.fillRect(0, horizon, W, H - horizon);
+  blobs.forEach(function (b) {
+    ctx.beginPath();
+    for (var a = 0; a < 64; a++) {
+      var th = a / 64 * Math.PI * 2;
+      var px = b.cx + Math.cos(th) * b.rx, py = b.cy + Math.sin(th) * b.ry;
+      var r = 0.72 + 0.56 * fbm(px / 110 + b.cx, py / 110 + b.cy);
+      px = b.cx + Math.cos(th) * b.rx * r; py = b.cy + Math.sin(th) * b.ry * r;
+      a ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = hsla(b.color, 0, -5, b.type === "canopy" ? -8 : 0, 0.92);
+    ctx.fill();
+  });
+
+  // --- Strokes -----------------------------------------------------------
+  // The heuristic: thousands of small marks, each taking its colour from the
+  // field underneath with a little drift, its shape from the kind of field,
+  // and its length from how near the bottom it is. Nothing is drawn as a
+  // thing. The landscape is what the marks add up to.
+  var count = Math.round(W * H / 26 * densityMul);
+  var strokes = [];
+  for (i = 0; i < count; i++) {
+    var x = rand() * W, y = rand() * H;
+    var reg = regionAt(x, y);
+    if (reg.type === "sky" && rand() < 0.75) continue;
+    var depth = Math.max(0, (y - horizon) / (H - horizon));
+    var accentField = fbm(x / 70 + 50, y / 70 + 50);
+    var color = reg.color, dh = rnd(-9, 9), ds = rnd(-12, 10), dl = rnd(-13, 13);
+    if (reg.type === "canopy") { dh = rnd(-14, 14); dl = rnd(-20, 18); }
+    if (reg.type === "sky") { dl = rnd(-5, 5); ds = rnd(-8, 4); }
+    if (reg.type === "canopy" && reg.blooming && accentField > 0.54 && rand() < 0.6) {
+      color = reg.bloom; dh = rnd(-4, 4); dl = rnd(-6, 10);
+    } else if (reg.type === "ground" && accentField > 0.66 && rand() < 0.18) {
+      color = pick(ACCENT); dh = rnd(-4, 4);
+    }
+    // Canopies get a cluster of dabs where the ground gets one stroke.
+    var reps = reg.type === "canopy" ? 3 : 1;
+    for (var k = 0; k < reps; k++) {
+      strokes.push({ x: x + (k ? rnd(-7, 7) : 0), y: y + (k ? rnd(-7, 7) : 0), t: reg.type, d: depth,
+        c: hsla(color, dh + (k ? rnd(-8, 8) : 0), ds, dl + (k ? rnd(-10, 10) : 0), 1),
+        a: reg.type === "sky" ? rnd(0.2, 0.4) : rnd(0.4, 0.85),
+        len: rnd(5, 14) * (1 + 1.8 * depth), w: rnd(1.1, 2.6),
+        lean: rnd(-0.16, 0.16), r: rnd(1.2, 5.5) });
+    }
+  }
+  // Paint top to bottom, sky first, the way the underpainting went down.
+  strokes.sort(function (p, q2) { return p.y - q2.y; });
+
+  function paint(st) {
+    ctx.globalAlpha = st.a;
+    ctx.strokeStyle = ctx.fillStyle = st.c;
+    if (st.t === "canopy") {
+      ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2); ctx.fill();
+    } else if (st.t === "sky") {
+      ctx.lineWidth = st.w + 1;
+      ctx.beginPath(); ctx.moveTo(st.x - st.len, st.y); ctx.lineTo(st.x + st.len * 0.4, st.y + st.lean * 4); ctx.stroke();
+    } else {
+      ctx.lineWidth = st.w;
+      ctx.beginPath(); ctx.moveTo(st.x, st.y);
+      ctx.lineTo(st.x + Math.sin(st.lean) * st.len, st.y - Math.cos(st.lean) * st.len);
+      ctx.stroke();
+    }
+  }
+
+  // A few drips, as the paint runs.
+  function drips() {
+    var n = Math.round(W / 24);
+    ctx.lineWidth = 1.3;
+    for (var k = 0; k < n; k++) {
+      var x = rand() * W, y = rnd(horizon, H * 0.85);
+      var reg = regionAt(x, y);
+      ctx.globalAlpha = rnd(0.2, 0.45);
+      ctx.strokeStyle = hsla(reg.color, rnd(-6, 6), 0, rnd(-18, -4), 1);
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + rnd(-3, 3), y + rnd(30, 170)); ctx.stroke();
+    }
+  }
+
+  var idx = 0, perFrame = Math.ceil(strokes.length / (still ? 1 : 200));
+  function step() {
+    var end = Math.min(strokes.length, idx + perFrame);
+    for (; idx < end; idx++) paint(strokes[idx]);
+    if (idx < strokes.length) requestAnimationFrame(step);
+    else drips();
+  }
+  step();
+})();
+</script>
