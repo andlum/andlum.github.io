@@ -1,20 +1,23 @@
 // The field behind the homepage: a digital collage of vector shapes filled
 // with flat colour, gradients, two-colour ordered dither, pixel patterns,
-// coarse blocks and contour lines, in one of five palettes, composed one of
-// five ways, seeded by today's date. Everyone who visits on the same day at
-// the same window size sees the same field. The prose column is a clearing
-// dissolved into it as a dither. Nothing moves.
+// coarse blocks and contour lines, in one of five palettes, keyed to the
+// whole palette or to a single hue, composed one of eleven ways, seeded by
+// today's date. Everyone who visits on the same day at the same window size
+// sees the same field. The prose column is a clearing dissolved into it as a
+// dither. Nothing moves.
 //
 // Query string knobs, for the curious:
-//   ?study=meadow|thicket|heath|blossom|strata
+//   ?study=meadow|thicket|heath|blossom|strata|fog|dunes|sky|grove|patchwork|terraces
 //   ?palette=dusk|hot|chalk|spring|ember
+//   ?key=full|duo|ink        the whole palette, one hue plus an accent, or one hue
+//   ?density=sparse|usual|dense
 //   ?seed=123    any integer; the default is today's date
 //   ?cell=4      texture cell size in CSS px, 2 to 10
 (function () {
   var canvas = document.querySelector(".field");
   var column = document.querySelector(".stage");
   var q = new URLSearchParams(location.search);
-  var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata"];
+  var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata", "fog", "dunes", "sky", "grove", "patchwork", "terraces"];
 
   // The day's seed. Everyone who visits on the same day gets the same field
   // at the same window size.
@@ -118,6 +121,34 @@
     return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
   }
 
+  // --- Keys --------------------------------------------------------------
+  // A composition may take the whole palette, or be keyed to one hue: a
+  // duotone (one hue in lightness steps plus one accent, like a two-colour
+  // print) or ink (one near-grey hue and nothing else, like a woodcut).
+  var KEYS = ["full", "duo", "ink"];
+  var DENSITIES = { sparse: 0.5, usual: 1, dense: 1.6 };
+  var keyName, density, D;
+  function hueDist(a, b) { var d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; }
+  function steps(h, sa, ls) { return ls.map(function (l) { return [h, cl(sa), l]; }); }
+  function keyed(base, mode) {
+    if (mode === "full") return base;
+    var k = mode === "ink" ? base.line : pick(base.field.concat(base.mass));
+    var h = k[0], sa = mode === "ink" ? Math.min(22, k[1]) : Math.max(28, Math.min(72, k[1]));
+    var a = pick(base.accent);
+    if (hueDist(a[0], h) < 40) a = pickOther(base.accent, a);
+    if (mode === "ink") a = [h, sa, 30];
+    return {
+      ground: [h, sa, mode === "ink" ? 62 : 46], line: [h, sa, 16],
+      sky: steps(h, sa * 0.6, [84, 90, 76]),
+      mass: steps(h, sa, [24, 32, 40, 48]),
+      field: steps(h, sa, [44, 52, 60, 68, 76, 84]),
+      bloom: [a, shift(a, 10), [h, sa, 92]],
+      accent: [a, shift(a, -10), [h, sa, 92]]
+    };
+  }
+  // How many of a thing: the usual range, scaled by the day's density.
+  function count(a, b) { return Math.max(a > 0 ? 1 : 0, Math.round(rnd(a, b) * D)); }
+
   // --- Shapes ------------------------------------------------------------
   // A composition is a list of shapes drawn back to front. Every shape has a
   // vector outline (a path) and a medium that fills it: flat colour, a
@@ -133,7 +164,12 @@
     ring: ["flat", "flat", "dots", "hatch", "dither"]
   };
 
-  function lobe(cx, cy, rx, ry) { return { cx: cx, cy: cy, rx: rx, ry: ry, seed: rnd(0, 100) }; }
+  // amp is how far the outline wanders from an ellipse: 0.44 is a lumpy
+  // canopy, 0.1 a sun.
+  function lobe(cx, cy, rx, ry, amp) { return { cx: cx, cy: cy, rx: rx, ry: ry, seed: rnd(0, 100), amp: amp == null ? 0.44 : amp }; }
+  function disc(role, cx, cy, rx, ry, c1, c2, medium, amp) {
+    return add({ kind: "blob", role: role, lobes: [lobe(cx, cy, rx, ry, amp)], c1: c1, c2: c2, medium: medium, outline: false });
+  }
   function add(sh) { sh.tex = rnd(0, 100); shapes.push(sh); return sh; }
   function mound(role, cx, cy, rx, ry, extra, c1, c2) {
     var sh = add({ kind: "blob", role: role, lobes: [lobe(cx, cy, rx, ry)], c1: c1, c2: c2, medium: pick(MEDIA[role]) });
@@ -159,6 +195,19 @@
     var w = rnd(0, 100);
     return function (x) { return y0 + (fbm(x / 200 + w, w) - 0.5) * amp; };
   }
+  // A top edge that leans, for dunes and hillsides.
+  function slopeTop(y0, m, amp) {
+    var w = rnd(0, 100);
+    return function (x) { return y0 + m * (x - W * 0.5) + (fbm(x / 300 + w, w) - 0.5) * amp; };
+  }
+  // A top edge with peaks, for ranges.
+  function ridgeTop(y0, amp) {
+    var w = rnd(0, 100), f = rnd(1.5, 3.5);
+    return function (x) {
+      var u = x / W;
+      return y0 - Math.abs(fbm(u * f + w, w) - 0.5) * amp * 2.2 + (fbm(u * 9 + w, w + 3) - 0.5) * amp * 0.45;
+    };
+  }
   function fieldPair() { var a = pick(P.field); return [a, rand() < 0.5 ? pickOther(P.field, a) : shift(a, -14)]; }
   function massPair() { var a = pick(P.mass); return [a, rand() < 0.4 ? pickOther(P.mass, a) : shift(a, -16)]; }
 
@@ -168,43 +217,43 @@
     below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
     var fp = fieldPair();
     below("ground", wobbleTop(horizon, H * 0.1), fp[0], fp[1]);
-    var n = Math.round(rnd(2, 5));
+    var n = count(2, 5);
     for (var i = 0; i < n; i++) {
       var mp = massPair();
       mound("mass", W * rnd(0.05, 0.95), horizon - H * rnd(-0.02, 0.16), W * rnd(0.08, 0.22), H * rnd(0.08, 0.22), Math.round(rnd(0, 3)), mp[0], mp[1]);
     }
-    n = Math.round(rnd(4, 8));
+    n = count(4, 8);
     for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), rnd(horizon + H * 0.04, H), W * rnd(0.2, 0.55), H * rnd(0.08, 0.26), 0, fp[0], fp[1]); }
-    n = Math.round(rnd(0, 3));
+    n = count(0, 3);
     for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), H * rnd(0.75, 1), W * rnd(0.03, 0.08), H * rnd(0.2, 0.5), 0, fp[0], fp[1]); }
-    n = Math.round(rnd(1, 4));
+    n = count(1, 4);
     for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), rnd(horizon - H * 0.05, H * 0.85), W * rnd(0.03, 0.09), H * rnd(0.03, 0.09), 0, pick(P.bloom), pick(P.accent));
-    n = Math.round(rnd(1, 3));
+    n = count(1, 3);
     for (i = 0; i < n; i++) ribbon(rnd(6, 24), horizon, H);
   }
   function buildThicket() {
     below("band", function () { return 0; }, P.ground, shift(P.line, 18));
     shapes[0].medium = pick(["contour", "flat", "stubble", "dots"]);
-    var n = Math.round(rnd(2, 4));
+    var n = count(2, 4);
     for (var i = 0; i < n; i++) { var fp = fieldPair(); mound("ground", W * rnd(0.1, 0.9), H * rnd(0.5, 1.1), W * rnd(0.25, 0.6), H * rnd(0.1, 0.3), 0, fp[0], fp[1]); }
-    n = Math.round(rnd(6, 12));
+    n = count(6, 12);
     for (i = 0; i < n; i++) {
       var rx = W * rnd(0.06, 0.2), mp = massPair();
       mound("mass", W * rnd(0, 1), H * rnd(0.1, 1), rx, Math.min(H * 0.35, rx * rnd(0.6, 1.3)), Math.round(rnd(0, 2)), mp[0], mp[1]);
     }
-    n = Math.round(rnd(0, 2));
+    n = count(0, 2);
     for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), H * rnd(0.1, 0.9), W * rnd(0.02, 0.06), W * rnd(0.02, 0.06), 0, pick(P.bloom), pick(P.accent));
   }
   function buildHeath() {
-    var n = Math.round(rnd(3, 5)), y = 0;
+    var n = count(3, 5), y = 0;
     for (var i = 0; i < n; i++) {
       var fp = fieldPair();
       below("band", i ? wobbleTop(y, H * 0.12) : function () { return 0; }, fp[0], fp[1]);
       y += H / n * rnd(0.6, 1.4);
     }
-    n = Math.round(rnd(1, 2));
+    n = count(1, 2);
     for (i = 0; i < n; i++) ribbon(rnd(24, 60), H * 0.2, H);
-    n = Math.round(rnd(2, 5));
+    n = count(2, 5);
     for (i = 0; i < n; i++) {
       var rx = W * rnd(0.04, 0.12), mp = massPair();
       mound("mass", W * rnd(0.05, 0.95), H * rnd(0.15, 0.95), rx, rx * rnd(0.5, 0.9), Math.round(rnd(0, 1)), mp[0], mp[1]);
@@ -213,7 +262,7 @@
   function buildBlossom() {
     var fp = fieldPair();
     below("band", function () { return 0; }, fp[0], fp[1]);
-    var n = Math.round(rnd(5, 10));
+    var n = count(5, 10);
     for (var i = 0; i < n; i++) {
       var r = W * rnd(0.06, 0.18), c1 = pick(P.bloom);
       add({ kind: "rings", cx: W * rnd(0, 1), cy: H * rnd(0, 1), r: r, ry: r * rnd(0.75, 1.1), ringW: rnd(10, 22),
@@ -221,22 +270,133 @@
     }
   }
   function buildStrata() {
-    var n = Math.round(rnd(5, 9)), y = 0, tops = [];
+    var n = count(5, 9), y = 0, tops = [];
     for (var i = 0; i < n; i++) {
       var sky = i === 0 && rand() < 0.6, fp = fieldPair();
       if (sky) { var sc = pick(P.sky); fp = [sc, shift(sc, 12)]; }
       var b = below(sky ? "sky" : "band", i ? wobbleTop(y, H * 0.12) : function () { return 0; }, fp[0], fp[1]);
       tops.push(y); y += H / n * rnd(0.5, 1.5);
     }
-    n = Math.round(rnd(1, 4));
+    n = count(1, 4);
     for (i = 0; i < n; i++) {
       var rx = W * rnd(0.06, 0.16), mp = massPair();
       mound("mass", W * rnd(0.05, 0.95), pick(tops.slice(1)), rx, rx * rnd(0.5, 1), Math.round(rnd(0, 2)), mp[0], mp[1]);
     }
-    n = Math.round(rnd(0, 2));
+    n = count(0, 2);
     for (i = 0; i < n; i++) ribbon(rnd(6, 20), H * 0.2, H);
   }
-  var BUILD = { meadow: buildMeadow, thicket: buildThicket, heath: buildHeath, blossom: buildBlossom, strata: buildStrata };
+  // A range in fog: ridges in one hue, each nearer one darker.
+  function buildFog() {
+    var sc = pick(P.sky);
+    below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 10));
+    if (rand() < 0.5) disc("patch", W * rnd(0.15, 0.85), H * rnd(0.08, 0.3), W * rnd(0.025, 0.05), W * rnd(0.025, 0.05), pick(P.bloom), pick(P.accent), pick(["flat", "flat", "dots"]), 0.1);
+    var base = pick(P.mass), n = count(4, 7);
+    for (var i = 0; i < n; i++) {
+      var t = n > 1 ? i / (n - 1) : 1;
+      var c = [base[0], cl(base[1] * (0.45 + 0.55 * t)), 84 - 58 * t];
+      var sh = below("band", ridgeTop(H * (0.22 + 0.62 * t) + H * rnd(-0.05, 0.05), H * rnd(0.08, 0.22)), c, shift(c, -7));
+      sh.medium = pick(["flat", "flat", "flat", "dither", "posterize", "stubble"]);
+    }
+  }
+  // Dunes: leaning slopes that cross, lit face and shadow face by turns.
+  function buildDunes() {
+    var y0 = H * rnd(0.15, 0.45), sc = pick(P.sky);
+    var sky = below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
+    sky.medium = pick(["flat", "gradient", "gradient", "dither"]);
+    if (rand() < 0.5) disc("patch", W * rnd(0.1, 0.9), y0 * rnd(0.2, 0.8), W * rnd(0.02, 0.05), W * rnd(0.02, 0.05), pick(P.bloom), pick(P.accent), "flat", 0.08);
+    var a = pick(P.field), n = count(4, 8), y = y0;
+    for (var i = 0; i < n; i++) {
+      var lit = i % 2 === 0, c = lit ? shift(a, rnd(-4, 8)) : shift(a, rnd(-18, -10), -6);
+      var sh = below("band", slopeTop(y, rnd(-0.35, 0.35), H * rnd(0.02, 0.08)), c, shift(c, lit ? -10 : 8));
+      sh.medium = pick(["flat", "flat", "flat", "dither", "rows", "stubble", "posterize"]);
+      y += (H - y0) / n * rnd(0.6, 1.5);
+    }
+    if (rand() < 0.4) ribbon(rnd(3, 8), y0 + H * 0.1, H).dash = true;
+  }
+  // Big sky: most of the frame is weather, with a thin strip of land.
+  function buildSky() {
+    var y0 = H * rnd(0.68, 0.88), sc = pick(P.sky);
+    var sky = below("sky", function () { return 0; }, sc, rand() < 0.6 ? pickOther(P.sky, sc) : shift(sc, 14));
+    sky.medium = pick(["gradient", "dither", "dither", "posterize"]);
+    var n = count(0, 2), i;
+    for (i = 0; i < n; i++) {
+      var cc = shift(sc, 12, -10);
+      disc("patch", W * rnd(0.05, 0.95), y0 * rnd(0.1, 0.7), W * rnd(0.08, 0.2), H * rnd(0.02, 0.05), cc, shift(cc, -6), pick(["flat", "flat", "dither"]), 0.3);
+    }
+    if (rand() < 0.7) disc("patch", W * rnd(0.1, 0.9), y0 * rnd(0.15, 0.75), W * rnd(0.02, 0.06), W * rnd(0.02, 0.06), pick(P.bloom), pick(P.accent), pick(["flat", "flat", "dots", "dither"]), 0.08);
+    var fp = fieldPair();
+    var g = below("ground", wobbleTop(y0, H * 0.04), fp[0], fp[1]);
+    g.medium = pick(["flat", "flat", "dither", "rows", "stubble"]);
+    n = count(0, 2);
+    for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), y0 + H * rnd(-0.01, 0.03), W * rnd(0.03, 0.1), H * rnd(0.02, 0.06), Math.round(rnd(0, 1)), mp[0], mp[1]); }
+  }
+  // A grove: stems with canopies, nearer trees in front.
+  function buildGrove() {
+    horizon = H * rnd(0.45, 0.75);
+    var sc = pick(P.sky);
+    below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
+    var fp = fieldPair();
+    below("ground", wobbleTop(horizon, H * 0.05), fp[0], fp[1]);
+    var n = count(5, 12), trees = [], i;
+    for (i = 0; i < n; i++) trees.push({ x: W * rnd(0.02, 0.98), base: rnd(horizon + H * 0.02, H * 1.05), h: H * rnd(0.25, 0.7) });
+    trees.sort(function (a, b) { return a.base - b.base; });
+    var stem = shift(P.line, 10);
+    trees.forEach(function (t) {
+      var w = W * rnd(0.004, 0.012), mp = massPair(), tilt = rnd(-0.06, 0.06);
+      disc("mass", t.x + tilt * t.h * 0.5, t.base - t.h * 0.5, w, t.h * 0.5, stem, stem, "flat", 0.12);
+      var rx = Math.max(w * 3, W * rnd(0.03, 0.11));
+      mound("mass", t.x + tilt * t.h, t.base - t.h, rx, rx * rnd(0.45, 0.9), Math.round(rnd(0, 3)), mp[0], mp[1]);
+    });
+    n = count(1, 3);
+    for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), H * rnd(0.85, 1.05), W * rnd(0.1, 0.3), H * rnd(0.04, 0.1), 0, fp[0], fp[1]); }
+  }
+  // Patchwork: the land from above, a quilt of plots with a river through it.
+  function buildPatchwork() {
+    var fp = fieldPair(), i, j;
+    var bg = below("band", function () { return 0; }, fp[0], fp[1]);
+    bg.medium = pick(["flat", "flat", "stubble", "dots"]);
+    var R = Math.max(2, Math.round(rnd(3, 6) * Math.sqrt(D))), C = Math.max(2, Math.round(rnd(3, 7) * Math.sqrt(D)));
+    var ws = [], hs = [], tw = 0, th = 0;
+    for (i = 0; i < C; i++) { ws.push(rnd(0.5, 1.5)); tw += ws[i]; }
+    for (j = 0; j < R; j++) { hs.push(rnd(0.5, 1.5)); th += hs[j]; }
+    var xs = [-W * 0.05], ys = [-H * 0.05];
+    for (i = 0; i < C; i++) xs.push(xs[i] + ws[i] / tw * W * 1.1);
+    for (j = 0; j < R; j++) ys.push(ys[j] + hs[j] / th * H * 1.1);
+    var jx = W * 1.1 / C * 0.18, jy = H * 1.1 / R * 0.18, sk = rnd(-0.25, 0.25), v = [];
+    for (j = 0; j <= R; j++) {
+      v.push([]);
+      for (i = 0; i <= C; i++) v[j].push([xs[i] + rnd(-jx, jx) + (ys[j] - H / 2) * sk, ys[j] + rnd(-jy, jy)]);
+    }
+    for (j = 0; j < R; j++) {
+      for (i = 0; i < C; i++) {
+        if (rand() < 0.1) continue;
+        var cp = fieldPair();
+        add({ kind: "poly", role: "patch", pts: [v[j][i], v[j][i + 1], v[j + 1][i + 1], v[j + 1][i]], c1: cp[0], c2: cp[1],
+          medium: pick(["flat", "flat", "flat", "hatch", "rows", "checks", "dots", "dither", "stubble", "posterize"]), outline: rand() < 0.5 });
+      }
+    }
+    ribbon(rnd(10, 28), 0, H);
+    var n = count(1, 4);
+    for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), H * rnd(0.05, 0.95), W * rnd(0.02, 0.05), W * rnd(0.015, 0.04), Math.round(rnd(0, 2)), mp[0], mp[1]); }
+  }
+  // Terraces: contour rings around a summit, by turns one colour and the other.
+  function buildTerraces() {
+    var fp = fieldPair(), i;
+    var bg = below("band", function () { return 0; }, fp[0], fp[1]);
+    bg.medium = pick(["flat", "flat", "dither", "stubble"]);
+    var cx = W * rnd(0.15, 0.85), cy = H * rnd(0.15, 0.85), R = Math.max(W, H) * rnd(0.6, 1.0), ry = rnd(0.55, 1), sd = rnd(0, 100);
+    var n = count(6, 12), a = pick(P.field), b = rand() < 0.5 ? pickOther(P.field, a) : shift(a, 30);
+    for (var k = n; k >= 1; k--) {
+      var t = k / n, odd = k % 2 === 1, c = shift(odd ? a : b, (1 - t) * 30);
+      add({ kind: "blob", role: "band", lobes: [{ cx: cx, cy: cy, rx: R * t, ry: R * ry * t, seed: sd + k * 0.015, amp: 0.44 }],
+        c1: c, c2: shift(c, -9), medium: odd ? pick(["flat", "flat", "rows", "hatch"]) : pick(["flat", "dots", "dither"]), outline: rand() < 0.6 });
+    }
+    if (rand() < 0.5) ribbon(rnd(4, 12), 0, H);
+    n = count(0, 3);
+    for (i = 0; i < n; i++) { var mp = massPair(); mound("mass", W * rnd(0.05, 0.95), H * rnd(0.05, 0.95), W * rnd(0.015, 0.04), W * rnd(0.012, 0.03), Math.round(rnd(0, 1)), mp[0], mp[1]); }
+  }
+  var BUILD = { meadow: buildMeadow, thicket: buildThicket, heath: buildHeath, blossom: buildBlossom, strata: buildStrata,
+    fog: buildFog, dunes: buildDunes, sky: buildSky, grove: buildGrove, patchwork: buildPatchwork, terraces: buildTerraces };
 
   // --- Paths -------------------------------------------------------------
   function smoothClosed(path, pts) {
@@ -252,7 +412,8 @@
     var pts = [], N = 72;
     for (var k = 0; k < N; k++) {
       var a = k / N * Math.PI * 2;
-      var r = (0.78 + 0.44 * fbm(Math.cos(a) * 1.4 + lb.seed, Math.sin(a) * 1.4 + lb.seed)) * (scale || 1);
+      var A = lb.amp == null ? 0.44 : lb.amp;
+      var r = (1 - A / 2 + A * fbm(Math.cos(a) * 1.4 + lb.seed, Math.sin(a) * 1.4 + lb.seed)) * (scale || 1);
       pts.push([lb.cx + Math.cos(a) * lb.rx * r, lb.cy + Math.sin(a) * lb.ry * r]);
     }
     smoothClosed(path, pts);
@@ -265,6 +426,11 @@
       for (var x = 0; x <= W + 8; x += 8) path.lineTo(x, sh.top(x));
       path.lineTo(W + 2, H + 2); path.lineTo(-2, H + 2); path.closePath();
     }
+    else if (sh.kind === "poly") {
+      path.moveTo(sh.pts[0][0], sh.pts[0][1]);
+      for (k = 1; k < sh.pts.length; k++) path.lineTo(sh.pts[k][0], sh.pts[k][1]);
+      path.closePath();
+    }
     return path;
   }
   function bbox(sh) {
@@ -274,6 +440,12 @@
       return [0, Math.max(0, mn), W, H];
     }
     var b = [W, H, 0, 0];
+    if (sh.kind === "poly") {
+      sh.pts.forEach(function (p) {
+        b[0] = Math.min(b[0], p[0]); b[1] = Math.min(b[1], p[1]); b[2] = Math.max(b[2], p[0]); b[3] = Math.max(b[3], p[1]);
+      });
+      return [Math.max(0, b[0]), Math.max(0, b[1]), Math.min(W, b[2]), Math.min(H, b[3])];
+    }
     sh.lobes.forEach(function (lb) {
       b[0] = Math.min(b[0], lb.cx - lb.rx * 1.25); b[1] = Math.min(b[1], lb.cy - lb.ry * 1.25);
       b[2] = Math.max(b[2], lb.cx + lb.rx * 1.25); b[3] = Math.max(b[3], lb.cy + lb.ry * 1.25);
@@ -417,7 +589,11 @@
     var sp = q.get("study");
     study = STUDIES.indexOf(sp) >= 0 ? sp : pick(STUDIES);
     paletteName = PALETTES[q.get("palette")] ? q.get("palette") : pick(PNAMES);
-    P = PALETTES[paletteName];
+    var kr = rand(), dr = rand(), kp = q.get("key"), dp = q.get("density");
+    keyName = KEYS.indexOf(kp) >= 0 ? kp : kr < 0.5 ? "full" : kr < 0.85 ? "duo" : "ink";
+    density = DENSITIES[dp] ? dp : dr < 0.3 ? "sparse" : dr < 0.8 ? "usual" : "dense";
+    D = DENSITIES[density];
+    P = keyed(PALETTES[paletteName], keyName);
 
     phone = matchMedia("(max-width: 44rem)").matches;
     W = canvas.clientWidth; H = canvas.clientHeight;
@@ -462,7 +638,7 @@
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(off, 0, 0, cols * CELL, rows * CELL);
 
-    canvas.setAttribute("data-field", study + " " + paletteName + " " + seed);
+    canvas.setAttribute("data-field", study + " " + paletteName + " " + keyName + " " + density + " " + seed);
   }
 
   // Draw after the text has had its first paint, and again when the window
