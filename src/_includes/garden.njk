@@ -1,0 +1,106 @@
+{# The garden. A few plants grow up from the bottom of the window when the
+   page loads, drawn in the same hand as the letterhead sprig. The planting
+   is seeded by today's date, so everyone who visits today sees the same
+   garden, and tomorrow's is different. Decorative only: hidden from screen
+   readers, no pointer events, and without JavaScript the page is simply the
+   page. #}
+<svg class="garden" aria-hidden="true" focusable="false"></svg>
+<script>
+(function () {
+  var svg = document.querySelector(".garden");
+  if (!svg) return;
+
+  // Seeded by the date, so the garden is tended once a day.
+  var d = new Date();
+  var seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  function rand() {
+    // mulberry32
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+  function between(a, b) { return a + rand() * (b - a); }
+
+  var W = window.innerWidth, H = window.innerHeight;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+  // The text column is centred, about 34rem wide plus padding. Plants under
+  // it stay short so they never climb into the prose; plants in the margins
+  // on a wide screen can reach higher.
+  var column = Math.min(W, 34 * 16 + 48);
+  var left = (W - column) / 2, right = left + column;
+
+  // Leaf, attached at the origin, tip up and to the left. Same shape as the
+  // sprig's leaves, normalised.
+  var LEAF = "M0 0 C-8 -2 -14 -8 -16 -16 C-7 -16 -1 -11 0 -3 Z";
+  var NS = "http://www.w3.org/2000/svg";
+  function el(name, attrs) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  // Point on a cubic bezier.
+  function bez(p0, p1, p2, p3, t) {
+    var u = 1 - t;
+    return {
+      x: u*u*u*p0.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*p3.x,
+      y: u*u*u*p0.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*p3.y
+    };
+  }
+
+  // Fewer plants on a narrow screen, where the whole width is the column.
+  var count = Math.round(Math.min(12, Math.max(3, W / 130)) + between(0, 2));
+  var frag = document.createDocumentFragment();
+
+  for (var i = 0; i < count; i++) {
+    var x = between(12, W - 12);
+    var inMargin = x < left - 20 || x > right + 20;
+    var maxH = inMargin ? Math.min(H * 0.42, 300) : Math.min(H * 0.14, 100);
+    var h = between(maxH * 0.45, maxH);
+    var lean = between(-0.22, 0.22) * h;
+    var base = { x: x, y: H + 2 };
+    var tip = { x: x + lean, y: H - h };
+    var c1 = { x: x + lean * 0.1, y: H - h * 0.45 };
+    var c2 = { x: x + lean * 0.9, y: H - h * 0.8 };
+
+    var plant = el("g", { "class": "plant" });
+    var delay = between(0, 0.9);
+    var grow = 1.1 + h / 300; // taller plants take a little longer
+
+    var stem = el("path", {
+      d: "M" + base.x + " " + base.y + " C" + c1.x + " " + c1.y + " " + c2.x + " " + c2.y + " " + tip.x + " " + tip.y,
+      pathLength: "1", "class": "stem"
+    });
+    stem.style.animationDelay = delay + "s";
+    stem.style.animationDuration = grow + "s";
+    plant.appendChild(stem);
+
+    var leaves = Math.round(between(3, 6));
+    var side = rand() < 0.5 ? 1 : -1;
+    for (var j = 0; j < leaves; j++) {
+      var t = 0.35 + (j / leaves) * 0.6;           // from a third of the way up to near the tip
+      var p = bez(base, c1, c2, tip, t);
+      var size = between(0.7, 1.25) * (1 - t * 0.45) * (h / 120 + 0.4);
+      size = Math.max(0.45, Math.min(size, 1.6));
+      // Tangent angle, so leaves follow the lean of the stem.
+      var q = bez(base, c1, c2, tip, Math.min(t + 0.02, 1));
+      var angle = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI + 90;
+      side = -side;
+      var g = el("g", {
+        transform: "translate(" + p.x + " " + p.y + ") rotate(" + angle + ")"
+      });
+      var leaf = el("g", { "class": "leaf" });
+      leaf.style.animationDelay = (delay + t * grow * 0.9) + "s";
+      leaf.appendChild(el("path", {
+        d: LEAF, opacity: between(0.24, 0.42).toFixed(2),
+        transform: "scale(" + (side * size) + " " + size + ")"
+      }));
+      g.appendChild(leaf);
+      plant.appendChild(g);
+    }
+    frag.appendChild(plant);
+  }
+  svg.appendChild(frag);
+})();
+</script>
