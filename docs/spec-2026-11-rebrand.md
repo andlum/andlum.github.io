@@ -10,8 +10,8 @@ Companion spec: `~/Dev/satsuma-site/docs/spec-2026-11-rebrand.md`.
 Reposition andlum.com from "Director of Engineering at Findigs" to an
 engineering leader who left to build, and who treats teams and software as
 the same kind of work. The site must say, without a job title to lean on,
-that Andrew leads engineering teams, still ships, and is glad to talk about
-leadership roles.
+that Andrew leads engineering teams, still ships, and is glad to help with
+hard architecture and team problems.
 
 **Primary reader:** people recruiting engineering leaders. Everything on the
 page is written for them first. Friends and peers are served along the way.
@@ -21,7 +21,7 @@ page is written for them first. Friends and peers are served along the way.
 | Topic | Decision |
 |---|---|
 | Current status | Building under Studio Satsuma; quietly open. Findigs in past tense, ended end of August 2026. |
-| How open | One soft clause: "I'm always glad to talk about engineering leadership roles." No "available" language. |
+| How open | One playful offer of help, chosen 2026-10-31: "Wrestling with a hairy architecture or engineering team problem? Let's talk!" It replaced "I'm always glad to talk about engineering leadership roles", which read as job-seeking; the offer is closer to consulting. No "available" language. |
 | Tagline | "I build software, and the teams that build it." |
 | Essays section | **Field Notes**, chosen 2026-10-31. Subtitle always "Notes on technical leadership." |
 | Essay format | Paul Graham model: bare title list newest first, no dates or summaries in the list; each essay opens with month and year, then prose, no images by default. |
@@ -40,22 +40,17 @@ conditional section for the Field Notes. Copy in full:
 
 ---
 
-**Hi, I'm Andrew** 👋
+**Welcome to my little corner of the web** 👋
 
-*I build software, and the teams that build it.*
-
-Most recently I was Director of Engineering at Findigs, where I led product
-engineering on a platform that made renting an apartment faster and fairer.
-I left at the end of August 2026 to build again. Right now that means
+I build software, and the teams that build it. Most recently I was Director
+of Engineering at Findigs, where I led product engineering on a platform that
+made renting an apartment faster and fairer. These days I'm building
 [Studio Satsuma](https://satsuma.works), a small studio for the apps I've
-wanted to exist. I'm always glad to talk about engineering leadership roles.
+wanted to exist.
 
-I don't think leading and building are different jobs. A team is a system
-too. It has interfaces, feedback loops, and failure modes, and it gets better
-the same way software does: someone who cares pays attention to the details.
-I like the messy stuff, messy data and messy operations. And what someone
-writes down is rarely what they actually need; there's usually a frustration
-underneath that never made it into the ticket.
+I'm drawn to problems where technology can produce a better outcome for the
+people on the other end of it. Wrestling with a hairy architecture or
+engineering team problem? Let's talk!
 
 Outside of work, I love to move. You'll usually find me climbing, cooking,
 running, dancing, or practicing handstands in the park. Most of the time, in
@@ -80,12 +75,18 @@ No analytics, no cookies, nothing following you out the door.
 
 Notes on the copy:
 
-- The tagline replaces "Welcome to my little corner of the web." Two
-  one-liners under the name read as clutter. The welcome survives in the meta
-  description ("Come in, sit down."). Restore it as the first sentence of the
-  Now paragraph if the page feels cold without it.
-- "End of August 2026" is deliberately absolute so the paragraph can't rot
-  silently. The footer date is the other staleness guard.
+- Revised 2026-10-31 after review. The greeting is now the welcome line
+  itself, with the wave. The tagline moved into the body as the first
+  sentence of the Now paragraph, where Findigs (the teams) and Satsuma (the
+  software) back it up. The "leading and building are not different jobs"
+  paragraph and the "end of August 2026" sentence were cut; the first read
+  as explanation, the second was a date the footer already guards.
+- The second paragraph keeps the one sentence from the old site that said
+  what the work is for. The offer of help closes it. "Team problem" means a
+  team of builders, not HR; "people problem" was rejected for that reason.
+  The exclamation mark is the page's only one, and it is deliberate.
+- A delight line ("I got into technology because I loved the delight when
+  something just works") was considered and set aside for a Field Note.
 - No year counts ("thirteen years") in the copy; they go stale annually.
 - The two Field Notes titles are planned, not written. The list is driven by
   the collection, so these appear only once the files exist.
@@ -136,7 +137,8 @@ Mirror the page. Specifically:
 - Header line: "Engineering leader in Brooklyn, New York. Builds software,
   and the teams that build it."
 - **Now:** building under Studio Satsuma (https://satsuma.works) since
-  September 2026; glad to talk about engineering leadership roles.
+  September 2026; open to helping with hairy architecture or engineering
+  team problems.
 - **Before:** add "Findigs — Director of Engineering, product engineering,
   through August 2026" to the top of the list.
 - **Elsewhere:** add Studio Satsuma and the Field Notes index.

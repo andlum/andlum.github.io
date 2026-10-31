@@ -96,10 +96,6 @@ body::before {
   filter: saturate(0.9);
 }
 
-.tagline {
-  font-style: italic;
-}
-
 strong {
   font-weight: 600;
 }
