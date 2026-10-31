@@ -10,8 +10,8 @@
 //   ?palette=dusk|hot|chalk|spring|ember
 //   ?key=full|duo|ink        the whole palette, one hue plus an accent, or one hue
 //   ?density=sparse|usual|dense
-//   ?seed=123    any integer; the default is today's date. The footer's
-//                "Paint another" link draws a fresh one in place.
+//   ?seed=123    any integer; the default is today's date. The palette in
+//                the nav paints a fresh one in place.
 //   ?cell=4      mark cell size in CSS px, 2 to 10
 (function () {
   var canvas = document.querySelector(".field");
@@ -723,8 +723,9 @@
   // or the colour scheme changes.
   requestAnimationFrame(function () { setTimeout(render, 0); });
 
-  // "Paint another": a fresh seed, painted in place, with the address kept
-  // in step so the picture can be shared or come back to.
+  // The palette: a fresh seed, painted in place, with the address kept in
+  // step so the picture can be shared or come back to. On phones the
+  // picture is at the top of the page, so the page scrolls up to show it.
   var reseed = document.querySelector(".reseed");
   function nextSeed() { return Math.floor(Math.random() * 1e6) + 1; }
   function seedUrl(n) { var u = new URL(location.href); u.searchParams.set("seed", n); return u.pathname + u.search; }
@@ -737,6 +738,7 @@
       history.replaceState(null, "", seedUrl(seed));
       render();
       reseed.href = seedUrl(nextSeed());
+      if (phone) scrollTo({ top: 0, behavior: "smooth" });
     });
   }
   var timer;

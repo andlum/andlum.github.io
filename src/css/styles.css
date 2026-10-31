@@ -351,6 +351,21 @@ footer {
   left: auto;
   right: 0;
 }
+/* The palette reseeds the field. It sits at the far end of the row and
+   only shows once the field is painted. */
+.top .reseed-item {
+  display: none;
+  margin-left: auto;
+}
+.js .top .reseed-item { display: block; }
+.top .reseed {
+  text-decoration: none;
+  font-size: 1rem;
+  line-height: 1;
+}
+@media (hover: none) {
+  .top .reseed-item { margin-left: 0; }
+}
 .stage {
   flex: 1;
   display: flex;
@@ -365,9 +380,6 @@ footer {
   padding-bottom: 2.5rem;
 }
 .tail footer { margin-top: 0; }
-/* The reseed link only makes sense once the field is painted. */
-.reseed-line { display: none; }
-.js .reseed-line { display: inline; }
 .js .tail {
   opacity: 0;
   transform: translateY(0.75rem);
