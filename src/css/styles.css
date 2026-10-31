@@ -400,6 +400,18 @@ footer {
   }
 }
 
+/* Phones with no pointer: the picture opens the page, the prose follows,
+   and the links with their notes wait below it. The nav stays first in the
+   markup, so it is still the first landmark for keyboards and readers. */
+@media (hover: none) and (max-width: 44rem) {
+  .top {
+    order: 1;
+    padding-top: 0;
+    padding-bottom: 2.5rem;
+  }
+  .top .links li:first-child { border-top: 1px solid var(--rule); }
+}
+
 /* --- Small screens ----------------------------------------------------- */
 
 @media screen and (max-width: 34rem) {
