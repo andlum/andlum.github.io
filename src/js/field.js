@@ -305,10 +305,39 @@
   function posy(cx, cy, rx, ry, fam) {
     marksOf(cloud(cx, cy, rx, ry, 1), { size: [2, 2], cover: rnd(0.25, 0.5), c: fam, spread: 6, dl: [-6, 10], fall: 0.6 });
   }
-  // A stem: a thin upright cloud of dark strokes.
-  function stem(x, y0, y1, w) {
-    marksOf({ kind: "blob", lobes: [lobe(x, (y0 + y1) / 2, w, (y1 - y0) / 2, 0.15)] },
-      { size: [1, 3], cover: 1.6, c: shift(P.line, 8), spread: 4, dl: [-6, 6], fall: 0.3 });
+  // A limb: a chain of small lobes from one point to another, the width
+  // easing from w0 to w1 and the whole bowed a little to one side. A
+  // trunk is a limb too, just a long one.
+  function limb(x0, y0, x1, y1, w0, w1, bow) {
+    var dx = x1 - x0, dy = y1 - y0, len = Math.sqrt(dx * dx + dy * dy), ls = [], k;
+    var n = Math.max(3, Math.min(40, Math.round(len / Math.max(w0, MC * 2)))), step = len / n;
+    for (k = 0; k <= n; k++) {
+      var t = k / n, b = Math.sin(t * Math.PI) * bow, w = w0 + (w1 - w0) * t;
+      ls.push(lobe(x0 + dx * t - dy * b, y0 + dy * t + dx * b, w, Math.max(w * 1.2, step * 0.8), 0.25));
+    }
+    return ls;
+  }
+  // A tree: a trunk that tapers and leans and forks near the top into a
+  // few limbs, under a crown wrapped round the fork so the limbs vanish
+  // into it. The trunk is broken strokes thinning toward its sides, not a
+  // line, with the odd pale fleck of bark; the crown is shaded underneath
+  // so it reads as a mass with weight. Options: rx, the crown's half-width
+  // (else a share of the height); size, pepper, rate, cover, lobes for
+  // the crown.
+  function tree(x, base, h, w, fam, d, o) {
+    o = o || {};
+    var lean = rnd(-0.2, 0.2), fh = h * rnd(0.55, 0.7), fx = x + fh * lean, fy = base - fh, k;
+    var ls = limb(x, base, fx, fy, w, w * 0.45, rnd(-0.07, 0.07));
+    var limbs = Math.round(rnd(2, 3)), a0 = rnd(-0.3, 0.3);
+    for (k = 0; k < limbs; k++) {
+      var a = a0 + (k / (limbs - 1) - 0.5) * rnd(1.2, 2) + rnd(-0.2, 0.2), L = h * rnd(0.14, 0.26);
+      ls = ls.concat(limb(fx, fy, fx + Math.sin(a) * L, fy - Math.cos(a) * L, w * 0.45, w * 0.15, rnd(-0.1, 0.1)));
+    }
+    marksOf({ kind: "blob", lobes: ls }, { size: [1, 2], cover: 1.3, c: shift(P.line, 8), spread: 5, dl: [-8, 8],
+      pepper: shift(P.line, 34, -10), rate: 0.08, fall: 0.5 });
+    var rx = o.rx || Math.max(w * 4, h * rnd(0.3, 0.5)), ry = rx * rnd(0.6, 0.9);
+    bush(fx, fy - ry * rnd(0.4, 0.6), rx, ry, fam, d, { lobes: o.lobes || Math.round(rnd(3, 4)), size: o.size, cover: o.cover || 1.3,
+      pepper: o.pepper, rate: o.rate, fall: 0.45, shade: 30 });
   }
   // A sun or a moon: a tight disc of pale dots.
   function sun() {
@@ -399,15 +428,16 @@
     var g = pickFar(P.mass.concat(P.field), L.lead, 60);
     terrace(wobbleTop(hz, H * 0.04), H, 0.5, g, { pepper: L.near(10), rate: rnd(0.1, 0.25), shade: -8 });
     terrace(wobbleTop(hz + (H - hz) * 0.55, H * 0.05), H, 0.9, shift(g, -6), { pepper: L.near(10), rate: rnd(0.15, 0.3) });
+    // The orchard: broad low trees standing on the ground, the nearer ones
+    // in front.
     n = count(4, 9);
-    var crowns = [];
-    for (i = 0; i < n; i++) {
-      var rx = W * rnd(0.08, 0.2), ry = rx * rnd(0.6, 1), cx = W * rnd(0, 1), cy = rnd(H * 0.05, hz + H * 0.05);
-      crowns.push({ cx: cx, cy: cy, rx: rx, ry: ry });
-      stem(cx + W * rnd(-0.01, 0.01), cy, Math.max(hz + H * 0.08, cy + ry * 1.8), W * rnd(0.004, 0.01));
-    }
-    crowns.forEach(function (c) {
-      bush(c.cx, c.cy, c.rx, c.ry, L.one(rnd(-6, 8)), 0.5, { lobes: 3, size: [2, 2], cover: rnd(1, 1.3), pepper: shift(pl, 4), rate: rnd(0.12, 0.25), fall: 0.5, shade: 26 });
+    var trees = [];
+    for (i = 0; i < n; i++) trees.push({ x: W * rnd(0, 1), base: rnd(hz + H * 0.03, H * 0.95) });
+    trees.sort(function (a, b) { return a.base - b.base; });
+    trees.forEach(function (t) {
+      var d = clamp01((t.base - hz) / (H - hz)), h = H * rnd(0.18, 0.4) * (0.6 + d * 0.5);
+      tree(t.x, t.base, h, h * rnd(0.02, 0.035), L.one(rnd(-6, 8)), 0.5,
+        { rx: h * rnd(0.4, 0.6), lobes: 3, size: [2, 2], cover: rnd(1.1, 1.4), pepper: shift(pl, 4), rate: rnd(0.12, 0.25) });
     });
   }
   // Strata: the land as stacked bands of colour, each its own family, far
@@ -491,13 +521,13 @@
     var clumps = count(1, 3), cs = [];
     for (i = 0; i < clumps; i++) cs.push(W * rnd(0.05, 0.95));
     var n = count(5, 11), trees = [];
-    for (i = 0; i < n; i++) trees.push({ x: pick(cs) + W * rnd(-0.14, 0.14), base: rnd(hz + H * 0.02, H * 1.05), h: H * rnd(0.25, 0.7) });
+    for (i = 0; i < n; i++) trees.push({ x: pick(cs) + W * rnd(-0.14, 0.14), base: rnd(hz + H * 0.02, H * 1.02) });
     trees.sort(function (a, b) { return a.base - b.base; });
     trees.forEach(function (t) {
-      var d = clamp01((t.base - hz) / (H - hz)), w = W * rnd(0.004, 0.012);
-      stem(t.x, t.base - t.h, t.base, w);
-      var rx = Math.max(w * 3, W * rnd(0.04, 0.12)), fam = rand() < 0.18 ? accent : shift(lead, rnd(-16, 16), rnd(-10, 6));
-      bush(t.x, t.base - t.h, rx, rx * rnd(0.5, 0.9), fam, d, { size: d > 0.6 ? [2, 3] : [2, 2], pepper: pickFar(P.bloom.concat(P.field), fam, 30), rate: rnd(0.08, 0.2) });
+      var d = clamp01((t.base - hz) / (H - hz)), h = H * rnd(0.2, 0.5) * (0.6 + d * 0.5);
+      var fam = rand() < 0.18 ? accent : shift(lead, rnd(-16, 16), rnd(-10, 6));
+      tree(t.x, t.base, h, h * rnd(0.018, 0.03), fam, d,
+        { size: d > 0.6 ? [2, 3] : [2, 2], pepper: pickFar(P.bloom.concat(P.field), fam, 30), rate: rnd(0.08, 0.2) });
     });
   }
   // Patchwork: the land from above, a quilt of plots each in its own family
