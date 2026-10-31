@@ -8,15 +8,17 @@ photo:
 tended: November 2026
 ---
 {# Lab page: the homepage split into a top nav, the prose, and a footer that
-   waits below the fold, laid over a dithered field drawn in the site's own
-   paper tokens. The prose column is a clearing in the field. No card, no
-   blur, no motion: the field is still, and different tomorrow.
+   waits below the fold, over a field that is a digital collage: crisp vector
+   shapes filled flat, with two-colour ordered dither, with pixel patterns,
+   with coarse pixel blocks, with contour lines, with gradients. Five
+   compositions, five palettes, seeded by the date. The prose column is a
+   clearing that dissolves into the field as a dither. No motion.
 
    Query string knobs:
      ?study=meadow|thicket|heath|blossom|strata   pick the composition
-     ?accent=clay|moss|none                        the one colour allowed in
+     ?palette=dusk|hot|chalk|spring|ember         pick the mood
      ?seed=123    any integer; the default seed is today's date
-     ?cell=4      cell size in CSS px, 2 to 10 #}
+     ?cell=4      texture cell size in CSS px, 2 to 10 #}
 <style>
   .field {
     position: fixed;
@@ -41,8 +43,7 @@ tended: November 2026
     padding-top: 1.5rem;
     padding-bottom: 0;
   }
-  .top .label,
-  .top .note { display: none; }
+  .top .label { display: none; }
   .top .links {
     display: flex;
     flex-wrap: wrap;
@@ -52,8 +53,35 @@ tended: November 2026
     letter-spacing: 0.02em;
   }
   .top .links li {
+    position: relative;
     padding: 0;
     border: 0;
+  }
+  /* Each link's note waits underneath it and shows on hover or focus. It is
+     positioned out of flow so the nav never shifts. */
+  .top .note {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    width: 16rem;
+    max-width: 70vw;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    letter-spacing: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms ease, visibility 0s linear 200ms;
+  }
+  .top li:hover .note,
+  .top li:focus-within .note {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  /* The last link sits at the column's edge, so its note hangs left. */
+  .top li:last-child .note {
+    left: auto;
+    right: 0;
   }
   .stage {
     flex: 1;
@@ -91,12 +119,25 @@ tended: November 2026
   @media (max-width: 44rem) {
     .field {
       position: static;
-      height: clamp(200px, 34vh, 320px);
+      height: clamp(220px, 36vh, 340px);
     }
     .plate { min-height: 0; }
     .stage {
       justify-content: flex-start;
       padding-top: 1.5rem;
+    }
+    /* On phones a note spans the nav and sits over the top of the field,
+       so it brings its own paper. */
+    .top .links { position: relative; }
+    .top .links li { position: static; }
+    .top .note,
+    .top li:last-child .note {
+      left: 0;
+      right: 0;
+      width: auto;
+      max-width: none;
+      padding: 0.35rem 0;
+      background: var(--paper);
     }
   }
 </style>
@@ -124,7 +165,6 @@ tended: November 2026
   var line = document.querySelector(".field-line");
   var q = new URLSearchParams(location.search);
   var STUDIES = ["meadow", "thicket", "heath", "blossom", "strata"];
-  var ACCENTS = ["clay", "moss"];
 
   // The day's seed. Everyone who visits on the same day gets the same field
   // at the same window size.
@@ -145,6 +185,10 @@ tended: November 2026
   }
   function rnd(a, b) { return a + rand() * (b - a); }
   function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+  function pickOther(arr, not) {
+    var c = pick(arr);
+    return c === not && arr.length > 1 ? pickOther(arr, not) : c;
+  }
 
   function lat(ix, iy) { return lattice[((ix * 73856093) ^ (iy * 19349663)) & 1023]; }
   function noise(x, y) {
@@ -158,6 +202,7 @@ tended: November 2026
       noise(x * 4.3 + 11.7, y * 4.3 + 5.9) * 0.2;
   }
   function smooth(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); }
+  function clamp01(v) { return Math.max(0, Math.min(1, v)); }
 
   // Ordered dithering: the screen's oldest texture.
   var BAYER = [
@@ -166,220 +211,352 @@ tended: November 2026
     [3, 35, 11, 43, 1, 33, 9, 41], [51, 19, 59, 27, 49, 17, 57, 25],
     [15, 47, 7, 39, 13, 45, 5, 37], [63, 31, 55, 23, 61, 29, 53, 21]
   ];
-  function level(v, L, thr) {
-    v = Math.max(0, Math.min(1, v));
-    var lv = v * (L - 1), b = Math.floor(lv);
-    return Math.min(L - 1, b + (lv - b > thr ? 1 : 0));
-  }
+  function thr(i, j) { return (BAYER[j & 7][i & 7] + 0.5) / 64; }
 
+  // --- Colour ------------------------------------------------------------
+  // Five moods. Each is a handful of HSL colours per role.
+  var PALETTES = {
+    dusk: { ground: [30, 40, 50], line: [270, 30, 28],
+      sky: [[272, 45, 72], [285, 38, 64], [300, 30, 72], [232, 35, 76]],
+      mass: [[150, 55, 30], [140, 50, 42], [128, 55, 58], [100, 45, 50], [165, 45, 36]],
+      field: [[42, 55, 52], [22, 42, 40], [26, 40, 50], [268, 35, 72], [50, 58, 80], [135, 45, 48],
+              [88, 50, 55], [18, 55, 45], [350, 30, 55], [46, 70, 58]],
+      bloom: [[52, 82, 58], [56, 72, 72], [335, 58, 66], [20, 80, 62]],
+      accent: [[335, 60, 65], [218, 65, 55], [52, 90, 60], [25, 85, 60], [45, 30, 92]] },
+    hot: { ground: [225, 45, 22], line: [220, 40, 14],
+      sky: [[205, 70, 55], [195, 60, 65], [40, 80, 70]],
+      mass: [[95, 70, 45], [80, 80, 55], [150, 60, 35], [200, 60, 45], [320, 65, 50], [25, 85, 55]],
+      field: [[330, 70, 55], [20, 85, 60], [85, 65, 50], [210, 70, 50], [55, 90, 60], [170, 55, 45], [280, 50, 55]],
+      bloom: [[330, 80, 62], [45, 95, 65], [15, 90, 58], [200, 80, 70]],
+      accent: [[55, 95, 65], [330, 85, 65], [205, 85, 60], [20, 95, 55]] },
+    chalk: { ground: [28, 50, 90], line: [20, 30, 45],
+      sky: [[25, 55, 88], [345, 40, 86], [200, 30, 86]],
+      mass: [[110, 25, 55], [140, 20, 45], [160, 20, 60], [95, 30, 62]],
+      field: [[30, 45, 82], [350, 35, 78], [80, 25, 70], [200, 25, 75], [45, 40, 78], [20, 30, 65]],
+      bloom: [[345, 55, 72], [40, 70, 78], [20, 70, 72]],
+      accent: [[345, 60, 65], [210, 45, 65], [45, 75, 70]] },
+    spring: { ground: [90, 45, 60], line: [120, 40, 24],
+      sky: [[205, 55, 82], [195, 45, 88], [60, 50, 90]],
+      mass: [[110, 60, 45], [95, 65, 55], [130, 55, 38], [75, 60, 55], [150, 50, 42]],
+      field: [[85, 60, 60], [60, 70, 65], [110, 50, 52], [45, 80, 70], [130, 45, 55], [340, 45, 72]],
+      bloom: [[335, 75, 72], [350, 65, 78], [48, 90, 72], [0, 70, 70]],
+      accent: [[335, 80, 70], [48, 95, 65], [210, 60, 65], [20, 90, 65]] },
+    ember: { ground: [355, 45, 25], line: [0, 40, 14],
+      sky: [[20, 70, 60], [35, 80, 65], [350, 50, 55]],
+      mass: [[85, 45, 40], [60, 50, 45], [120, 35, 32], [30, 60, 45], [345, 55, 45]],
+      field: [[25, 80, 50], [10, 70, 45], [45, 70, 55], [350, 55, 50], [75, 45, 45], [290, 35, 45]],
+      bloom: [[48, 95, 62], [25, 95, 60], [340, 70, 62]],
+      accent: [[48, 95, 65], [200, 55, 55], [330, 70, 60], [90, 70, 55]] }
+  };
+  var PNAMES = Object.keys(PALETTES);
+  var P, paletteName;
+
+  function cl(v) { return Math.max(0, Math.min(100, v)); }
+  function css(c, dl) { return "hsl(" + c[0] + "," + c[1] + "%," + cl(c[2] + (dl || 0)) + "%)"; }
+  function shift(c, dl, ds) { return [c[0], cl(c[1] + (ds || 0)), cl(c[2] + dl)]; }
+  function rgb(c) {
+    var h = c[0], sa = c[1] / 100, l = c[2] / 100;
+    var a = sa * Math.min(l, 1 - l);
+    function f(n) { var k = (n + h / 30) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); }
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+  }
+  function mixRgb(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
   function token(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-  function rgb(hex) {
+  function hexRgb(hex) {
     hex = hex.replace("#", "");
     if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
     return [parseInt(hex.slice(0, 2), 16), parseInt(hex.slice(2, 4), 16), parseInt(hex.slice(4, 6), 16)];
   }
 
-  // --- Regions -----------------------------------------------------------
-  // The same composition builders as the painted lab, minus colour. A region
-  // carries a type, a texture style, and sometimes a base tone.
-  var W, H, phone, blobs, bands, horizon, skyReg, baseReg, study, accent, acc;
-  var TEX = ["grass", "grass", "hatch", "dots", "rows", "stubble", "smooth"];
+  // --- Shapes ------------------------------------------------------------
+  // A composition is a list of shapes drawn back to front. Every shape has a
+  // vector outline (a path) and a medium that fills it: flat colour, a
+  // gradient, a two-colour dither, a pixel pattern, coarse blocks, contour
+  // lines. The contrast between media is the picture.
+  var W, H, phone, dpr, ctx, shapes, horizon, study;
+  var MEDIA = {
+    sky: ["gradient", "gradient", "posterize", "dither", "flat"],
+    ground: ["dither", "posterize", "flat", "hatch", "rows", "dots", "contour", "checks", "stubble", "gradient"],
+    mass: ["flat", "flat", "dither", "posterize", "blocks", "hatch", "contour", "dots", "stubble"],
+    patch: ["blocks", "dots", "checks", "flat"],
+    band: ["flat", "dither", "posterize", "rows", "contour", "hatch", "gradient", "stubble", "checks"],
+    ring: ["flat", "flat", "dots", "hatch", "dither"]
+  };
 
   function lobe(cx, cy, rx, ry) { return { cx: cx, cy: cy, rx: rx, ry: ry, seed: rnd(0, 100) }; }
-  function addBlob(b) { b.tex = rnd(0, 100); blobs.push(b); return b; }
-  function mound(type, cx, cy, rx, ry, style, extra) {
-    var b = addBlob({ type: type, style: style, lobes: [lobe(cx, cy, rx, ry)] });
+  function add(sh) { sh.tex = rnd(0, 100); shapes.push(sh); return sh; }
+  function mound(role, cx, cy, rx, ry, extra, c1, c2) {
+    var sh = add({ kind: "blob", role: role, lobes: [lobe(cx, cy, rx, ry)], c1: c1, c2: c2, medium: pick(MEDIA[role]) });
     for (var l = 0; l < extra; l++) {
-      b.lobes.push(lobe(cx + rx * rnd(-0.9, 0.9), cy + ry * rnd(-0.7, 0.5), rx * rnd(0.4, 0.9), ry * rnd(0.4, 0.9)));
+      sh.lobes.push(lobe(cx + rx * rnd(-0.9, 0.9), cy + ry * rnd(-0.7, 0.5), rx * rnd(0.4, 0.9), ry * rnd(0.4, 0.9)));
     }
-    return b;
+    sh.outline = role === "mass" ? rand() < 0.45 : rand() < 0.15;
+    return sh;
   }
   function ribbon(width, y0, y1) {
     var pts = [], x = W * rnd(-0.1, 0.5), y = rnd(y0, y1), ang = rnd(-0.6, 0.6);
     for (var k = 0; k < 40; k++) {
-      pts.push({ x: x, y: y });
+      pts.push([x, y]);
       ang += rnd(-0.35, 0.35); ang = Math.max(-1.2, Math.min(1.2, ang));
       x += Math.cos(ang) * W * 0.03; y += Math.sin(ang) * W * 0.03;
     }
-    return addBlob({ type: "ribbon", pts: pts, width: width });
+    return add({ kind: "ribbon", pts: pts, width: width, c1: pick(P.accent), dash: rand() < 0.3 });
   }
-  function band(reg, y) { reg.top = y; reg.wob = rnd(0, 100); bands.push(reg); return reg; }
-
-  function insideLobe(lb, x, y) {
-    var dx = (x - lb.cx) / lb.rx, dy = (y - lb.cy) / lb.ry;
-    var q2 = dx * dx + dy * dy;
-    if (q2 > 1.7) return false;
-    var r = 0.7 + 0.6 * fbm(x / 110 + lb.seed, y / 110 + lb.seed);
-    return q2 < r * r;
+  function below(role, topFn, c1, c2) {
+    return add({ kind: "below", role: role, top: topFn, c1: c1, c2: c2, medium: pick(MEDIA[role]) });
   }
-  function inside(b, x, y) {
-    if (b.pts) {
-      var w = b.width * (0.6 + 0.8 * fbm(x / 60 + b.tex, y / 60));
-      for (var k = 0; k < b.pts.length; k++) {
-        var dx = x - b.pts[k].x, dy = y - b.pts[k].y;
-        if (dx * dx + dy * dy < w * w) return true;
-      }
-      return false;
-    }
-    for (k = 0; k < b.lobes.length; k++) if (insideLobe(b.lobes[k], x, y)) return true;
-    return false;
+  function wobbleTop(y0, amp) {
+    var w = rnd(0, 100);
+    return function (x) { return y0 + (fbm(x / 200 + w, w) - 0.5) * amp; };
   }
-  function bandTop(reg, x) { return reg.top + (fbm(x / 200 + reg.wob, reg.wob) - 0.5) * H * 0.12; }
-  function baseAt(x, y) {
-    if (bands) {
-      for (var k = bands.length - 1; k > 0; k--) if (y >= bandTop(bands[k], x)) return bands[k];
-      return bands[0];
-    }
-    if (horizon >= 0) {
-      var hz = horizon + (fbm(x / 160, 3.3) - 0.5) * H * 0.1;
-      return y < hz ? skyReg : baseReg;
-    }
-    return baseReg;
-  }
-  function regionAt(x, y) {
-    var r = baseAt(x, y);
-    for (var k = 0; k < blobs.length; k++) if (inside(blobs[k], x, y)) r = blobs[k];
-    return r;
-  }
-  function nearestLobe(b, x, y) {
-    var best = b.lobes[0], bd = Infinity;
-    for (var k = 0; k < b.lobes.length; k++) {
-      var lb = b.lobes[k], dx = (x - lb.cx) / lb.rx, dy = (y - lb.cy) / lb.ry, d = dx * dx + dy * dy;
-      if (d < bd) { bd = d; best = lb; }
-    }
-    return best;
-  }
+  function fieldPair() { var a = pick(P.field); return [a, rand() < 0.5 ? pickOther(P.field, a) : shift(a, -14)]; }
+  function massPair() { var a = pick(P.mass); return [a, rand() < 0.4 ? pickOther(P.mass, a) : shift(a, -16)]; }
 
   function buildMeadow() {
     horizon = H * rnd(0.2, 0.42);
-    skyReg = { type: "sky" };
-    baseReg = { type: "ground", style: "grass", tex: 5 };
+    var sc = pick(P.sky);
+    below("sky", function () { return 0; }, sc, rand() < 0.5 ? pickOther(P.sky, sc) : shift(sc, 12));
+    var fp = fieldPair();
+    below("ground", wobbleTop(horizon, H * 0.1), fp[0], fp[1]);
     var n = Math.round(rnd(2, 5));
     for (var i = 0; i < n; i++) {
-      var b = mound("canopy", W * rnd(0.05, 0.95), horizon - H * rnd(-0.02, 0.16), W * rnd(0.08, 0.22), H * rnd(0.08, 0.22), "smooth", Math.round(rnd(0, 3)));
-      b.accent = rand() < 0.35;
+      var mp = massPair();
+      mound("mass", W * rnd(0.05, 0.95), horizon - H * rnd(-0.02, 0.16), W * rnd(0.08, 0.22), H * rnd(0.08, 0.22), Math.round(rnd(0, 3)), mp[0], mp[1]);
     }
     n = Math.round(rnd(4, 8));
-    for (i = 0; i < n; i++) mound("ground", W * rnd(0.05, 0.95), rnd(horizon + H * 0.04, H), W * rnd(0.2, 0.55), H * rnd(0.08, 0.26), pick(TEX), 0);
+    for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), rnd(horizon + H * 0.04, H), W * rnd(0.2, 0.55), H * rnd(0.08, 0.26), 0, fp[0], fp[1]); }
     n = Math.round(rnd(0, 3));
-    for (i = 0; i < n; i++) mound("ground", W * rnd(0.05, 0.95), H * rnd(0.75, 1), W * rnd(0.03, 0.08), H * rnd(0.2, 0.5), pick(["grass", "stubble", "rows"]), 0);
+    for (i = 0; i < n; i++) { fp = fieldPair(); mound("ground", W * rnd(0.05, 0.95), H * rnd(0.75, 1), W * rnd(0.03, 0.08), H * rnd(0.2, 0.5), 0, fp[0], fp[1]); }
     n = Math.round(rnd(1, 4));
-    for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), rnd(horizon - H * 0.05, H * 0.85), W * rnd(0.03, 0.09), H * rnd(0.03, 0.09), "dots", 0);
+    for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), rnd(horizon - H * 0.05, H * 0.85), W * rnd(0.03, 0.09), H * rnd(0.03, 0.09), 0, pick(P.bloom), pick(P.accent));
     n = Math.round(rnd(1, 3));
-    for (i = 0; i < n; i++) ribbon(rnd(8, 30), horizon, H);
+    for (i = 0; i < n; i++) ribbon(rnd(6, 24), horizon, H);
   }
   function buildThicket() {
-    baseReg = { type: "bare" };
+    below("band", function () { return 0; }, P.ground, shift(P.line, 18));
+    shapes[0].medium = pick(["contour", "flat", "stubble", "dots"]);
     var n = Math.round(rnd(2, 4));
-    for (var i = 0; i < n; i++) mound("ground", W * rnd(0.1, 0.9), H * rnd(0.5, 1.1), W * rnd(0.25, 0.6), H * rnd(0.1, 0.3), pick(["grass", "stubble", "hatch"]), 0);
+    for (var i = 0; i < n; i++) { var fp = fieldPair(); mound("ground", W * rnd(0.1, 0.9), H * rnd(0.5, 1.1), W * rnd(0.25, 0.6), H * rnd(0.1, 0.3), 0, fp[0], fp[1]); }
     n = Math.round(rnd(6, 12));
     for (i = 0; i < n; i++) {
-      var rx = W * rnd(0.06, 0.2);
-      var b = mound("mound", W * rnd(0, 1), H * rnd(0.1, 1), rx, Math.min(H * 0.35, rx * rnd(0.6, 1.3)), "smooth", Math.round(rnd(0, 2)));
-      b.accent = rand() < 0.2;
+      var rx = W * rnd(0.06, 0.2), mp = massPair();
+      mound("mass", W * rnd(0, 1), H * rnd(0.1, 1), rx, Math.min(H * 0.35, rx * rnd(0.6, 1.3)), Math.round(rnd(0, 2)), mp[0], mp[1]);
     }
+    n = Math.round(rnd(0, 2));
+    for (i = 0; i < n; i++) mound("patch", W * rnd(0.1, 0.9), H * rnd(0.1, 0.9), W * rnd(0.02, 0.06), W * rnd(0.02, 0.06), 0, pick(P.bloom), pick(P.accent));
   }
   function buildHeath() {
-    bands = [];
     var n = Math.round(rnd(3, 5)), y = 0;
     for (var i = 0; i < n; i++) {
-      band({ type: "ground", style: pick(["rows", "rows", "stubble", "dots", "hatch"]), tex: rnd(0, 100), tone: rnd(0.18, 0.48) }, y);
+      var fp = fieldPair();
+      below("band", i ? wobbleTop(y, H * 0.12) : function () { return 0; }, fp[0], fp[1]);
       y += H / n * rnd(0.6, 1.4);
     }
     n = Math.round(rnd(1, 2));
-    for (i = 0; i < n; i++) { var r = ribbon(rnd(30, 70), H * 0.2, H); r.flat = true; }
+    for (i = 0; i < n; i++) ribbon(rnd(24, 60), H * 0.2, H);
     n = Math.round(rnd(2, 5));
     for (i = 0; i < n; i++) {
-      var rx = W * rnd(0.04, 0.12);
-      var b = mound("mound", W * rnd(0.05, 0.95), H * rnd(0.15, 0.95), rx, rx * rnd(0.5, 0.9), "smooth", Math.round(rnd(0, 1)));
-      b.accent = rand() < 0.3;
+      var rx = W * rnd(0.04, 0.12), mp = massPair();
+      mound("mass", W * rnd(0.05, 0.95), H * rnd(0.15, 0.95), rx, rx * rnd(0.5, 0.9), Math.round(rnd(0, 1)), mp[0], mp[1]);
     }
   }
   function buildBlossom() {
-    baseReg = { type: "ground", style: "stubble", tex: 2, tone: 0.18 };
+    var fp = fieldPair();
+    below("band", function () { return 0; }, fp[0], fp[1]);
     var n = Math.round(rnd(5, 10));
     for (var i = 0; i < n; i++) {
-      var rx = W * rnd(0.06, 0.18);
-      var b = mound("blossom", W * rnd(0, 1), H * rnd(0, 1), rx, rx * rnd(0.7, 1.1), "smooth", 0);
-      b.ringW = rnd(8, 18);
+      var r = W * rnd(0.06, 0.18), c1 = pick(P.bloom);
+      add({ kind: "rings", cx: W * rnd(0, 1), cy: H * rnd(0, 1), r: r, ry: r * rnd(0.75, 1.1), ringW: rnd(10, 22),
+        seed: rnd(0, 100), c1: c1, c2: rand() < 0.5 ? pick(P.accent) : pickOther(P.bloom, c1), medium: pick(MEDIA.ring) });
     }
   }
   function buildStrata() {
-    bands = [];
     var n = Math.round(rnd(5, 9)), y = 0, tops = [];
     for (var i = 0; i < n; i++) {
-      var sky = i === 0 && rand() < 0.6;
-      band({ type: sky ? "sky" : "ground", style: sky ? "smooth" : pick(TEX.concat(["rows"])), tex: rnd(0, 100), tone: sky ? 0 : rnd(0.14, 0.58) }, y);
+      var sky = i === 0 && rand() < 0.6, fp = fieldPair();
+      if (sky) { var sc = pick(P.sky); fp = [sc, shift(sc, 12)]; }
+      var b = below(sky ? "sky" : "band", i ? wobbleTop(y, H * 0.12) : function () { return 0; }, fp[0], fp[1]);
       tops.push(y); y += H / n * rnd(0.5, 1.5);
     }
     n = Math.round(rnd(1, 4));
     for (i = 0; i < n; i++) {
-      var rx = W * rnd(0.06, 0.16);
-      var b = mound("mound", W * rnd(0.05, 0.95), pick(tops.slice(1)), rx, rx * rnd(0.5, 1), "smooth", Math.round(rnd(0, 2)));
-      b.accent = rand() < 0.4;
+      var rx = W * rnd(0.06, 0.16), mp = massPair();
+      mound("mass", W * rnd(0.05, 0.95), pick(tops.slice(1)), rx, rx * rnd(0.5, 1), Math.round(rnd(0, 2)), mp[0], mp[1]);
     }
     n = Math.round(rnd(0, 2));
-    for (i = 0; i < n; i++) ribbon(rnd(8, 24), H * 0.2, H);
+    for (i = 0; i < n; i++) ribbon(rnd(6, 20), H * 0.2, H);
   }
   var BUILD = { meadow: buildMeadow, thicket: buildThicket, heath: buildHeath, blossom: buildBlossom, strata: buildStrata };
 
-  // --- Tone --------------------------------------------------------------
-  // Each cell gets a tone from 0 (paper) to 1 (ink). Texture is pattern, not
-  // brushwork: rows, hatching, dot grids, fine noise.
-  function texture(style, x, y, i, j, t) {
-    switch (style) {
-      case "grass": return (noise(x / 5 + t, y / 30 + t) - 0.5) * 0.3;
-      case "hatch": return (i + j) % 4 === 0 ? 0.12 : -0.04;
-      case "rows": return j % 3 === 0 ? 0.12 : -0.05;
-      case "dots": return i % 3 === 0 && j % 3 === 0 ? 0.22 : -0.05;
-      case "stubble": return (noise(x / 3 + t, y / 3 + t) - 0.5) * 0.3;
-      default: return 0;
+  // --- Paths -------------------------------------------------------------
+  function smoothClosed(path, pts) {
+    var n = pts.length, m0 = [(pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2];
+    path.moveTo(m0[0], m0[1]);
+    for (var k = 0; k < n; k++) {
+      var p = pts[k], nx = pts[(k + 1) % n];
+      path.quadraticCurveTo(p[0], p[1], (p[0] + nx[0]) / 2, (p[1] + nx[1]) / 2);
     }
+    path.closePath();
   }
-  function toneAt(reg, x, y, i, j) {
-    var t = reg.tex || 0, lb, v;
-    switch (reg.type) {
-      case "sky": {
-        var hz = horizon >= 0 ? horizon : H * 0.4;
-        v = 0.03 + 0.1 * fbm(x / 320, y / 240) + 0.05 * Math.min(1, y / hz);
-        break;
-      }
-      case "ground": {
-        var top = horizon >= 0 ? horizon : reg.top || 0;
-        var depth = Math.min(1, Math.max(0, (y - top) / Math.max(1, H - top)));
-        var base = reg.tone != null ? reg.tone : 0.22 + 0.22 * depth;
-        v = base + (fbm(x / 150 + t, y / 100 + t) - 0.5) * 0.3 + texture(reg.style, x, y, i, j, t);
-        break;
-      }
-      case "bare":
-        v = 0.1 + (fbm(x / 120, y / 120) - 0.5) * 0.14 + texture("stubble", x, y, i, j, 1) * 0.4;
-        break;
-      case "canopy":
-      case "mound": {
-        lb = nearestLobe(reg, x, y);
-        var ny = (y - lb.cy) / lb.ry, nx = (x - lb.cx) / lb.rx;
-        v = 0.5 + 0.22 * ny + 0.1 * nx + (fbm(x / 55 + t, y / 55 + t) - 0.5) * 0.36;
-        acc = !!reg.accent;
-        break;
-      }
-      case "blossom": {
-        lb = nearestLobe(reg, x, y);
-        var d = Math.hypot(x - lb.cx, y - lb.cy) + (fbm(x / 90 + t, y / 90) - 0.5) * reg.ringW * 0.9;
-        if (Math.floor(Math.abs(d) / reg.ringW) % 2 === 0) { acc = true; v = 0.7; }
-        else v = 0.45;
-        v += (fbm(x / 40 + t, y / 40) - 0.5) * 0.3;
-        break;
-      }
-      case "patch":
-        acc = true;
-        v = 0.55 + (fbm(x / 40 + t, y / 40) - 0.5) * 0.4;
-        break;
-      case "ribbon":
-        v = reg.flat ? 0.06 : 0.1 + texture("dots", x, y, i, j, t) * 0.5;
-        break;
-      default: v = 0.3;
+  function lobePath(path, lb, scale) {
+    var pts = [], N = 72;
+    for (var k = 0; k < N; k++) {
+      var a = k / N * Math.PI * 2;
+      var r = (0.78 + 0.44 * fbm(Math.cos(a) * 1.4 + lb.seed, Math.sin(a) * 1.4 + lb.seed)) * (scale || 1);
+      pts.push([lb.cx + Math.cos(a) * lb.rx * r, lb.cy + Math.sin(a) * lb.ry * r]);
     }
-    return v;
+    smoothClosed(path, pts);
+  }
+  function shapePath(sh) {
+    var path = new Path2D(), k;
+    if (sh.kind === "blob") { for (k = 0; k < sh.lobes.length; k++) lobePath(path, sh.lobes[k]); }
+    else if (sh.kind === "below") {
+      path.moveTo(-2, sh.top(0));
+      for (var x = 0; x <= W + 8; x += 8) path.lineTo(x, sh.top(x));
+      path.lineTo(W + 2, H + 2); path.lineTo(-2, H + 2); path.closePath();
+    }
+    return path;
+  }
+  function bbox(sh) {
+    if (sh.kind === "below") {
+      var mn = H;
+      for (var x = 0; x <= W; x += 8) mn = Math.min(mn, sh.top(x));
+      return [0, Math.max(0, mn), W, H];
+    }
+    var b = [W, H, 0, 0];
+    sh.lobes.forEach(function (lb) {
+      b[0] = Math.min(b[0], lb.cx - lb.rx * 1.25); b[1] = Math.min(b[1], lb.cy - lb.ry * 1.25);
+      b[2] = Math.max(b[2], lb.cx + lb.rx * 1.25); b[3] = Math.max(b[3], lb.cy + lb.ry * 1.25);
+    });
+    return [Math.max(0, b[0]), Math.max(0, b[1]), Math.min(W, b[2]), Math.min(H, b[3])];
+  }
+
+  // --- Media -------------------------------------------------------------
+  // Shade runs 0 (first colour) to 1 (second colour) across a shape.
+  function shadeFn(sh, bb) {
+    var t = sh.tex;
+    if (sh.kind === "blob") {
+      return function (x, y) {
+        var best = sh.lobes[0], bd = Infinity;
+        for (var k = 0; k < sh.lobes.length; k++) {
+          var lb = sh.lobes[k], dx = (x - lb.cx) / lb.rx, dy = (y - lb.cy) / lb.ry, d = dx * dx + dy * dy;
+          if (d < bd) { bd = d; best = lb; }
+        }
+        return 0.5 + 0.45 * ((y - best.cy) / best.ry) + 0.15 * ((x - best.cx) / best.rx) + (fbm(x / 50 + t, y / 50 + t) - 0.5) * 0.4;
+      };
+    }
+    var by = bb[1], bh = Math.max(1, bb[3] - bb[1]);
+    return function (x, y) { return 0.1 + 0.8 * ((y - by) / bh) + (fbm(x / 140 + t, y / 90 + t) - 0.5) * 0.5; };
+  }
+
+  var tiles;
+  var TILES = {
+    hatch: [4, [[0, 0], [1, 1], [2, 2], [3, 3]]],
+    rows: [3, [[0, 0], [1, 0], [2, 0]]],
+    dots: [3, [[1, 1]]],
+    checks: [2, [[0, 0], [1, 1]]]
+  };
+  function tile(kind, c) {
+    var key = kind + css(c);
+    if (tiles[key]) return tiles[key];
+    var spec = TILES[kind], n = spec[0], px = CELL * dpr;
+    var tc = document.createElement("canvas");
+    tc.width = tc.height = n * px;
+    var t = tc.getContext("2d");
+    t.fillStyle = css(c);
+    spec[1].forEach(function (p) { t.fillRect(p[0] * px, p[1] * px, px, px); });
+    var pat = ctx.createPattern(tc, "repeat");
+    pat.setTransform(new DOMMatrix().scale(1 / dpr));
+    tiles[key] = pat;
+    return pat;
+  }
+
+  function paint(sh, bb) {
+    var med = sh.medium, bx = bb[0], by = bb[1], bw = bb[2] - bb[0], bh = bb[3] - bb[1];
+    if (bw <= 0 || bh <= 0) return;
+    if (med === "flat") { ctx.fillStyle = css(sh.c1); ctx.fillRect(bx, by, bw, bh); return; }
+    if (med === "gradient") {
+      var g = ctx.createLinearGradient(0, by, 0, by + bh);
+      g.addColorStop(0, css(sh.c1)); g.addColorStop(1, css(sh.c2));
+      ctx.fillStyle = g; ctx.fillRect(bx, by, bw, bh); return;
+    }
+    if (TILES[med]) {
+      ctx.fillStyle = css(sh.c1); ctx.fillRect(bx, by, bw, bh);
+      ctx.fillStyle = tile(med, sh.c2); ctx.fillRect(bx, by, bw, bh); return;
+    }
+    // Raster media: a small image, one pixel per cell, scaled up unsmoothed.
+    var cell = med === "blocks" ? CELL * 4 : CELL;
+    var cols = Math.ceil(bw / cell), rows = Math.ceil(bh / cell);
+    var off = document.createElement("canvas");
+    off.width = cols; off.height = rows;
+    var octx = off.getContext("2d"), img = octx.createImageData(cols, rows), px = img.data;
+    var A = rgb(sh.c1), B = rgb(sh.c2), C = mixRgb(A, B, 0.5), shade = shadeFn(sh, bb), t = sh.tex;
+    var levels = med === "posterize" ? Math.round(rnd(3, 5)) : 0;
+    var gi = Math.floor(bx / cell), gj = Math.floor(by / cell);
+    for (var j = 0; j < rows; j++) {
+      for (var i = 0; i < cols; i++) {
+        var x = bx + (i + 0.5) * cell, y = by + (j + 0.5) * cell, c;
+        switch (med) {
+          case "dither": c = clamp01(shade(x, y)) > thr(i + gi, j + gj) ? B : A; break;
+          case "posterize": c = mixRgb(A, B, Math.floor(clamp01(shade(x, y)) * levels) / (levels - 1)); break;
+          case "contour": {
+            var iso = Math.floor(fbm(x / 90 + t, y / 70 + t) * 7);
+            c = iso !== Math.floor(fbm((x - cell) / 90 + t, y / 70 + t) * 7) ||
+                iso !== Math.floor(fbm(x / 90 + t, (y - cell) / 70 + t) * 7) ? B : A;
+            break;
+          }
+          case "blocks": {
+            var v = fbm(x / 60 + t, y / 60 + t);
+            c = v < 0.44 ? A : v < 0.56 ? C : B;
+            break;
+          }
+          default: // stubble
+            c = noise(x / 3 + t, y / 3 + t) > 0.3 + 0.4 * clamp01(shade(x, y)) ? A : B;
+        }
+        var k = (j * cols + i) * 4;
+        px[k] = c[0]; px[k + 1] = c[1]; px[k + 2] = c[2]; px[k + 3] = 255;
+      }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, bx, by, cols * cell, rows * cell);
+  }
+
+  function drawShape(sh) {
+    if (sh.kind === "ribbon") {
+      ctx.save();
+      ctx.strokeStyle = css(sh.c1); ctx.lineWidth = sh.width;
+      ctx.lineCap = sh.dash ? "butt" : "round"; ctx.lineJoin = "round";
+      if (sh.dash) ctx.setLineDash([sh.width * 1.2, sh.width * 0.8]);
+      ctx.beginPath();
+      var p = sh.pts; ctx.moveTo(p[0][0], p[0][1]);
+      for (var k = 1; k < p.length - 1; k++) ctx.quadraticCurveTo(p[k][0], p[k][1], (p[k][0] + p[k + 1][0]) / 2, (p[k][1] + p[k + 1][1]) / 2);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+    if (sh.kind === "rings") {
+      var n = Math.max(2, Math.round(sh.r / sh.ringW));
+      for (k = n; k >= 1; k--) {
+        var lb = { cx: sh.cx, cy: sh.cy, rx: sh.r * k / n, ry: sh.ry * k / n, seed: sh.seed + k * 0.07 };
+        var path = new Path2D(); lobePath(path, lb);
+        if (k % 2 === 0) { ctx.fillStyle = css(sh.c1); ctx.fill(path); }
+        else {
+          ctx.save(); ctx.clip(path);
+          paint({ kind: "blob", lobes: [lb], c1: sh.c2, c2: sh.c1, medium: sh.medium, tex: sh.seed }, bbox({ kind: "blob", lobes: [lb] }));
+          ctx.restore();
+        }
+      }
+      return;
+    }
+    var path2 = shapePath(sh), bb = bbox(sh);
+    ctx.save(); ctx.clip(path2); paint(sh, bb); ctx.restore();
+    if (sh.outline) {
+      ctx.save();
+      ctx.strokeStyle = css(P.line); ctx.lineWidth = 1; ctx.globalAlpha = 0.75;
+      ctx.stroke(path2);
+      ctx.restore();
+    }
   }
 
   // --- Render ------------------------------------------------------------
@@ -389,62 +566,58 @@ tended: November 2026
     for (var i = 0; i < 1024; i++) lattice.push(rand());
     var sp = q.get("study");
     study = STUDIES.indexOf(sp) >= 0 ? sp : pick(STUDIES);
-    var ap = q.get("accent");
-    accent = ap === "none" || ACCENTS.indexOf(ap) >= 0 ? ap : pick(ACCENTS);
+    paletteName = PALETTES[q.get("palette")] ? q.get("palette") : pick(PNAMES);
+    P = PALETTES[paletteName];
 
     phone = matchMedia("(max-width: 44rem)").matches;
     W = canvas.clientWidth; H = canvas.clientHeight;
     if (!W || !H) return;
-    blobs = []; bands = null; horizon = -1; skyReg = baseReg = null;
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    tiles = {};
+
+    shapes = []; horizon = -1;
     BUILD[study]();
+    ctx.fillStyle = css(P.ground); ctx.fillRect(0, 0, W, H);
+    shapes.forEach(drawShape);
 
-    var tones = [null, rgb(token("--rule")), rgb(token("--ink-soft")), rgb(token("--ink"))];
-    var accCol = rgb(token(accent === "moss" ? "--moss" : "--clay"));
-    var useAcc = accent !== "none";
-
-    // The clearing: the prose column, with a feathered, wandering edge.
+    // The clearing: the prose column dissolves into the field as a dither,
+    // with a feathered, wandering edge. On phones the field dissolves
+    // upward into the paper at its foot.
+    var paper = hexRgb(token("--paper"));
     var rect = column.getBoundingClientRect();
-    var colL = rect.left + 8, colR = rect.right - 8, FEATHER = 120;
-    function clearing(x, y) {
-      if (phone) return smooth((H - y) / (H * 0.4));
+    var colL = rect.left + 8, colR = rect.right - 8, FEATHER = 140;
+    function paperness(x, y) {
+      if (phone) return 1 - smooth((H - y) / (H * 0.45));
       var wob = (fbm(y / 160 + 7, 2) - 0.5) * 48;
       var l = colL + wob, r = colR + wob;
-      if (x > l && x < r) return 0;
-      return smooth((x < l ? l - x : x - r) / FEATHER);
+      if (x > l && x < r) return 1;
+      return 1 - smooth((x < l ? l - x : x - r) / FEATHER);
     }
-
     var cols = Math.ceil(W / CELL), rows = Math.ceil(H / CELL);
     var off = document.createElement("canvas");
     off.width = cols; off.height = rows;
-    var octx = off.getContext("2d");
-    var img = octx.createImageData(cols, rows), px = img.data;
+    var octx = off.getContext("2d"), img = octx.createImageData(cols, rows), px = img.data;
     for (var j = 0; j < rows; j++) {
       for (i = 0; i < cols; i++) {
-        var x = (i + 0.5) * CELL, y = (j + 0.5) * CELL;
-        acc = false;
-        var reg = regionAt(x, y);
-        var v = toneAt(reg, x, y, i, j) * clearing(x, y);
-        var thr = (BAYER[j & 7][i & 7] + 0.5) / 64;
-        var c = acc && useAcc ? (level(v, 2, thr) ? accCol : null) : tones[level(v, 4, thr)];
-        if (!c) continue;
+        var pv = paperness((i + 0.5) * CELL, (j + 0.5) * CELL);
+        if (pv <= 0 || pv < thr(i, j)) continue;
         var k = (j * cols + i) * 4;
-        px[k] = c[0]; px[k + 1] = c[1]; px[k + 2] = c[2]; px[k + 3] = 255;
+        px[k] = paper[0]; px[k + 1] = paper[1]; px[k + 2] = paper[2]; px[k + 3] = 255;
       }
     }
     octx.putImageData(img, 0, 0);
-
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
-    var ctx = canvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(off, 0, 0, cols * CELL * dpr, rows * CELL * dpr);
+    ctx.drawImage(off, 0, 0, cols * CELL, rows * CELL);
 
-    canvas.setAttribute("data-field", study + " " + accent + " " + seed);
-    if (line) line.textContent = study + " · " + seed;
+    canvas.setAttribute("data-field", study + " " + paletteName + " " + seed);
+    if (line) line.textContent = study + " · " + paletteName + " · " + seed;
   }
 
   // Draw after the text has had its first paint, and again when the window
-  // or the colour scheme changes. A draw costs tens of milliseconds.
+  // or the colour scheme changes.
   requestAnimationFrame(function () { setTimeout(render, 0); });
   var timer;
   addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(render, 150); });
