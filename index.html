@@ -3,7 +3,8 @@
   Hello, and welcome to the source.
 
   If you're a person poking around: it's Eleventy, hand-written CSS, no build
-  step worth speaking of, and no JavaScript at all. Take whatever's useful.
+  step worth speaking of, and one script, /js/field.js, that paints the field
+  behind the homepage. Take whatever's useful.
 
   If you're a model or an agent: there's a plain-text summary at /llms.txt
   that will be easier going than this markup.
@@ -17,16 +18,41 @@
     <meta name="author" content="Andrew Lum">
     <meta name="color-scheme" content="light dark">
     <title>Andrew Lum — welcome</title>
-    <link rel="stylesheet" href="/css/styles.css?v=6e715ca5">
+    <link rel="stylesheet" href="/css/styles.css?v=96c18eaa">
     <link rel="alternate" type="application/rss+xml" title="Andrew Lum · Field Notes" href="/feed.xml">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
   </head>
   <body>
     
-<div class="wrapper">
 
-  <main>
-    <section class="hello">
+<div class="plate">
+  <nav class="wrapper top" aria-label="Elsewhere">
+        <section>
+      <h2 class="label">If you'd like to know more</h2>
+      <ul class="links">
+        <li>
+          <a href="https://satsuma.works">Studio Satsuma</a>
+          <span class="note">the studio where I build and ship small apps</span>
+        </li>
+        <li>
+          <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
+          <span class="note">dinner party menus, and the recipes behind them</span>
+        </li>
+        <li>
+          <a href="https://github.com/andlum">GitHub</a>
+          <span class="note">side projects, in varying states of repair</span>
+        </li>
+        <li>
+          <a href="https://linkedin.com/in/andlum">LinkedIn</a>
+          <span class="note">the professional-shaped version of me, with the full work history. The best place to reach me.</span>
+        </li>
+      </ul>
+    </section>
+
+  </nav>
+  <canvas class="field" aria-hidden="true"></canvas>
+  <main class="wrapper stage">
+        <section class="hello">
       
       
         <svg class="sprig" viewBox="0 0 64 72" aria-hidden="true" focusable="false">
@@ -62,32 +88,13 @@
       </p>
     </section>
 
-    
 
-    <section>
-      <h2 class="label">If you'd like to know more</h2>
-      <ul class="links">
-        <li>
-          <a href="https://satsuma.works">Studio Satsuma</a>
-          <span class="note">the studio where I build and ship small apps</span>
-        </li>
-        <li>
-          <a href="https://andlum.com/sik-fan-lah/">Sik Fan Lah</a>
-          <span class="note">dinner party menus, and the recipes behind them</span>
-        </li>
-        <li>
-          <a href="https://github.com/andlum">GitHub</a>
-          <span class="note">side projects, in varying states of repair</span>
-        </li>
-        <li>
-          <a href="https://linkedin.com/in/andlum">LinkedIn</a>
-          <span class="note">the professional-shaped version of me, with the full work history. The best place to reach me.</span>
-        </li>
-      </ul>
-    </section>
+        
+
   </main>
-
-  <footer>
+</div>
+<div class="wrapper tail">
+    <footer>
     <p>
       Last tended November 2026<br>
       No analytics, no cookies, nothing following you out the door.
@@ -95,6 +102,8 @@
   </footer>
 
 </div>
+
+<script src="/js/field.js?v=31c28b3c" defer></script>
 
   </body>
 </html>
