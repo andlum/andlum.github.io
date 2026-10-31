@@ -10,8 +10,8 @@ tended: November 2026
 {# Lab page: the real homepage body laid over a generated painting.
 
    Query string knobs, so variants can be compared without editing:
-     ?mode=band   painting fills the lower part of the window (default)
-     ?mode=full   painting fills the whole window
+     ?mode=full   painting fills the whole window (default)
+     ?mode=band   painting fills the lower part of the window
      ?seed=123    any integer; the default seed is today's date
      ?density=1   stroke density multiplier, 0.5 to 2
      ?still=1     paint instantly instead of over a few seconds #}
@@ -80,7 +80,7 @@ tended: November 2026
   var canvas = document.querySelector(".landscrape");
   if (!canvas) return;
   var q = new URLSearchParams(location.search);
-  var mode = q.get("mode") === "full" ? "full" : "band";
+  var mode = q.get("mode") === "band" ? "band" : "full";
   canvas.classList.add(mode);
   var densityMul = Math.min(2, Math.max(0.5, parseFloat(q.get("density")) || 1));
   var still = q.get("still") === "1" ||
@@ -99,6 +99,7 @@ tended: November 2026
   }
   function rnd(a, b) { return a + rand() * (b - a); }
   function pick(arr) { return arr[Math.floor(rand() * arr.length)]; }
+  function pick2(arr) { var a = pick(arr), b = pick(arr); return b === a ? [a, pick(arr)] : [a, b]; }
 
   // Smooth value noise on a lattice, three octaves. Enough to make edges
   // wander and colour drift the way a brush does.
@@ -117,15 +118,17 @@ tended: November 2026
   }
 
   // --- Palette (HSL triples) --------------------------------------------
-  var SKY = [[272, 45, 72], [285, 38, 64], [262, 40, 78]];
-  var CANOPY = [[150, 55, 30], [140, 50, 42], [128, 55, 58], [100, 45, 50]];
-  var BLOOM = [[52, 82, 58], [56, 72, 72], [335, 58, 66]];
-  var GROUND = [[42, 55, 52], [22, 42, 40], [26, 40, 50], [268, 35, 72],
-                [50, 58, 80], [135, 45, 48], [88, 50, 55]];
-  var ACCENT = [[335, 60, 65], [350, 55, 45], [218, 65, 55], [52, 90, 60], [275, 50, 60]];
+  var SKY = [[272, 45, 72], [285, 38, 64], [262, 40, 78], [300, 30, 72], [232, 35, 76], [320, 35, 68]];
+  var CANOPY = [[150, 55, 30], [140, 50, 42], [128, 55, 58], [100, 45, 50], [165, 45, 36], [80, 50, 45], [120, 35, 28]];
+  var BLOOM = [[52, 82, 58], [56, 72, 72], [335, 58, 66], [20, 80, 62], [48, 90, 80], [300, 40, 72]];
+  var GROUND = [[42, 55, 52], [22, 42, 40], [26, 40, 50], [268, 35, 72], [50, 58, 80], [135, 45, 48],
+                [88, 50, 55], [18, 55, 45], [350, 30, 55], [46, 70, 58], [95, 40, 40], [280, 25, 60], [60, 45, 70]];
+  var ACCENT = [[335, 60, 65], [350, 55, 45], [218, 65, 55], [52, 90, 60], [275, 50, 60], [25, 85, 60], [45, 30, 92], [200, 60, 60]];
+  var PATCH = [[218, 65, 55], [335, 60, 62], [350, 55, 45], [25, 85, 60], [48, 90, 70]];
+  var RIBBON = [[340, 55, 62], [20, 75, 58], [300, 35, 65], [48, 85, 62], [150, 40, 45]];
+  function clamp(v) { return Math.max(0, Math.min(100, v)); }
   function hsla(c, dh, ds, dl, a) {
-    return "hsla(" + (c[0] + dh) + "," + Math.max(0, Math.min(100, c[1] + ds)) + "%," +
-      Math.max(0, Math.min(100, c[2] + dl)) + "%," + a + ")";
+    return "hsla(" + (c[0] + dh) + "," + clamp(c[1] + ds) + "%," + clamp(c[2] + dl) + "%," + a + ")";
   }
 
   // --- Canvas ------------------------------------------------------------
@@ -138,57 +141,121 @@ tended: November 2026
   ctx.lineCap = "round";
 
   // --- Composition -------------------------------------------------------
-  // A horizon, a few canopies above it, a few fields below it. Every edge
-  // is pushed around by noise so nothing reads as geometry.
-  var horizon = H * rnd(0.26, 0.4);
+  // A horizon; lobed canopies above it; fields, tall columns, flower patches
+  // and ribbons below. Each shape carries two colours and a mark style, so
+  // the patchwork changes texture as well as hue from field to field.
+  var horizon = H * rnd(0.22, 0.4);
+  var STYLES = ["grass", "grass", "hatch", "dots", "comma", "stubble", "weave"];
   var blobs = [];
-  var canopies = Math.round(rnd(2, 4));
-  for (i = 0; i < canopies; i++) {
-    blobs.push({ type: "canopy", cx: W * rnd(0.1, 0.9), cy: horizon - H * rnd(0, 0.14),
-      rx: W * rnd(0.1, 0.26), ry: H * rnd(0.1, 0.24), color: pick(CANOPY), bloom: pick(BLOOM),
-      blooming: rand() < 0.6 });
-  }
-  var fields = Math.round(rnd(4, 7));
-  for (i = 0; i < fields; i++) {
-    blobs.push({ type: "ground", cx: W * rnd(0.05, 0.95), cy: rnd(horizon + H * 0.04, H),
-      rx: W * rnd(0.22, 0.55), ry: H * rnd(0.08, 0.24), color: pick(GROUND) });
-  }
-  var skyColor = pick(SKY), baseGround = pick(GROUND);
 
-  function inside(b, x, y) {
-    var dx = (x - b.cx) / b.rx, dy = (y - b.cy) / b.ry;
-    var r = 0.72 + 0.56 * fbm(x / 110 + b.cx, y / 110 + b.cy);
+  function lobe(cx, cy, rx, ry) { return { cx: cx, cy: cy, rx: rx, ry: ry, seed: rnd(0, 100) }; }
+  function addBlob(b) { b.id = blobs.length; b.tex = rnd(0, 100); blobs.push(b); return b; }
+
+  var canopies = Math.round(rnd(2, 5));
+  for (i = 0; i < canopies; i++) {
+    var cx = W * rnd(0.05, 0.95), cy = horizon - H * rnd(-0.02, 0.16);
+    var rx = W * rnd(0.08, 0.22), ry = H * rnd(0.08, 0.22);
+    var b = addBlob({ type: "canopy", colors: pick2(CANOPY), bloom: pick(BLOOM), blooming: rand() < 0.7,
+      style: rand() < 0.6 ? "dab" : "comma", lobes: [lobe(cx, cy, rx, ry)] });
+    var extra = Math.round(rnd(0, 3));
+    for (var l = 0; l < extra; l++) {
+      b.lobes.push(lobe(cx + rx * rnd(-0.9, 0.9), cy + ry * rnd(-0.7, 0.5), rx * rnd(0.4, 0.9), ry * rnd(0.4, 0.9)));
+    }
+  }
+  var fields = Math.round(rnd(4, 8));
+  for (i = 0; i < fields; i++) {
+    addBlob({ type: "ground", colors: pick2(GROUND), style: pick(STYLES),
+      lobes: [lobe(W * rnd(0.05, 0.95), rnd(horizon + H * 0.04, H), W * rnd(0.2, 0.55), H * rnd(0.08, 0.26))] });
+  }
+  // Tall narrow fields, like a stand of stems or a run of yellow.
+  var columns = Math.round(rnd(0, 3));
+  for (i = 0; i < columns; i++) {
+    addBlob({ type: "ground", colors: pick2(GROUND), style: pick(["grass", "stubble", "weave"]),
+      lobes: [lobe(W * rnd(0.05, 0.95), H * rnd(0.75, 1.0), W * rnd(0.03, 0.08), H * rnd(0.2, 0.5))] });
+  }
+  // Flower patches: small, dense, and in colours nothing else uses.
+  var patches = Math.round(rnd(1, 4));
+  for (i = 0; i < patches; i++) {
+    addBlob({ type: "patch", colors: pick2(PATCH), style: "dots",
+      lobes: [lobe(W * rnd(0.1, 0.9), rnd(horizon - H * 0.05, H * 0.85), W * rnd(0.03, 0.09), H * rnd(0.03, 0.09))] });
+  }
+  // Ribbons: curved bands of colour that wander across the fields.
+  var ribbons = Math.round(rnd(1, 3));
+  for (i = 0; i < ribbons; i++) {
+    var pts = [], x = W * rnd(-0.1, 0.5), y = rnd(horizon, H), ang = rnd(-0.6, 0.6);
+    for (var k = 0; k < 40; k++) {
+      pts.push({ x: x, y: y });
+      ang += rnd(-0.35, 0.35); ang = Math.max(-1.2, Math.min(1.2, ang));
+      x += Math.cos(ang) * W * 0.03; y += Math.sin(ang) * W * 0.03;
+    }
+    addBlob({ type: "ribbon", colors: [pick(RIBBON), pick(RIBBON)], style: pick(["stubble", "dots", "comma"]),
+      pts: pts, width: rnd(8, 30) });
+  }
+  var skyColors = pick2(SKY), baseGround = pick(GROUND);
+
+  function insideLobe(b, lb, x, y) {
+    var dx = (x - lb.cx) / lb.rx, dy = (y - lb.cy) / lb.ry;
+    var r = 0.7 + 0.6 * fbm(x / 110 + lb.seed, y / 110 + lb.seed);
     return dx * dx + dy * dy < r * r;
   }
+  function inside(b, x, y) {
+    if (b.pts) {
+      var w = b.width * (0.6 + 0.8 * fbm(x / 60 + b.tex, y / 60));
+      for (var k = 0; k < b.pts.length; k++) {
+        var dx = x - b.pts[k].x, dy = y - b.pts[k].y;
+        if (dx * dx + dy * dy < w * w) return true;
+      }
+      return false;
+    }
+    for (k = 0; k < b.lobes.length; k++) if (insideLobe(b, b.lobes[k], x, y)) return true;
+    return false;
+  }
+  var skyRegion = { type: "sky", colors: skyColors, style: "smear", tex: 3 };
+  var baseRegion = { type: "ground", colors: [baseGround, pick(GROUND)], style: "grass", tex: 5 };
   function regionAt(x, y) {
-    var hz = horizon + (fbm(x / 160, 3.3) - 0.5) * H * 0.08;
-    var r = y < hz ? { type: "sky", color: skyColor } : { type: "ground", color: baseGround };
+    var hz = horizon + (fbm(x / 160, 3.3) - 0.5) * H * 0.1;
+    var r = y < hz ? skyRegion : baseRegion;
     for (var k = 0; k < blobs.length; k++) if (inside(blobs[k], x, y)) r = blobs[k];
     return r;
   }
+  // Which of a region's two colours a point takes, and a slow drift of
+  // warmth across the whole canvas so no field is one flat note.
+  function colorAt(reg, x, y) {
+    var mix = fbm(x / 140 + reg.tex, y / 140 + reg.tex);
+    return reg.colors[mix > 0.5 ? 1 : 0];
+  }
+  function drift(x, y) {
+    return { h: (fbm(x / 420 + 20, y / 420) - 0.5) * 26, l: (fbm(x / 300 + 40, y / 300) - 0.5) * 16 };
+  }
 
-  // Fields first, flat and soft, as underpainting.
-  ctx.fillStyle = hsla(skyColor, 0, 0, 0, 1);
+  // Underpainting: flat, soft, slightly darker than the marks to come.
+  ctx.fillStyle = hsla(skyColors[0], 0, 0, 0, 1);
   ctx.fillRect(0, 0, W, H);
   ctx.fillStyle = hsla(baseGround, 0, 0, 0, 1);
   ctx.fillRect(0, horizon, W, H - horizon);
   blobs.forEach(function (b) {
-    ctx.beginPath();
-    for (var a = 0; a < 64; a++) {
-      var th = a / 64 * Math.PI * 2;
-      var px = b.cx + Math.cos(th) * b.rx, py = b.cy + Math.sin(th) * b.ry;
-      var r = 0.72 + 0.56 * fbm(px / 110 + b.cx, py / 110 + b.cy);
-      px = b.cx + Math.cos(th) * b.rx * r; py = b.cy + Math.sin(th) * b.ry * r;
-      a ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    ctx.fillStyle = hsla(b.colors[0], 0, -5, b.type === "canopy" ? -8 : -3, 0.92);
+    if (b.pts) {
+      ctx.lineWidth = b.width * 1.6; ctx.strokeStyle = ctx.fillStyle; ctx.lineJoin = "round";
+      ctx.beginPath(); b.pts.forEach(function (p, j) { j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke();
+      return;
     }
-    ctx.closePath();
-    ctx.fillStyle = hsla(b.color, 0, -5, b.type === "canopy" ? -8 : 0, 0.92);
-    ctx.fill();
+    b.lobes.forEach(function (lb) {
+      ctx.beginPath();
+      for (var a = 0; a < 64; a++) {
+        var th = a / 64 * Math.PI * 2;
+        var px = lb.cx + Math.cos(th) * lb.rx, py = lb.cy + Math.sin(th) * lb.ry;
+        var r = 0.7 + 0.6 * fbm(px / 110 + lb.seed, py / 110 + lb.seed);
+        px = lb.cx + Math.cos(th) * lb.rx * r; py = lb.cy + Math.sin(th) * lb.ry * r;
+        a ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+      }
+      ctx.closePath(); ctx.fill();
+    });
   });
 
-  // --- Strokes -----------------------------------------------------------
+  // --- Marks -------------------------------------------------------------
   // The heuristic: thousands of small marks, each taking its colour from the
-  // field underneath with a little drift, its shape from the kind of field,
+  // field underneath with a little drift, its shape from that field's style,
   // and its length from how near the bottom it is. Nothing is drawn as a
   // thing. The landscape is what the marks add up to.
   var count = Math.round(W * H / 26 * densityMul);
@@ -196,56 +263,98 @@ tended: November 2026
   for (i = 0; i < count; i++) {
     var x = rand() * W, y = rand() * H;
     var reg = regionAt(x, y);
-    if (reg.type === "sky" && rand() < 0.75) continue;
+    if (reg.type === "sky" && rand() < 0.72) continue;
     var depth = Math.max(0, (y - horizon) / (H - horizon));
     var accentField = fbm(x / 70 + 50, y / 70 + 50);
-    var color = reg.color, dh = rnd(-9, 9), ds = rnd(-12, 10), dl = rnd(-13, 13);
-    if (reg.type === "canopy") { dh = rnd(-14, 14); dl = rnd(-20, 18); }
-    if (reg.type === "sky") { dl = rnd(-5, 5); ds = rnd(-8, 4); }
-    if (reg.type === "canopy" && reg.blooming && accentField > 0.54 && rand() < 0.6) {
-      color = reg.bloom; dh = rnd(-4, 4); dl = rnd(-6, 10);
+    var dr = drift(x, y);
+    var color = colorAt(reg, x, y), dh = rnd(-9, 9) + dr.h, ds = rnd(-12, 10), dl = rnd(-13, 13) + dr.l;
+    var style = reg.style;
+    if (reg.type === "canopy") { dh += rnd(-6, 6); dl += rnd(-9, 9); }
+    if (reg.type === "sky") { dl = rnd(-5, 5) + dr.l * 0.5; ds = rnd(-8, 4); if (rand() < 0.12) style = "drizzle"; }
+    if (reg.type === "canopy" && reg.blooming && accentField > 0.56 && rand() < 0.6) {
+      color = reg.bloom; dh = rnd(-4, 4); dl = rnd(-6, 10); style = "flower";
     } else if (reg.type === "ground" && accentField > 0.66 && rand() < 0.18) {
       color = pick(ACCENT); dh = rnd(-4, 4);
     }
     // Canopies get a cluster of dabs where the ground gets one stroke.
-    var reps = reg.type === "canopy" ? 3 : 1;
+    var reps = reg.type === "canopy" ? 3 : reg.type === "patch" ? 2 : 1;
+    var angle = reg.tex % 1 * 1.4 - 0.7; // a fixed slant per field, for hatching
     for (var k = 0; k < reps; k++) {
-      strokes.push({ x: x + (k ? rnd(-7, 7) : 0), y: y + (k ? rnd(-7, 7) : 0), t: reg.type, d: depth,
+      strokes.push({ x: x + (k ? rnd(-7, 7) : 0), y: y + (k ? rnd(-7, 7) : 0), st: style, d: depth,
         c: hsla(color, dh + (k ? rnd(-8, 8) : 0), ds, dl + (k ? rnd(-10, 10) : 0), 1),
         a: reg.type === "sky" ? rnd(0.2, 0.4) : rnd(0.4, 0.85),
         len: rnd(5, 14) * (1 + 1.8 * depth), w: rnd(1.1, 2.6),
-        lean: rnd(-0.16, 0.16), r: rnd(1.2, 5.5) });
+        lean: rnd(-0.16, 0.16), ang: angle, r: rnd(1.2, 5.5), cv: rnd(-6, 6) });
     }
   }
   // Paint top to bottom, sky first, the way the underpainting went down.
   strokes.sort(function (p, q2) { return p.y - q2.y; });
 
+  function line(x1, y1, x2, y2, w) {
+    ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+  function curve(x1, y1, cx, cy, x2, y2, w) {
+    ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo(cx, cy, x2, y2); ctx.stroke();
+  }
+  function dot(x, y, r) { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+
   function paint(st) {
     ctx.globalAlpha = st.a;
     ctx.strokeStyle = ctx.fillStyle = st.c;
-    if (st.t === "canopy") {
-      ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2); ctx.fill();
-    } else if (st.t === "sky") {
-      ctx.lineWidth = st.w + 1;
-      ctx.beginPath(); ctx.moveTo(st.x - st.len, st.y); ctx.lineTo(st.x + st.len * 0.4, st.y + st.lean * 4); ctx.stroke();
-    } else {
-      ctx.lineWidth = st.w;
-      ctx.beginPath(); ctx.moveTo(st.x, st.y);
-      ctx.lineTo(st.x + Math.sin(st.lean) * st.len, st.y - Math.cos(st.lean) * st.len);
-      ctx.stroke();
+    var x = st.x, y = st.y, L = st.len;
+    switch (st.st) {
+      case "dab": dot(x, y, st.r); break;
+      case "flower":
+        for (var k = 0; k < 4; k++) dot(x + Math.cos(k * 1.6) * 2.4, y + Math.sin(k * 1.6) * 2.4, st.r * 0.45);
+        break;
+      case "dots": dot(x, y, st.r * 0.7); break;
+      case "smear": line(x - L, y, x + L * 0.4, y + st.lean * 4, st.w + 1.2); break;
+      case "drizzle": line(x, y, x + st.lean * 6, y + L * 2.2, 0.9); break;
+      case "hatch":
+        line(x, y, x + Math.sin(st.ang + 0.9) * L, y - Math.cos(st.ang + 0.9) * L, st.w); break;
+      case "comma":
+        curve(x, y, x + st.cv, y - L * 0.5, x + st.cv * 0.4, y - L * 0.9, st.w + 0.6); break;
+      case "stubble": line(x, y, x + st.lean * 3, y - L * 0.45, st.w); break;
+      case "weave":
+        if (st.r > 3.3) line(x - L * 0.4, y, x + L * 0.4, y, st.w);
+        else line(x, y, x, y - L * 0.8, st.w);
+        break;
+      default: // grass: a slightly curved blade
+        curve(x, y, x + st.cv * 0.5, y - L * 0.5, x + Math.sin(st.lean) * L + st.cv, y - L, st.w);
     }
+  }
+
+  // Branches: a few dark lines wandering through each canopy, so the mass
+  // has some bones in it.
+  function branches() {
+    blobs.forEach(function (b) {
+      if (b.type !== "canopy") return;
+      var n = Math.round(rnd(3, 9));
+      for (var k = 0; k < n; k++) {
+        var lb = pick(b.lobes), x = lb.cx + rnd(-0.5, 0.5) * lb.rx, y = lb.cy + rnd(-0.3, 0.8) * lb.ry;
+        var ang = rnd(-Math.PI * 0.9, -Math.PI * 0.1), segs = Math.round(rnd(6, 18));
+        ctx.globalAlpha = rnd(0.35, 0.6);
+        ctx.strokeStyle = hsla(b.colors[0], rnd(-20, 10), -15, rnd(-28, -14), 1);
+        ctx.lineWidth = rnd(0.9, 1.9);
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for (var j = 0; j < segs; j++) {
+          ang += rnd(-0.5, 0.5); x += Math.cos(ang) * rnd(5, 11); y += Math.sin(ang) * rnd(5, 11);
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    });
   }
 
   // A few drips, as the paint runs.
   function drips() {
-    var n = Math.round(W / 24);
-    ctx.lineWidth = 1.3;
+    var n = Math.round(W / 22);
     for (var k = 0; k < n; k++) {
       var x = rand() * W, y = rnd(horizon, H * 0.85);
       var reg = regionAt(x, y);
       ctx.globalAlpha = rnd(0.2, 0.45);
-      ctx.strokeStyle = hsla(reg.color, rnd(-6, 6), 0, rnd(-18, -4), 1);
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + rnd(-3, 3), y + rnd(30, 170)); ctx.stroke();
+      ctx.strokeStyle = hsla(colorAt(reg, x, y), rnd(-6, 6), 0, rnd(-18, -4), 1);
+      line(x, y, x + rnd(-3, 3), y + rnd(30, 170), rnd(1, 1.8));
     }
   }
 
@@ -254,7 +363,7 @@ tended: November 2026
     var end = Math.min(strokes.length, idx + perFrame);
     for (; idx < end; idx++) paint(strokes[idx]);
     if (idx < strokes.length) requestAnimationFrame(step);
-    else drips();
+    else { branches(); drips(); }
   }
   step();
 })();
