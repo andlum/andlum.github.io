@@ -262,10 +262,9 @@ footer {
 
 /* --- The field --------------------------------------------------------- */
 
-/* The homepage sits in a clearing in a generated field: a digital collage
-   of vector shapes in mixed pixel media, seeded by the date. See
-   /js/field.js. The first screen holds the nav and the prose; the footer
-   waits below the fold. */
+/* The homepage sits in a clearing in a generated field: a landscape
+   painted in small marks, seeded by the date. See /js/field.js. The first
+   screen holds the nav and the prose; the footer waits below the fold. */
 .field {
   position: fixed;
   inset: 0;
