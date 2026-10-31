@@ -46,9 +46,9 @@ conditional section for the Field Notes. Copy in full:
 
 Most recently I was Director of Engineering at Findigs, where I led product
 engineering on a platform that made renting an apartment faster and fairer.
-I left at the end of August 2026 to build again. Right now that means
-[Studio Satsuma](https://satsuma.works), a small studio for the apps I've
-wanted to exist. I'm always glad to talk about engineering leadership roles.
+These days I'm building [Studio Satsuma](https://satsuma.works), a small
+studio for the apps I've wanted to exist. I'm always glad to talk about
+engineering leadership roles.
 
 Outside of work, I love to move. You'll usually find me climbing, cooking,
 running, dancing, or practicing handstands in the park. Most of the time, in
@@ -82,8 +82,9 @@ Notes on the copy:
   one-liners under the name read as clutter. The welcome survives in the meta
   description ("Come in, sit down."). Restore it as the first sentence of the
   Now paragraph if the page feels cold without it.
-- "End of August 2026" is deliberately absolute so the paragraph can't rot
-  silently. The footer date is the other staleness guard.
+- "I left at the end of August 2026 to build again" was cut on 2026-10-31.
+  The footer date is now the only staleness guard on the page; llms.txt
+  still carries the dates.
 - No year counts ("thirteen years") in the copy; they go stale annually.
 - The two Field Notes titles are planned, not written. The list is driven by
   the collection, so these appear only once the files exist.
