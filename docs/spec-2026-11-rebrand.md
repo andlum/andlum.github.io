@@ -40,15 +40,17 @@ conditional section for the Field Notes. Copy in full:
 
 ---
 
-**Hi, I'm Andrew** 👋
+**Welcome to my little corner of the web** 👋
 
-*I build software, and the teams that build it.*
+I build software, and the teams that build it. Most recently I was Director
+of Engineering at Findigs, where I led product engineering on a platform that
+made renting an apartment faster and fairer. These days I'm building
+[Studio Satsuma](https://satsuma.works), a small studio for the apps I've
+wanted to exist.
 
-Most recently I was Director of Engineering at Findigs, where I led product
-engineering on a platform that made renting an apartment faster and fairer.
-These days I'm building [Studio Satsuma](https://satsuma.works), a small
-studio for the apps I've wanted to exist. I'm always glad to talk about
-engineering leadership roles.
+I'm drawn to problems where technology can produce a better outcome for the
+people on the other end of it. I'm always glad to talk about engineering
+leadership roles.
 
 Outside of work, I love to move. You'll usually find me climbing, cooking,
 running, dancing, or practicing handstands in the park. Most of the time, in
@@ -73,18 +75,17 @@ No analytics, no cookies, nothing following you out the door.
 
 Notes on the copy:
 
-- The middle paragraph ("I don't think leading and building are different
-  jobs...") was cut on 2026-10-31. It read as explanation rather than
-  delight. A replacement, if any, should be short and built around: "I got
-  into technology because I loved the delight when something just works."
-
-- The tagline replaces "Welcome to my little corner of the web." Two
-  one-liners under the name read as clutter. The welcome survives in the meta
-  description ("Come in, sit down."). Restore it as the first sentence of the
-  Now paragraph if the page feels cold without it.
-- "I left at the end of August 2026 to build again" was cut on 2026-10-31.
-  The footer date is now the only staleness guard on the page; llms.txt
-  still carries the dates.
+- Revised 2026-10-31 after review. The greeting is now the welcome line
+  itself, with the wave. The tagline moved into the body as the first
+  sentence of the Now paragraph, where Findigs (the teams) and Satsuma (the
+  software) back it up. The "leading and building are not different jobs"
+  paragraph and the "end of August 2026" sentence were cut; the first read
+  as explanation, the second was a date the footer already guards.
+- The second paragraph keeps the one sentence from the old site that said
+  what the work is for. The openness clause closes it, so it reads as the
+  kind of work Andrew wants to lead rather than a job-board footer.
+- A delight line ("I got into technology because I loved the delight when
+  something just works") was considered and set aside for a Field Note.
 - No year counts ("thirteen years") in the copy; they go stale annually.
 - The two Field Notes titles are planned, not written. The list is driven by
   the collection, so these appear only once the files exist.
