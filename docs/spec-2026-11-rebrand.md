@@ -50,13 +50,6 @@ I left at the end of August 2026 to build again. Right now that means
 [Studio Satsuma](https://satsuma.works), a small studio for the apps I've
 wanted to exist. I'm always glad to talk about engineering leadership roles.
 
-I don't think leading and building are different jobs. A team is a system
-too. It has interfaces, feedback loops, and failure modes, and it gets better
-the same way software does: someone who cares pays attention to the details.
-I like the messy stuff, messy data and messy operations. And what someone
-writes down is rarely what they actually need; there's usually a frustration
-underneath that never made it into the ticket.
-
 Outside of work, I love to move. You'll usually find me climbing, cooking,
 running, dancing, or practicing handstands in the park. Most of the time, in
 Brooklyn.
@@ -79,6 +72,11 @@ No analytics, no cookies, nothing following you out the door.
 ---
 
 Notes on the copy:
+
+- The middle paragraph ("I don't think leading and building are different
+  jobs...") was cut on 2026-10-31. It read as explanation rather than
+  delight. A replacement, if any, should be short and built around: "I got
+  into technology because I loved the delight when something just works."
 
 - The tagline replaces "Welcome to my little corner of the web." Two
   one-liners under the name read as clutter. The welcome survives in the meta
