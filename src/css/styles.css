@@ -277,6 +277,7 @@ footer {
 }
 .js .field { display: block; }
 .stage .sprig { display: none; }
+.dive { display: none; }
 
 /* The first screen holds the nav and the prose; the footer sits below it
    and is reached by scrolling. */
@@ -426,25 +427,44 @@ footer {
     padding-bottom: 2.5rem;
   }
   .top .links li:first-child { border-top: 1px solid var(--rule); }
-  /* The palette leaves the list and sits in the corner of the picture, so
-     it is in view when the page opens rather than waiting below the prose. */
+  /* The picture fills the first screen, with two cues in its bottom
+     corners: an arrow down to the prose, and the palette. The palette
+     leaves the link list for the corner so it is in view on landing. */
+  .field { height: 100svh; }
   .plate { position: relative; }
   .top .links { position: static; }
   .top .links li.reseed-item {
     position: absolute;
-    top: 0.75rem;
-    right: 1rem;
+    top: calc(100svh - 4rem);
+    right: 1.25rem;
     padding: 0;
     border: 0;
   }
   .top .reseed-item .note { display: none; }
-  .top .reseed {
+  .js .dive {
+    display: block;
+    position: absolute;
+    top: calc(100svh - 4rem);
+    left: 1.25rem;
+    text-decoration: none;
+    font-family: var(--font-sans);
+    line-height: 1;
+  }
+  .top .reseed,
+  .js .dive {
     display: inline-block;
-    padding: 0.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    line-height: 2.75rem;
+    text-align: center;
+    padding: 0;
     font-size: 1.25rem;
+    font-weight: 600;
     background: var(--paper);
     border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--rule);
   }
+  html { scroll-behavior: smooth; }
 }
 
 /* --- Small screens ----------------------------------------------------- */
@@ -472,4 +492,5 @@ footer {
     transition: none !important;
     animation: none !important;
   }
+  html { scroll-behavior: auto; }
 }

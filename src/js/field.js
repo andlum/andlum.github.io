@@ -724,7 +724,7 @@
     var rect = column.getBoundingClientRect();
     var colL = rect.left + 8, colR = rect.right - 8, FEATHER = 140;
     function paperness(x, y) {
-      if (phone) return 1 - smooth((H - y) / (H * 0.45));
+      if (phone) return 1 - smooth((H - y) / Math.min(H * 0.45, 200));
       var wob = (fbm(y / 160 + 7, 2) - 0.5) * 48;
       var l = colL + wob, r = colR + wob;
       if (x > l && x < r) return 1;
