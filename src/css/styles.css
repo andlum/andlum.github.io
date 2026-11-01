@@ -322,8 +322,10 @@ footer {
   clip-path: inset(50%);
   transition: opacity 200ms ease;
 }
+/* Keyboard focus reveals the note too, but a click does not: a pointer
+   that activates the palette would otherwise leave its note hanging. */
 .top li:hover .note,
-.top li:focus-within .note {
+.top li:has(:focus-visible) .note {
   opacity: 1;
   clip-path: none;
 }
@@ -424,6 +426,25 @@ footer {
     padding-bottom: 2.5rem;
   }
   .top .links li:first-child { border-top: 1px solid var(--rule); }
+  /* The palette leaves the list and sits in the corner of the picture, so
+     it is in view when the page opens rather than waiting below the prose. */
+  .plate { position: relative; }
+  .top .links { position: static; }
+  .top .links li.reseed-item {
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    padding: 0;
+    border: 0;
+  }
+  .top .reseed-item .note { display: none; }
+  .top .reseed {
+    display: inline-block;
+    padding: 0.5rem;
+    font-size: 1.25rem;
+    background: var(--paper);
+    border-radius: 50%;
+  }
 }
 
 /* --- Small screens ----------------------------------------------------- */
