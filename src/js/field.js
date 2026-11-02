@@ -771,6 +771,13 @@
       if (phone) scrollTo({ top: 0, behavior: "smooth" });
     });
   }
+  // On phones the two cues are fixed to the screen's bottom corners; they
+  // step aside once most of the picture has scrolled out of view.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      document.documentElement.classList.toggle("away", entries[0].intersectionRatio < 0.2);
+    }, { threshold: [0.2] }).observe(canvas);
+  }
   var timer;
   addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(render, 150); });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);

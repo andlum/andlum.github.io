@@ -433,22 +433,36 @@ footer {
   .field { height: 100svh; }
   .plate { position: relative; }
   .top .links { position: static; }
+  /* The cues are fixed to the screen rather than placed at 100svh, so they
+     sit at the real bottom edge whatever the browser's toolbars are doing.
+     They fade once the picture has scrolled away; see field.js. */
   .top .links li.reseed-item {
-    position: absolute;
-    top: calc(100svh - 4rem);
+    position: fixed;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     right: 1.25rem;
+    z-index: 1;
     padding: 0;
     border: 0;
   }
   .top .reseed-item .note { display: none; }
   .js .dive {
     display: block;
-    position: absolute;
-    top: calc(100svh - 4rem);
+    position: fixed;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
     left: 1.25rem;
+    z-index: 1;
     text-decoration: none;
     font-family: var(--font-sans);
     line-height: 1;
+  }
+  .top .reseed-item,
+  .js .dive {
+    transition: opacity 300ms ease;
+  }
+  .away .top .reseed-item,
+  .away .dive {
+    opacity: 0;
+    pointer-events: none;
   }
   .top .reseed,
   .js .dive {
