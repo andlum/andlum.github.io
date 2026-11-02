@@ -14,7 +14,10 @@ tended: November 2026
     {% include "home-links.njk" %}
   </nav>
   <canvas class="field" aria-hidden="true"></canvas>
-  <main class="wrapper stage">
+  {# On phones the picture fills the first screen; this cue, in its bottom
+     corner, leads down to the prose. The palette sits in the other corner. #}
+  <a class="dive" href="#story" aria-label="Read on">&darr;</a>
+  <main class="wrapper stage" id="story">
     {% include "home-hello.njk" %}
 
     {% include "home-notes.njk" %}
