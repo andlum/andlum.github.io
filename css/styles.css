@@ -286,9 +286,13 @@ footer {
   display: flex;
   flex-direction: column;
 }
+/* The nav sits at the foot of the first screen, under the prose, so the
+   picture opens the page unbroken. It stays first in the markup, so it is
+   still the first landmark for keyboards and readers. */
 .top {
-  padding-top: 1.5rem;
-  padding-bottom: 0;
+  order: 1;
+  padding-top: 0;
+  padding-bottom: 1.5rem;
 }
 .top .label { display: none; }
 .top .links {
@@ -304,13 +308,13 @@ footer {
   padding: 0;
   border: 0;
 }
-/* Each link's note waits underneath it and shows on hover or focus. It is
+/* Each link's note waits above it and shows on hover or focus. It is
    positioned out of flow so the nav never shifts, and hidden with clip-path
    rather than visibility so it stays in the accessibility tree: each link
    points at its note with aria-describedby. */
 .top .note {
   position: absolute;
-  top: calc(100% + 0.35rem);
+  bottom: calc(100% + 0.35rem);
   left: 0;
   width: 16rem;
   max-width: 70vw;
@@ -374,8 +378,8 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 2rem;
-  padding-bottom: 3rem;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
 }
 .stage .hello { margin-top: 0; }
 .tail {
@@ -418,14 +422,9 @@ footer {
 }
 
 /* Phones with no pointer: the picture opens the page, the prose follows,
-   and the links with their notes wait below it. The nav stays first in the
-   markup, so it is still the first landmark for keyboards and readers. */
+   and the links with their notes wait below it. */
 @media (hover: none) and (max-width: 44rem) {
-  .top {
-    order: 1;
-    padding-top: 0;
-    padding-bottom: 2.5rem;
-  }
+  .top { padding-bottom: 2.5rem; }
   .top .links li:first-child { border-top: 1px solid var(--rule); }
   /* The picture fills the first screen, with two cues in its bottom
      corners: an arrow down to the prose, and the palette. The palette
