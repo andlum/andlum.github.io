@@ -1,0 +1,880 @@
+---
+permalink: /engineering-character-sheets/
+layout: false
+templateEngineOverride: false
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engineering Character Sheets</title>
+<meta name="description" content="A framework for evaluating engineers: a character sheet of attributes, scored by level, with a live level chart and radar. By Andrew Lum.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Engineering Character Sheets">
+<meta property="og:description" content="A framework for evaluating engineers: a character sheet of attributes, scored by level, with a live level chart and radar.">
+<meta property="og:url" content="https://andlum.com/engineering-character-sheets/">
+<meta name="author" content="Andrew Lum">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+Double+Pica+SC&family=IM+Fell+English+SC&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Character Sheet identity on a modern page. IM Fell small caps for display and labels, Alegreya for reading,
+   Kalam only for what a person writes in (name, scores, goals). Oxblood is the ink of a decision; gold labels the game layer.
+   No boxes around prose: hierarchy comes from scale, rules and alignment. The level chart is the one framed object. */
+:root {
+  --bg: #f5eedc;
+  --surface: #fbf7ec;
+  --surface-2: #efe5ca;
+  --ink: #2a1c10;
+  --ink-2: #634f37;
+  --rule: #ddcca6;
+  --rule-strong: #8a7253;
+  --accent: #8a2219;
+  --on-accent: #fbf7ec;
+  --gold: #8a6519;
+  --head-bg: #2a1c10;
+  --head-fg: #f5eedc;
+  --head-fg-2: #cbbb98;
+  --head-gold: #e2c47f;
+  --head-rule: #4a3826;
+  --pencil: #2f303a;
+  --mark-fill: rgba(138, 34, 25, 0.1);
+  --track: rgba(138, 34, 25, 0.035);
+  --hover: rgba(42, 28, 16, 0.05);
+  --radar-fill: rgba(42, 92, 140, 0.14);
+  --shape: #2a5c8c;
+  --bar: #2f7a45;
+  --next: #6a4b9c;
+  --shadow: rgba(42, 28, 16, 0.38);
+  --display: "IM Fell Double Pica SC", "Palatino Linotype", Palatino, Georgia, serif;
+  --label: "IM Fell English SC", "Palatino Linotype", Palatino, Georgia, serif;
+  --body: "Alegreya", "Palatino Linotype", Palatino, Georgia, serif;
+  --hand: "Kalam", "Segoe Print", "Bradley Hand", cursive;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #18120c; --surface: #221911; --surface-2: #2b2016; --ink: #efe4c8; --ink-2: #b9a787;
+    --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76;
+    --head-bg: #31251a; --head-fg: #efe4c8; --head-fg-2: #b6a483; --head-gold: #e2c47f; --head-rule: #4a3a2a;
+    --pencil: #e4dccb; --mark-fill: rgba(236, 138, 118, 0.14); --track: rgba(236, 138, 118, 0.045);
+    --hover: rgba(239, 228, 200, 0.05); --radar-fill: rgba(130, 176, 224, 0.2); --shape: #8ab4e2; --bar: #86c98f; --next: #b9a2e6; --shadow: rgba(0, 0, 0, 0.62);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #18120c; --surface: #221911; --surface-2: #2b2016; --ink: #efe4c8; --ink-2: #b9a787;
+  --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76;
+  --head-bg: #31251a; --head-fg: #efe4c8; --head-fg-2: #b6a483; --head-gold: #e2c47f; --head-rule: #4a3a2a;
+  --pencil: #e4dccb; --mark-fill: rgba(236, 138, 118, 0.14); --track: rgba(236, 138, 118, 0.045);
+  --hover: rgba(239, 228, 200, 0.05); --radar-fill: rgba(130, 176, 224, 0.2); --shape: #8ab4e2; --bar: #86c98f; --next: #b9a2e6; --shadow: rgba(0, 0, 0, 0.62);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: clamp(28px, 5vw, 72px) clamp(32px, 5vw, 64px);
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--mark-fill); }
+.page { max-width: 1120px; margin: 0 auto; display: grid; gap: clamp(56px, 8vw, 104px); }
+.page > * { min-width: 0; }
+
+/* Header: the display moment */
+.title { container-type: inline-size; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 17rem); gap: 0 clamp(32px, 6vw, 80px); align-items: end; }
+.title > * { min-width: 0; }
+.brand { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; margin: 0 0 clamp(14px, 2vw, 22px); font: 400 17px/1 var(--label); letter-spacing: 0.14em; color: var(--accent); }
+.mark { width: 34px; height: 34px; flex: none; display: block; }
+.mark .disc { fill: var(--accent); }
+.mark .die { fill: none; stroke: var(--bg); stroke-width: 3; stroke-linejoin: round; }
+h1 {
+  grid-column: 1 / -1;
+  font: 400 min(7.6cqi, 88px)/0.95 var(--display);
+  letter-spacing: -0.012em;
+  margin: 0 0 clamp(28px, 4vw, 48px);
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  h1 { white-space: normal; text-wrap: balance; font-size: 11cqi; line-height: 0.92; }
+}
+h1 em { font-style: normal; color: var(--accent); }
+.intro { display: grid; gap: 12px; font-size: clamp(19px, 2vw, 22px); line-height: 1.5; max-width: 40rem; text-wrap: pretty; }
+.intro p { margin: 0; }
+.fields { display: grid; gap: 18px; border-top: 2px solid var(--ink); padding-top: 14px; align-self: stretch; align-content: start; }
+.field { min-width: 0; display: grid; gap: 2px; }
+.field .cap { order: -1; font: 400 13.5px/1.2 var(--label); letter-spacing: 0.12em; color: var(--ink-2); }
+.fill {
+  font: 400 23px/1.25 var(--hand);
+  color: var(--pencil);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  padding: 0 0 3px;
+  width: 100%;
+  min-height: 2.1rem;
+  margin: 0;
+}
+input.fill { transition: border-color 160ms ease; }
+input.fill:hover { border-bottom-color: var(--ink); }
+input.fill:focus { outline: none; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+.fill::placeholder { color: var(--ink-2); opacity: 0.5; }
+.pick { position: relative; display: block; }
+.pick::after { content: ""; position: absolute; right: 4px; top: 50%; width: 7px; height: 7px; margin-top: -6px; border: solid var(--ink-2); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); pointer-events: none; }
+select.fill { appearance: none; -webkit-appearance: none; padding-right: 22px; cursor: pointer; text-overflow: ellipsis; }
+select.fill:hover { border-bottom-color: var(--ink); }
+select.fill:focus-visible { outline: none; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+select.fill:has(option[value=""]:checked) { color: color-mix(in srgb, var(--ink-2) 50%, transparent); }
+select.fill option { font: 400 16px/1.3 var(--body); color: var(--ink); background: var(--surface); }
+
+/* Sections */
+section { display: grid; gap: clamp(22px, 3vw, 32px); }
+section > * { min-width: 0; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+h2 { font: 400 clamp(30px, 4.2vw, 46px)/1 var(--display); margin: 0; text-wrap: balance; }
+.meta { margin: 0; font: 400 15px/1.3 var(--label); letter-spacing: 0.1em; color: var(--ink-2); }
+
+/* Abilities: radar beside a stat block */
+.radar-fig { margin: 0; min-width: 0; }
+.radar { width: 100%; height: auto; display: block; overflow: visible; }
+.ring { fill: none; stroke: var(--rule); stroke-width: 1; }
+.ring.outer { stroke: var(--rule-strong); stroke-width: 1.25; }
+.spoke { stroke: var(--rule); stroke-width: 1; }
+.axis { font: 400 14px var(--label); letter-spacing: 0.06em; fill: var(--ink-2); text-anchor: middle; dominant-baseline: middle; transition: fill 140ms ease; }
+.axis.on { fill: var(--ink); }
+.axis.hot { fill: var(--shape); }
+.tick { font: 400 9.5px var(--body); fill: var(--ink-2); text-anchor: start; dominant-baseline: middle; opacity: 0.8; }
+.drawn { fill: var(--radar-fill); stroke: var(--shape); stroke-width: 2; stroke-linejoin: round; }
+.dot { fill: var(--shape); stroke: var(--bg); stroke-width: 1.5; }
+.ghost { fill: none; stroke: var(--shape); stroke-width: 1.5; stroke-dasharray: 2.5 2.5; opacity: 0; transition: opacity 120ms ease; }
+.ghost.show { opacity: 1; }
+.ping { fill: none; stroke: var(--shape); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.blank .ring, .blank .spoke { stroke-dasharray: 3 4; }
+
+.map { display: grid; }
+.map-row { display: grid; grid-template-columns: 6.25rem minmax(0, 1fr) 2rem minmax(0, 1.25fr); align-items: baseline; column-gap: 16px; padding: 14px 0; border-top: 1px solid var(--rule); }
+.map-row > * { min-width: 0; }
+.map-head { padding: 0 0 8px; border-top: 0; border-bottom: 1.5px solid var(--ink); font: 400 13.5px/1.2 var(--label); letter-spacing: 0.12em; color: var(--ink-2); }
+.map-head + .map-row { border-top: 0; }
+.abbr { justify-self: start; font: 400 13px/1 var(--label); letter-spacing: 0.06em; white-space: nowrap; color: var(--on-accent); background: var(--ink); padding: 4px 7px 5px; border-radius: 2px; }
+.map .line { margin: 0; font: italic 400 16.5px/1.4 var(--body); color: var(--accent); }
+.arrow { font: 400 20px/1 var(--body); color: var(--gold); text-align: center; }
+.to h3 { display: inline; font: 700 18px/1.3 var(--body); margin: 0; }
+.to h3::after { content: ". "; }
+.to .desc { display: inline; margin: 0; font-size: 16.5px; line-height: 1.45; color: var(--ink-2); }
+
+/* Level chart: the one framed object */
+.chart { border: 1.5px solid var(--ink); border-radius: 4px; overflow: hidden; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; line-height: 1.34; table-layout: fixed; }
+thead th, thead td { background: var(--head-bg); color: var(--head-fg); font-weight: 400; text-align: left; vertical-align: top; padding: 14px 12px 12px; }
+thead tr > * + * { border-left: 1px solid var(--head-rule); }
+thead tr:first-child > :first-child { width: 10.6rem; vertical-align: bottom; }
+.corner { font: 400 14px/1.2 var(--label); letter-spacing: 0.1em; color: var(--head-fg-2); }
+.num { display: block; font: 400 40px/0.9 var(--display); color: var(--head-gold); margin-bottom: 8px; }
+.lv { display: block; font: 700 17px/1.15 var(--body); }
+.tier { display: block; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--head-gold); margin-top: 2px; }
+.why { display: block; font-size: 14px; line-height: 1.3; margin-top: 6px; color: var(--head-fg-2); }
+.range-row > * { border-top: 1px solid var(--head-rule); padding-top: 9px; padding-bottom: 10px; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--head-gold); }
+.range-row th { color: var(--head-fg); }
+.range-row th small { display: block; font: 400 13px/1.25 var(--body); letter-spacing: 0; color: var(--head-fg-2); margin-top: 2px; }
+tbody tr + tr { border-top: 1px solid var(--rule); }
+tbody th { text-align: left; vertical-align: top; padding: 14px 12px; font: 700 16px/1.2 var(--body); background: var(--surface-2); }
+tbody th .ab { display: block; font: 400 20px/1.1 var(--label); letter-spacing: 0.04em; color: var(--accent); margin-bottom: 4px; }
+.rh { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
+.rs { display: grid; place-items: center; overflow: hidden; width: 2.5rem; height: 2.6rem; margin-top: -2px; border: 1.5px solid var(--rule-strong); border-radius: 3px; background: var(--surface); font: 700 27px/1 var(--hand); color: var(--pencil); }
+.rs:empty::before { content: ""; width: 12px; border-bottom: 1.5px dashed var(--rule-strong); }
+tbody td.col-cur::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-inline: 3px solid color-mix(in srgb, var(--gold) 75%, transparent); }
+tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid var(--rule); vertical-align: top; }
+.cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  padding: 14px 14px 16px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+.cell::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--mark-fill); box-shadow: inset 3px 0 0 var(--accent); transform: scaleX(0); transform-origin: left center; }
+.cell::after { content: ""; position: absolute; inset: 5px; pointer-events: none; border: 1.5px dashed transparent; border-radius: 3px; }
+.cell:hover { background: var(--hover); }
+.cell:focus-visible { outline-offset: -3px; }
+.cell.past { background: var(--track); }
+.cell[aria-pressed="true"]::before { transform: scaleX(1); }
+.cell.goal::after { border-color: var(--accent); opacity: 0.55; }
+.ck { position: absolute; top: 10px; right: 10px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); transform: scale(0); }
+.ck::before { content: ""; position: absolute; left: 6.5px; top: 3.5px; width: 4px; height: 8px; border: solid var(--on-accent); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.cell[aria-pressed="true"] .ck { transform: scale(1); }
+.cell[aria-pressed="true"] .tx { padding-right: 16px; }
+.tx { display: block; }
+.cl { display: none; }
+.gt { display: none; font: 700 15px/1 var(--hand); color: var(--accent); margin-top: 8px; }
+.cell.goal .gt { display: block; }
+.chart-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-top: -8px; }
+.chart-foot p { margin: 0; font-size: 16px; color: var(--ink-2); }
+.chart-foot kbd { font: 700 16px/1 var(--hand); color: var(--accent); }
+.erase {
+  font: 400 15px/1 var(--label);
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  background: none;
+  border: 1.5px solid var(--accent);
+  border-radius: 3px;
+  padding: 11px 16px 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.erase:hover { background: var(--accent); color: var(--on-accent); }
+.erase:active { transform: translateY(1px); }
+.erase[disabled] { color: var(--ink-2); border-color: var(--rule); background: none; cursor: default; transform: none; }
+
+/* House rules */
+.rules { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; max-width: 44rem; counter-reset: rule; }
+.rules li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); align-items: baseline; font-size: 17.5px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; counter-increment: rule; }
+.rules li::before { content: counter(rule) "."; font-weight: 700; font-variant-numeric: lining-nums; color: var(--accent); }
+.rules b { color: var(--ink); }
+
+.colophon { border-top: 2px solid var(--ink); padding-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font: 400 15px/1.3 var(--label); letter-spacing: 0.1em; color: var(--ink-2); }
+.colophon p { margin: 0; }
+
+/* Live build: level bar on the radar and chart */
+.ring.bar { stroke: var(--bar); stroke-width: 2.25; }
+.ring.nx { stroke: var(--next); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.tick.bar { fill: var(--bar); font-weight: 700; opacity: 1; }
+thead th.lvl-cur { background: color-mix(in srgb, var(--head-gold) 14%, var(--head-bg)); box-shadow: inset 0 4px 0 var(--head-gold); }
+thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 38%, transparent); }
+.cell.goal.need::after { border-style: solid; border-color: var(--gold); opacity: 1; }
+.cell.need .gt { color: var(--gold); }
+.roll > .d { grid-area: 1 / 1; display: block; }
+
+/* Result band: the chart's bottom edge, where the roll lands */
+.hud {
+  display: grid; grid-template-columns: minmax(0, 21rem) minmax(0, 1fr); align-items: center; gap: clamp(20px, 4vw, 48px);
+  padding: 22px clamp(18px, 3vw, 36px) 24px; margin: 0;
+  background: var(--surface-2); border-top: 1.5px solid var(--ink);
+}
+.hud > * { min-width: 0; }
+.hud-side { display: grid; gap: 12px; align-content: center; }
+.hud-cap { margin: 0; font: 400 14px/1.2 var(--label); letter-spacing: 0.12em; color: var(--ink-2); }
+.hud-lv { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; align-items: center; }
+.hl-num { grid-row: span 2; font: 400 64px/0.85 var(--display); color: var(--bar); min-width: 0.6em; text-align: center; }
+.hl-name { font: 700 22px/1.15 var(--body); }
+.hl-next { font: 400 16px/1.35 var(--body); color: var(--ink-2); }
+.radar-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--rule); font: italic 400 15.5px/1.4 var(--body); color: var(--ink-2); max-width: 30rem; }
+/* Level stamp: pops on the cell that was just marked */
+.toast {
+  position: absolute; z-index: 5; left: 50%; top: 12px; margin: 0; width: max-content; max-width: 15rem;
+  display: grid; justify-items: center; gap: 3px;
+  font: 400 12.5px/1.1 var(--label); letter-spacing: 0.12em; text-align: center;
+  color: var(--head-bg); background: var(--head-gold); padding: 8px 16px 10px; border-radius: 6px;
+  box-shadow: 0 14px 30px -10px var(--shadow); opacity: 0; transform: translateX(-50%); pointer-events: none;
+}
+.toast b { font: 400 23px/1 var(--display); letter-spacing: 0.02em; }
+.toast.down { background: var(--head-bg); color: var(--head-fg); }
+.toast.show { animation: toast-fade 2400ms linear both; }
+@keyframes toast-fade { 0%, 100% { opacity: 0; } 6%, 85% { opacity: 1; } }
+.spark { position: fixed; z-index: 30; left: 0; top: 0; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 1.5px; background: var(--accent); pointer-events: none; box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 65%, transparent); }
+.mote { position: absolute; left: 30px; top: 50%; width: 6px; height: 6px; margin: -3px; background: var(--gold); pointer-events: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .roll > .d.in-up { animation: d-in-up 420ms cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
+  .roll > .d.in-down { animation: d-in-down 420ms cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
+  .roll > .d.out-up { animation: d-out-up 300ms ease-in both; }
+  .roll > .d.out-down { animation: d-out-down 300ms ease-in both; }
+  @keyframes d-in-up { from { transform: translateY(95%); opacity: 0; } }
+  @keyframes d-in-down { from { transform: translateY(-95%); opacity: 0; } }
+  @keyframes d-out-up { to { transform: translateY(-95%); opacity: 0; } }
+  @keyframes d-out-down { to { transform: translateY(95%); opacity: 0; } }
+  .rs.hit { animation: rs-hit 700ms ease-out; }
+  @keyframes rs-hit { 0% { border-color: var(--accent); background: var(--mark-fill); transform: scale(1.12); } 100% { transform: none; } }
+  .ring.flare { animation: flare 1100ms ease-out; }
+  @keyframes flare { 0% { stroke-width: 2; } 22% { stroke-width: 6; opacity: 1; } 100% { stroke-width: 2.25; } }
+  thead th.flare { animation: th-flare 1300ms ease-out; }
+  @keyframes th-flare { 0%, 20% { background: color-mix(in srgb, var(--head-gold) 50%, var(--head-bg)); } }
+  .hud-lv.flash .hl-num { animation: num-pop 760ms cubic-bezier(0.3, 1.7, 0.5, 1); }
+  .hud-lv.flash .hl-name { animation: glint 1200ms ease; }
+  @keyframes num-pop { 0% { transform: scale(0.4) rotate(-12deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  @keyframes glint { 0% { color: var(--ink); } 20% { color: var(--gold); text-shadow: 0 0 18px color-mix(in srgb, var(--gold) 60%, transparent); } 100% { color: var(--ink); } }
+  .toast.show { animation: toast-rise 2400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  @keyframes toast-rise {
+    0% { opacity: 0; transform: translate(-50%, 14px) scale(0.92); }
+    8% { opacity: 1; transform: translate(-50%, 0) scale(1.04); }
+    14%, 84% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -8px); }
+  }
+  .cell { transition: background-color 140ms ease; }
+  .cell::before { transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .ck { transition: transform 220ms cubic-bezier(0.3, 1.6, 0.5, 1) 120ms; }
+  .cell:not([aria-pressed="true"]) .ck { transition-delay: 0ms; transition-duration: 120ms; }
+  .erase { transition: background-color 140ms ease, color 140ms ease; }
+  .ping.go { animation: ping 700ms ease-out 260ms; }
+  .cell.goal .gt { animation: rise 260ms ease-out 200ms both; }
+  @keyframes ping { from { opacity: 0.9; transform: scale(0.6); } to { opacity: 0; transform: scale(3.2); } }
+  @keyframes rise { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+}
+@media (max-width: 1000px) {
+}
+@media (max-width: 760px) {
+  .title { grid-template-columns: minmax(0, 1fr); }
+  .fields { margin-top: 32px; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 24px; }
+  table, tbody, tr, tbody th, tbody td { display: block; width: 100%; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  tbody tr + tr { border-top: 0; }
+  tbody th { background: var(--head-bg); color: var(--head-fg); }
+  .rh { align-items: center; }
+  .rh > div { display: flex; align-items: baseline; gap: 12px; }
+  tbody th .ab { color: var(--head-gold); margin: 0; flex: none; }
+  .rs { background: transparent; border-color: var(--head-rule); color: var(--head-fg); margin: 0; }
+  .rs:empty::before { border-color: var(--head-rule); }
+  tbody td { height: auto; border-left: 0; border-top: 1px solid var(--rule); }
+  .cl { display: flex; justify-content: space-between; gap: 12px; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; padding-right: 26px; }
+  .cl i { font-style: normal; color: var(--gold); }
+  .rules { grid-template-columns: minmax(0, 1fr); }
+  .map-row { grid-template-columns: 5.5rem minmax(0, 1fr); row-gap: 6px; column-gap: 14px; }
+  .map-head { display: none; }
+  .map-head + .map-row { border-top: 0; }
+  .arrow { display: none; }
+  .to { grid-column: 2; }
+  .to h3::before { content: "\2192\00a0"; color: var(--gold); font-weight: 400; }
+  .rules { gap: 14px; }
+}
+@media (max-width: 640px) {
+  .hud { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 16px 20px; }
+  .radar-fig { justify-self: center; width: min(100%, 20rem); }
+  .hl-num { font-size: 52px; }
+  .hl-name { font-size: 19px; }
+  .hl-next { font-size: 15px; }
+}
+@media (max-width: 560px) {
+  body { font-size: 17px; }
+  .fields { grid-template-columns: minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<main class="page">
+
+  <header class="title">
+    <p class="brand">
+      <svg class="mark" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="disc" cx="60" cy="60" r="58"/>
+        <g class="die">
+          <path d="M60 24 L91 42 L91 78 L60 96 L29 78 L29 42Z"/>
+          <path d="M60 40 L78 71 L42 71Z"/>
+          <path d="M60 24 L60 40 M60 24 L42 71 M60 24 L78 71 M91 42 L60 40 M29 42 L60 40 M91 42 L78 71 M29 42 L42 71 M91 78 L78 71 M29 78 L42 71 M60 96 L42 71 M60 96 L78 71"/>
+        </g>
+      </svg>
+      How I Evaluate Engineers
+    </p>
+    <h1>Engineering <em>Character Sheets</em></h1>
+    <div class="intro">
+      <p>This is my framework for evaluating engineers before I consider an organization's own leveling framework.</p>
+      <p>Every engineer gets a sheet: six attributes, five levels, and a score for each attribute that ties to a real example. Their class is the role they play, like product, data or platform engineer. Class and level are separate: any class can reach any level.</p>
+    </div>
+    <div class="fields">
+      <div class="field"><span class="fill">Andrew Lum</span><span class="cap">Dungeon Master</span></div>
+      <div class="field"><input class="fill" id="char-name" type="text" maxlength="40" autocomplete="off" spellcheck="false" placeholder="Pencil in a name"><label class="cap" for="char-name">Character</label></div>
+      <div class="field"><span class="pick"><select class="fill" id="char-class"><option value="">Pick a class</option><option>Product Engineer</option><option>Frontend Engineer</option><option>Backend Engineer</option><option>Full-Stack Engineer</option><option>Mobile Engineer</option><option>Data Engineer</option><option>Platform Engineer</option><option>Infrastructure Engineer</option><option>AI Engineer</option></select></span><label class="cap" for="char-class">Class</label></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="abilities-h">
+    <div class="sec-head">
+      <h2 id="abilities-h">The Six Ability Scores</h2>
+    </div>
+    <div class="map" role="table" aria-label="How each stat maps to an attribute">
+      <div class="map-row map-head" role="row"><span role="columnheader">Stat</span><span role="columnheader">Why it maps</span><span aria-hidden="true"></span><span role="columnheader">Attribute: what it measures</span></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">STR/INT</span><p class="line" role="cell">Strength and Intelligence are the impact of our work.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Outcome Focus</h3><p class="desc">Whether, once pointed at a goal, they optimize for the right one.</p></div></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">DEX</span><p class="line" role="cell">Dexterity magnifies impact by being precise.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Technology as Leverage</h3><p class="desc">How far their tools multiply output: their own, then everyone's.</p></div></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">STA</span><p class="line" role="cell">Stamina is pushing through and enduring the bugs and incidents.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Stewardship &amp; Execution</h3><p class="desc">How much of a problem's life they carry: shaping it, shipping it, keeping it alive.</p></div></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">AGI</span><p class="line" role="cell">Agility is how fast we can move, change and grow.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Growth</h3><p class="desc">How they grow: themselves first, then others.</p></div></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">WIS</span><p class="line" role="cell">Wisdom is judgment.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Technical Judgment</h3><p class="desc">The quality of what they build, design and review.</p></div></div>
+      <div class="map-row" role="row"><span class="abbr" role="cell">CHA</span><p class="line" role="cell">Charisma is trust.</p><span class="arrow" aria-hidden="true">&rarr;</span><div class="to" role="cell"><h3>Trust</h3><p class="desc">Whether others can rely on them: how they communicate, disagree and work across functions.</p></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="rules-h">
+    <div class="sec-head">
+      <h2 id="rules-h">House Rules</h2>
+    </div>
+    <ol class="rules">
+      <li><span><b>Set goals:</b> The next cell to the right is the goal.</span></li>
+      <li><span><b>Give feedback:</b> Every score ties to a cell and a real example.</span></li>
+      <li><span><b>Validate my vibes:</b> A scorecard to test my hypothesis about an engineer.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="chart-h">
+    <div class="sec-head">
+      <h2 id="chart-h">The Level Chart</h2>
+    </div>
+    <div class="chart">
+      <table id="levels">
+        <thead>
+          <tr>
+            <th scope="col" class="corner">Attribute</th>
+            <th scope="col"><span class="num">1</span><span class="lv">Junior</span><span class="tier">Apprentice</span><span class="why">lots of support; reaches their own tasks</span></th>
+            <th scope="col"><span class="num">2</span><span class="lv">Mid</span><span class="tier">Journeyman</span><span class="why">some support; reaches their own projects</span></th>
+            <th scope="col"><span class="num">3</span><span class="lv">Senior</span><span class="tier">Expert</span><span class="why">runs a project alone; lifts their team</span></th>
+            <th scope="col"><span class="num">4</span><span class="lv">Senior II</span><span class="tier">Artisan</span><span class="why">lifts the teams around their domain</span></th>
+            <th scope="col"><span class="num">5</span><span class="lv">Staff</span><span class="tier">Master</span><span class="why">lifts the whole org, broad or deep</span></th>
+          </tr>
+          <tr class="range-row">
+            <th scope="row">Range<small>who else gets the buff</small></th>
+            <td>Self, carried</td>
+            <td>Self</td>
+            <td>Party</td>
+            <td>Raid</td>
+            <td>Guild</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-s="str">
+            <th scope="row"><div class="rh"><div><span class="ab">STR/INT</span>Outcome Focus</div><output class="rs roll" id="rs-str" aria-label="Outcome Focus level"></output></div></th>
+            <td>Does what the ticket says</td>
+            <td>Finds the goal behind the ticket and prioritizes by it</td>
+            <td>Trades scope, quality and time against what the business needs now</td>
+            <td>Kills or reshapes work in their domain with evidence; the roadmap changes because of them</td>
+            <td>Decides which goals and technical bets are worth pursuing across teams</td>
+          </tr>
+          <tr data-s="dex">
+            <th scope="row"><div class="rh"><div><span class="ab">DEX</span>Technology as Leverage</div><output class="rs roll" id="rs-dex" aria-label="Technology as Leverage level"></output></div></th>
+            <td>Uses the team's tools and AI to unblock themselves</td>
+            <td>Automates their own repetitive work</td>
+            <td>Builds or adopts tools that lift their team</td>
+            <td>Tools they choose or build become their domain's default; nearby teams copy them</td>
+            <td>Changes how the org builds; teams adopt their tools unprompted</td>
+          </tr>
+          <tr data-s="sta">
+            <th scope="row"><div class="rh"><div><span class="ab">STA</span>Stewardship &amp; Execution</div><output class="rs roll" id="rs-sta" aria-label="Stewardship and Execution level"></output></div></th>
+            <td>Ships well-defined tasks; fixes their bugs when pointed at them</td>
+            <td>Breaks down and estimates a loose problem, then ships it; debugs what they broke without being chased</td>
+            <td>Takes an open problem to production and keeps it healthy: leads its incidents, leaves a care manual</td>
+            <td>Owns a domain's health (reliability, incidents, on-call); others can change it safely without them</td>
+            <td>Their reliability practices run in teams they never joined, or they land migrations that stalled before them</td>
+          </tr>
+          <tr data-s="agi">
+            <th scope="row"><div class="rh"><div><span class="ab">AGI</span>Growth</div><output class="rs roll" id="rs-agi" aria-label="Growth level"></output></div></th>
+            <td>Takes feedback without defensiveness; the change shows next time</td>
+            <td>Asks for feedback and gives it to peers</td>
+            <td>Steers their own growth; engineers around them visibly improve</td>
+            <td>Grows someone who could run the domain without them</td>
+            <td>Sponsors engineers into bigger work, and teaches beyond their own team</td>
+          </tr>
+          <tr data-s="wis">
+            <th scope="row"><div class="rh"><div><span class="ab">WIS</span>Technical Judgment</div><output class="rs roll" id="rs-wis" aria-label="Technical Judgment level"></output></div></th>
+            <td>Writes correct, readable code to a spec</td>
+            <td>Writes specs that survive review without major rework; their reviews catch real bugs</td>
+            <td>Designs that hold up as needs change and account for failure, security and cost</td>
+            <td>Sets their domain's technical direction; other teams bring them designs to review</td>
+            <td>Teams design to standards they wrote, or they solve problems that stalled other senior engineers</td>
+          </tr>
+          <tr data-s="cha">
+            <th scope="row"><div class="rh"><div><span class="ab">CHA</span>Trust</div><output class="rs roll" id="rs-cha" aria-label="Trust level"></output></div></th>
+            <td>Flags status and blockers early</td>
+            <td>Socializes decisions before acting; disagrees and commits; works directly with PM and design</td>
+            <td>Delivers bad news early; works directly with their users; their writing moves non-eng decisions</td>
+            <td>Settles cross-team disagreements in their domain before they reach a manager</td>
+            <td>Sets how the org disagrees and decides, or is the voice sought on its hardest technical calls</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="hud" id="hud" aria-label="Rolled level">
+        <figure class="radar-fig">
+          <svg class="radar" id="radar" viewBox="0 0 300 276" role="img" aria-label="Attribute radar, blank until levels are marked in the chart."></svg>
+        </figure>
+        <div class="hud-side">
+          <p class="hud-cap">Rolled level</p>
+          <div class="hud-lv" id="hud-lv" aria-live="polite"><span class="hl-num" id="hl-num">–</span><span class="hl-name" id="hl-name">Unrolled</span><span class="hl-next" id="hl-next">0 of 6 marked</span></div>
+          <p class="radar-note" id="radar-cap"></p>
+        </div>
+      </div>
+      <p class="toast" id="toast" aria-hidden="true"></p>
+    </div>
+    <div class="chart-foot">
+      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
+      <button class="erase" id="erase" type="button" disabled>Nothing to erase</button>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <p>November 2026</p>
+  </footer>
+
+
+</main>
+
+<script>
+(function () {
+  var STATS = ["str", "dex", "sta", "agi", "wis", "cha"];
+  var AXES = ["STR/INT", "DEX", "STA", "AGI", "WIS", "CHA"];
+  var SHORT = ["Outcome Focus", "Leverage", "Stewardship", "Growth", "Judgment", "Trust"];
+  var NAMES = ["Junior", "Mid", "Senior", "Senior II", "Staff"];
+  var TIERS = ["Apprentice", "Journeyman", "Expert", "Artisan", "Master"];
+  var RANGES = ["Self, carried", "Self", "Party", "Raid", "Guild"];
+  var WORDS = ["", "one", "two", "three", "four", "five"];
+  var KEY = "sheet-marks", NAME_KEY = "sheet-character", CLASS_KEY = "sheet-class";
+  var NS = "http://www.w3.org/2000/svg";
+  var cx = 150, cy = 140, R = 104;
+  var marks = {};
+  var reduce = false;
+  try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  try { marks = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { marks = {}; }
+  if (typeof marks !== "object" || marks === null) marks = {};
+
+  function ptAt(ox, oy, rad, i, v) {
+    var a = (i * 60 - 90) * Math.PI / 180;
+    return [ox + rad * v / 5 * Math.cos(a), oy + rad * v / 5 * Math.sin(a)];
+  }
+  function polyAt(ox, oy, rad, vals) {
+    return vals.map(function (v, i) { return ptAt(ox, oy, rad, i, v).map(function (n) { return n.toFixed(1); }).join(","); }).join(" ");
+  }
+  function pt(i, v) { return ptAt(cx, cy, R, i, v); }
+  function poly(vals) { return polyAt(cx, cy, R, vals); }
+  function add(parent, name, attrs) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    parent.appendChild(e);
+    return e;
+  }
+  function restart(el, cls) {
+    el.classList.remove(cls);
+    void el.getBoundingClientRect();
+    el.classList.add(cls);
+  }
+
+  /* The promotion rule, as the sheet applies it. Against level L, an attribute marked at L is a 3 (the job),
+     one level above is a 4, one below is a 2, two or more below is a 1. A level clears with no 1s and every 2 offset by a 4. */
+  function scoreAt(m, L) { return Math.max(1, Math.min(4, 3 + m - L)); }
+  function clears(vals, L) {
+    var s = vals.map(function (m) { return scoreAt(m, L); });
+    if (s.indexOf(1) >= 0) return false;
+    return s.filter(function (x) { return x === 2; }).length <= s.filter(function (x) { return x === 4; }).length;
+  }
+  function levelOf(vals) {
+    if (vals.some(function (v) { return !v; })) return 0;
+    for (var L = 5; L >= 1; L--) if (clears(vals, L)) return L;
+    return 0;
+  }
+  function list(ix, conj) {
+    var n = ix.map(function (i) { return SHORT[i]; });
+    return n.length < 2 ? n.join("") : n.slice(0, -1).join(", ") + " " + conj + " " + n[n.length - 1];
+  }
+  function blockers(vals, L) {
+    if (!L || L >= 5) return null;
+    var T = L + 1, ones = [], twos = [], fours = 0;
+    vals.forEach(function (m, i) {
+      var sc = scoreAt(m, T);
+      if (sc === 1) ones.push(i); else if (sc === 2) twos.push(i); else if (sc === 4) fours++;
+    });
+    if (ones.length) return { need: ones, text: "lift " + list(ones, "and") };
+    var d = twos.length - fours;
+    return { need: twos, text: d >= twos.length ? "lift " + list(twos, "and") : "lift " + WORDS[d] + " of " + list(twos, "or") };
+  }
+
+  /* Radar */
+  var svg = document.getElementById("radar");
+  var rings = [], ticks = [];
+  [1, 2, 3, 4, 5].forEach(function (r) {
+    rings.push(add(svg, "polygon", { "class": r === 5 ? "ring outer" : "ring", points: poly([r, r, r, r, r, r]) }));
+    var p = pt(0, r);
+    var t = add(svg, "text", { "class": "tick", x: p[0] + 4, y: p[1] + 1 });
+    t.textContent = r;
+    ticks.push(t);
+  });
+  var labels = AXES.map(function (label, i) {
+    var o = pt(i, 5), l = pt(i, 5.72);
+    add(svg, "line", { "class": "spoke", x1: cx, y1: cy, x2: o[0], y2: o[1] });
+    var t = add(svg, "text", { "class": "axis", x: l[0], y: l[1] });
+    t.textContent = label;
+    return t;
+  });
+  var shape = add(svg, "polygon", { "class": "drawn", points: "" });
+  var dots = STATS.map(function () { return add(svg, "circle", { "class": "dot", r: 3.5, cx: cx, cy: cy }); });
+  var ghost = add(svg, "circle", { "class": "ghost", r: 6.5, cx: cx, cy: cy });
+  var ping = add(svg, "circle", { "class": "ping", r: 6, cx: cx, cy: cy });
+  var cap = document.getElementById("radar-cap");
+
+  /* HUD */
+  var hud = document.getElementById("hud");
+  var hudLv = document.getElementById("hud-lv");
+  var hlNum = document.getElementById("hl-num"), hlName = document.getElementById("hl-name"), hlNext = document.getElementById("hl-next");
+  var toast = document.getElementById("toast");
+  var rowScores = STATS.map(function (s) { return document.getElementById("rs-" + s); });
+
+  var cur = [0, 0, 0, 0, 0, 0], target = cur.slice(), frame = null;
+  function draw(vals) {
+    var any = vals.some(function (v) { return v > 0.01; });
+    shape.setAttribute("points", any ? poly(vals) : "");
+    vals.forEach(function (v, i) {
+      var p = pt(i, v);
+      dots[i].setAttribute("cx", p[0].toFixed(1));
+      dots[i].setAttribute("cy", p[1].toFixed(1));
+      dots[i].style.display = (target[i] || v > 0.05) ? "" : "none";
+    });
+  }
+  var settle = null;
+  function morph(animate) {
+    if (frame) cancelAnimationFrame(frame);
+    clearTimeout(settle);
+    if (!animate || reduce) { cur = target.slice(); draw(cur); return; }
+    settle = setTimeout(function () { if (frame) cancelAnimationFrame(frame); frame = null; cur = target.slice(); draw(cur); }, 620);
+    var from = cur.slice(), start = null;
+    function step(ts) {
+      if (start === null) start = ts;
+      var k = Math.min(1, (ts - start) / 520);
+      var e = k < 1 ? 1 - Math.pow(2, -10 * k) * Math.cos(k * 9) : 1;
+      cur = from.map(function (f, i) { return f + (target[i] - f) * e; });
+      draw(cur);
+      frame = k < 1 ? requestAnimationFrame(step) : null;
+    }
+    frame = requestAnimationFrame(step);
+  }
+  function preview(i, level) {
+    labels.forEach(function (t, j) { t.classList.toggle("hot", j === i); });
+    if (level) {
+      var p = pt(i, level);
+      ghost.setAttribute("cx", p[0].toFixed(1));
+      ghost.setAttribute("cy", p[1].toFixed(1));
+    }
+    ghost.classList.toggle("show", !!level);
+  }
+
+  /* Odometer digits: the old number rolls out as the new one rolls in */
+  function roll(el, v, animate) {
+    var curD = null;
+    Array.prototype.forEach.call(el.querySelectorAll(".d"), function (d) { if (d.classList.contains("out")) d.remove(); else curD = d; });
+    var old = curD ? +curD.textContent : 0;
+    if (v === old) return false;
+    if (!v) { el.textContent = ""; return true; }
+    var d = document.createElement("span");
+    d.className = "d";
+    d.textContent = v;
+    if (animate && !reduce) {
+      var up = v > old;
+      d.classList.add(up ? "in-up" : "in-down");
+      if (curD) {
+        curD.classList.add("out", up ? "out-up" : "out-down");
+        setTimeout(function () { curD.remove(); }, 320);
+      }
+    } else if (curD) curD.remove();
+    el.appendChild(d);
+    return true;
+  }
+
+  /* A mark flies from its cell into the HUD */
+  function spark(from, to) {
+    var a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+    var x0 = a.right - 19, y0 = a.top + 19, x1 = b.left + b.width / 2, y1 = b.top + b.height / 2;
+    var dx = x1 - x0, dy = y1 - y0, lift = Math.min(140, 50 + Math.abs(dx) * 0.25);
+    var el = document.createElement("span");
+    el.className = "spark";
+    el.style.left = x0 + "px";
+    el.style.top = y0 + "px";
+    document.body.appendChild(el);
+    if (!el.animate) { el.remove(); return; }
+    var an = el.animate([
+      { transform: "translate(0, 0) rotate(45deg) scale(0.4)", opacity: 0 },
+      { transform: "translate(" + dx * 0.45 + "px," + (dy * 0.45 - lift) + "px) rotate(225deg) scale(1.25)", opacity: 1, offset: 0.45 },
+      { transform: "translate(" + dx + "px," + dy + "px) rotate(405deg) scale(0.5)", opacity: 0.9 }
+    ], { duration: 560, easing: "cubic-bezier(0.45, 0, 0.3, 1)" });
+    an.onfinish = function () { el.remove(); };
+  }
+  function burst() {
+    if (!hudLv.animate) return;
+    for (var k = 0; k < 12; k++) {
+      var m = document.createElement("span");
+      m.className = "mote";
+      hudLv.appendChild(m);
+      var ang = (k / 12) * Math.PI * 2 + Math.random() * 0.4, dist = 34 + Math.random() * 30;
+      var an = m.animate([
+        { transform: "translate(0,0) rotate(45deg) scale(1)", opacity: 1 },
+        { transform: "translate(" + Math.cos(ang) * dist + "px," + Math.sin(ang) * dist + "px) rotate(225deg) scale(0.2)", opacity: 0 }
+      ], { duration: 700 + Math.random() * 300, easing: "cubic-bezier(0.1, 0.7, 0.3, 1)" });
+      an.onfinish = (function (n) { return function () { n.remove(); }; })(m);
+    }
+  }
+  var heads = Array.prototype.slice.call(document.querySelectorAll("#levels thead tr:first-child th"), 1);
+  function stamp(at, top, name, down) {
+    if (!at) return;
+    at.parentNode.appendChild(toast);
+    toast.innerHTML = "<span></span><b></b>";
+    toast.firstChild.textContent = top;
+    toast.lastChild.textContent = name;
+    toast.classList.toggle("down", !!down);
+    toast.style.left = "";
+    var box = at.parentNode.getBoundingClientRect(), frame = toast.closest(".chart").getBoundingClientRect();
+    var half = toast.offsetWidth / 2 + 8, mid = box.left + box.width / 2;
+    var safe = Math.min(Math.max(mid, frame.left + half), frame.right - half);
+    if (safe !== mid) toast.style.left = (safe - box.left) + "px";
+    restart(toast, "show");
+  }
+  function celebrate(L, first, at) {
+    stamp(at, first ? "Character rolled" : "Level up", NAMES[L - 1] + " · " + TIERS[L - 1]);
+    if (reduce) return;
+    restart(hudLv, "flash");
+    burst();
+    restart(rings[L - 1], "flare");
+    restart(heads[L - 1], "flare");
+  }
+
+  /* Level chart cells */
+  var cells = {};
+  var timers = [];
+  function stopPlay() {
+    timers.forEach(clearTimeout);
+    timers = [];
+  }
+  document.querySelectorAll("#levels tbody tr").forEach(function (tr) {
+    var s = tr.dataset.s, si = STATS.indexOf(s);
+    cells[s] = [];
+    tr.querySelectorAll("td").forEach(function (td, i) {
+      var text = td.textContent.trim();
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "cell";
+      b.id = "cell-" + s + "-" + (i + 1);
+      b.setAttribute("aria-pressed", "false");
+      var cl = document.createElement("span");
+      cl.className = "cl";
+      cl.innerHTML = "<span></span><i></i>";
+      cl.firstChild.textContent = (i + 1) + " · " + NAMES[i];
+      cl.lastChild.textContent = RANGES[i];
+      var tx = document.createElement("span");
+      tx.className = "tx";
+      tx.textContent = text;
+      var gt = document.createElement("span");
+      gt.className = "gt";
+      gt.innerHTML = "<span>next goal</span> <span aria-hidden=\"true\">→</span>";
+      var ck = document.createElement("span");
+      ck.className = "ck";
+      ck.setAttribute("aria-hidden", "true");
+      b.appendChild(cl);
+      b.appendChild(tx);
+      b.appendChild(gt);
+      b.appendChild(ck);
+      b.addEventListener("click", function () {
+        stopPlay();
+        var on = marks[s] !== i + 1;
+        if (on) marks[s] = i + 1; else delete marks[s];
+        render(true, on ? { i: si, v: i + 1, from: b } : null);
+        preview(si, on ? 0 : i + 1);
+      });
+      b.addEventListener("mouseenter", function () { preview(si, marks[s] === i + 1 ? 0 : i + 1); });
+      b.addEventListener("focus", function () { preview(si, marks[s] === i + 1 ? 0 : i + 1); });
+      b.addEventListener("mouseleave", function () { preview(-1, 0); });
+      b.addEventListener("blur", function () { preview(-1, 0); });
+      td.textContent = "";
+      td.appendChild(b);
+      cells[s].push(b);
+    });
+  });
+
+  var erase = document.getElementById("erase");
+  erase.addEventListener("click", function () {
+    stopPlay();
+    marks = {};
+    render(true);
+    cells.str[0].focus({ preventScroll: true });
+  });
+
+  var prevL = 0, hudTimer = null, rowTimers = [];
+  function render(save, hit) {
+    var vals = STATS.map(function (s) { var v = +marks[s]; return v >= 1 && v <= 5 ? v : 0; });
+    var n = vals.filter(Boolean).length;
+    var L = levelOf(vals), info = blockers(vals, L);
+    var landing = 0;
+    if (hit && hit.from && !reduce) { spark(hit.from, rowScores[hit.i]); landing = 480; }
+    STATS.forEach(function (s, i) {
+      var v = vals[i];
+      clearTimeout(rowTimers[i]);
+      var delay = hit && hit.i === i ? landing : 0;
+      rowTimers[i] = setTimeout(function () {
+        if (roll(rowScores[i], v, save) && save && v && !reduce && hit && hit.i === i) restart(rowScores[i], "hit");
+      }, delay);
+      var need = !!(info && info.need.indexOf(i) >= 0);
+      cells[s].forEach(function (b, j) {
+        b.setAttribute("aria-pressed", String(v === j + 1));
+        var goal = v > 0 && v === j;
+        b.classList.toggle("goal", goal);
+        b.classList.toggle("need", goal && need);
+        b.classList.toggle("past", v > 0 && j < v - 1);
+        b.parentNode.classList.toggle("col-cur", L === j + 1);
+        if (goal) b.querySelector(".gt").firstChild.textContent = need ? "needed for " + NAMES[L] : "next goal";
+      });
+      labels[i].classList.toggle("on", v > 0);
+    });
+    rings.forEach(function (r, k) {
+      r.classList.toggle("bar", L === k + 1);
+      r.classList.toggle("nx", L > 0 && L < 5 && k === L);
+      ticks[k].classList.toggle("bar", L === k + 1);
+    });
+    heads.forEach(function (h, k) {
+      h.classList.toggle("lvl-cur", L === k + 1);
+      h.classList.toggle("lvl-nx", L > 0 && L < 5 && k === L);
+    });
+    target = vals;
+    morph(!!save);
+    if (hit) {
+      var p = pt(hit.i, hit.v);
+      ping.setAttribute("cx", p[0].toFixed(1));
+      ping.setAttribute("cy", p[1].toFixed(1));
+      if (!reduce) restart(ping, "go");
+    }
+    svg.classList.toggle("blank", !n);
+    var next = L ? (L < 5 ? "Next, " + NAMES[L] + ": " + info.text + "." : "Top of the chart.") : "";
+    cap.textContent = L ? "Blue is the character. The green ring is the level it clears; the dashed purple ring is the next one." : n ? "Mark all six rows to roll a level." : "Pencil in one cell per row and the hexagon draws itself.";
+    svg.setAttribute("aria-label", n
+      ? "Attribute radar. " + AXES.map(function (a, i) { return a + " " + (vals[i] || "unmarked"); }).join(", ") + "."
+      : "Attribute radar, blank until levels are marked in the chart.");
+    clearTimeout(hudTimer);
+    var first = !prevL, up = save && L > prevL, down = save && L && L < prevL, at = hit && hit.from;
+    hudTimer = setTimeout(function () {
+      hlNum.textContent = L || "–";
+      hlName.textContent = L ? NAMES[L - 1] + " · " + TIERS[L - 1] : "Unrolled";
+      hlNext.textContent = L ? next : n + " of 6 marked";
+      if (up) celebrate(L, first, at);
+      else if (down) stamp(at, "Drops to", NAMES[L - 1] + " · " + TIERS[L - 1], true);
+    }, landing);
+    prevL = L;
+    erase.disabled = !n;
+    erase.textContent = n ? "Erase " + n + (n === 1 ? " mark" : " marks") : "Nothing to erase";
+    if (save) { try { localStorage.setItem(KEY, JSON.stringify(marks)); } catch (e) {} }
+  }
+
+  var name = document.getElementById("char-name");
+  try { name.value = localStorage.getItem(NAME_KEY) || ""; } catch (e) {}
+  name.addEventListener("input", function () {
+    try { localStorage.setItem(NAME_KEY, name.value); } catch (e) {}
+  });
+  var klass = document.getElementById("char-class");
+  try { klass.value = localStorage.getItem(CLASS_KEY) || ""; } catch (e) {}
+  klass.addEventListener("change", function () {
+    try { localStorage.setItem(CLASS_KEY, klass.value); } catch (e) {}
+  });
+
+  render(false);
+})();
+</script>
+</body>
+</html>
