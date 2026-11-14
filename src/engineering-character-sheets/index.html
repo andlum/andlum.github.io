@@ -15,6 +15,12 @@ templateEngineOverride: false
 <meta property="og:description" content="A framework for evaluating engineers: a character sheet of attributes, scored by level, with a live level chart and radar.">
 <meta property="og:url" content="https://andlum.com/engineering-character-sheets/">
 <meta name="author" content="Andrew Lum">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
+<meta property="og:image" content="https://andlum.com/img/engineering-character-sheets.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Engineering Character Sheets: a radar chart of six attributes and a rolled level of Senior.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=IM+Fell+Double+Pica+SC&family=IM+Fell+English+SC&family=Kalam:wght@400;700&display=swap">
@@ -32,7 +38,8 @@ templateEngineOverride: false
   --rule-strong: #8a7253;
   --accent: #8a2219;
   --on-accent: #fbf7ec;
-  --gold: #8a6519;
+  --gold: #7a5812;
+  --grid: #9c8460;
   --head-bg: #2a1c10;
   --head-fg: #f5eedc;
   --head-fg-2: #cbbb98;
@@ -55,7 +62,7 @@ templateEngineOverride: false
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #18120c; --surface: #221911; --surface-2: #2b2016; --ink: #efe4c8; --ink-2: #b9a787;
-    --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76;
+    --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76; --grid: #74604a;
     --head-bg: #31251a; --head-fg: #efe4c8; --head-fg-2: #b6a483; --head-gold: #e2c47f; --head-rule: #4a3a2a;
     --pencil: #e4dccb; --mark-fill: rgba(236, 138, 118, 0.14); --track: rgba(236, 138, 118, 0.045);
     --hover: rgba(239, 228, 200, 0.05); --radar-fill: rgba(130, 176, 224, 0.2); --shape: #8ab4e2; --bar: #86c98f; --next: #b9a2e6; --shadow: rgba(0, 0, 0, 0.62);
@@ -64,7 +71,7 @@ templateEngineOverride: false
 }
 :root[data-theme="dark"] {
   --bg: #18120c; --surface: #221911; --surface-2: #2b2016; --ink: #efe4c8; --ink-2: #b9a787;
-  --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76;
+  --rule: #3b2e22; --rule-strong: #7a664b; --accent: #ec8a76; --on-accent: #18120c; --gold: #dcbd76; --grid: #74604a;
   --head-bg: #31251a; --head-fg: #efe4c8; --head-fg-2: #b6a483; --head-gold: #e2c47f; --head-rule: #4a3a2a;
   --pencil: #e4dccb; --mark-fill: rgba(236, 138, 118, 0.14); --track: rgba(236, 138, 118, 0.045);
   --hover: rgba(239, 228, 200, 0.05); --radar-fill: rgba(130, 176, 224, 0.2); --shape: #8ab4e2; --bar: #86c98f; --next: #b9a2e6; --shadow: rgba(0, 0, 0, 0.62);
@@ -126,13 +133,13 @@ h1 em { font-style: normal; color: var(--accent); }
 input.fill { transition: border-color 160ms ease; }
 input.fill:hover { border-bottom-color: var(--ink); }
 input.fill:focus { outline: none; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
-.fill::placeholder { color: var(--ink-2); opacity: 0.5; }
+.fill::placeholder { color: var(--ink-2); opacity: 1; }
 .pick { position: relative; display: block; }
 .pick::after { content: ""; position: absolute; right: 4px; top: 50%; width: 7px; height: 7px; margin-top: -6px; border: solid var(--ink-2); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); pointer-events: none; }
 select.fill { appearance: none; -webkit-appearance: none; padding-right: 22px; cursor: pointer; text-overflow: ellipsis; }
 select.fill:hover { border-bottom-color: var(--ink); }
 select.fill:focus-visible { outline: none; border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
-select.fill:has(option[value=""]:checked) { color: color-mix(in srgb, var(--ink-2) 50%, transparent); }
+select.fill:has(option[value=""]:checked) { color: var(--ink-2); }
 select.fill option { font: 400 16px/1.3 var(--body); color: var(--ink); background: var(--surface); }
 
 /* Sections */
@@ -145,13 +152,13 @@ h2 { font: 400 clamp(30px, 4.2vw, 46px)/1 var(--display); margin: 0; text-wrap: 
 /* Abilities: radar beside a stat block */
 .radar-fig { margin: 0; min-width: 0; }
 .radar { width: 100%; height: auto; display: block; overflow: visible; }
-.ring { fill: none; stroke: var(--rule); stroke-width: 1; }
+.ring { fill: none; stroke: var(--grid); stroke-width: 1; }
 .ring.outer { stroke: var(--rule-strong); stroke-width: 1.25; }
-.spoke { stroke: var(--rule); stroke-width: 1; }
+.spoke { stroke: var(--grid); stroke-width: 1; }
 .axis { font: 400 14px var(--label); letter-spacing: 0.06em; fill: var(--ink-2); text-anchor: middle; dominant-baseline: middle; transition: fill 140ms ease; }
 .axis.on { fill: var(--ink); }
 .axis.hot { fill: var(--shape); }
-.tick { font: 400 9.5px var(--body); fill: var(--ink-2); text-anchor: start; dominant-baseline: middle; opacity: 0.8; }
+.tick { font: 400 12px var(--body); fill: var(--ink-2); text-anchor: start; dominant-baseline: middle; }
 .drawn { fill: var(--radar-fill); stroke: var(--shape); stroke-width: 2; stroke-linejoin: round; }
 .dot { fill: var(--shape); stroke: var(--bg); stroke-width: 1.5; }
 .ghost { fill: none; stroke: var(--shape); stroke-width: 1.5; stroke-dasharray: 2.5 2.5; opacity: 0; transition: opacity 120ms ease; }
@@ -225,12 +232,17 @@ tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid v
 .cell[aria-pressed="true"] .ck { transform: scale(1); }
 .cell[aria-pressed="true"] .tx { padding-right: 16px; }
 .tx { display: block; }
-.cl { display: none; }
+.vh, .cl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .gt { display: none; font: 700 15px/1 var(--hand); color: var(--accent); margin-top: 8px; }
 .cell.goal .gt { display: block; }
-.chart-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-top: -8px; }
-.chart-foot p { margin: 0; font-size: 16px; color: var(--ink-2); }
-.chart-foot kbd { font: 700 16px/1 var(--hand); color: var(--accent); }
+.chart-lede { display: grid; gap: 14px; }
+.chart-lede > p { margin: 0; max-width: 46rem; font-size: 17px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
+.legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 20px; margin: 0; padding: 0; list-style: none; }
+.legend li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15.5px; line-height: 1.3; color: var(--ink-2); }
+.legend b { display: grid; place-items: center; height: 2.2rem; border: 1.5px solid var(--rule-strong); border-radius: 3px; background: var(--surface); font: 700 22px/1 var(--hand); color: var(--pencil); }
+.legend span b { display: inline; border: 0; background: none; font: inherit; font-weight: 700; color: var(--ink); }
+.chart-foot { display: flex; justify-content: flex-end; margin-top: -8px; }
+.peek { display: none; }
 .erase {
   font: 400 15px/1 var(--label);
   letter-spacing: 0.1em;
@@ -254,6 +266,7 @@ tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid v
 
 .colophon { border-top: 2px solid var(--ink); padding-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; font: 400 15px/1.3 var(--label); letter-spacing: 0.1em; color: var(--ink-2); }
 .colophon p { margin: 0; }
+.colophon a { color: var(--accent); text-underline-offset: 3px; }
 
 /* Live build: level bar on the radar and chart */
 .ring.bar { stroke: var(--bar); stroke-width: 2.25; }
@@ -327,6 +340,8 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   .erase { transition: background-color 140ms ease, color 140ms ease; }
   .ping.go { animation: ping 700ms ease-out 260ms; }
   .cell.goal .gt { animation: rise 260ms ease-out 200ms both; }
+  .peek { transition: transform 220ms ease, visibility 0s linear 220ms; }
+  .peek.show { transition: transform 220ms ease, visibility 0s; }
   @keyframes ping { from { opacity: 0.9; transform: scale(0.6); } to { opacity: 0; transform: scale(3.2); } }
   @keyframes rise { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
 }
@@ -345,7 +360,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   .rs { background: transparent; border-color: var(--head-rule); color: var(--head-fg); margin: 0; }
   .rs:empty::before { border-color: var(--head-rule); }
   tbody td { height: auto; border-left: 0; border-top: 1px solid var(--rule); }
-  .cl { display: flex; justify-content: space-between; gap: 12px; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; padding-right: 26px; }
+  .cl { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; display: flex; justify-content: space-between; gap: 12px; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; padding-right: 26px; }
   .cl i { font-style: normal; color: var(--gold); }
   .rules { grid-template-columns: minmax(0, 1fr); }
   .map-row { grid-template-columns: 5.5rem minmax(0, 1fr); row-gap: 6px; column-gap: 14px; }
@@ -355,6 +370,18 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   .to { grid-column: 2; }
   .to h3::before { content: "\2192\00a0"; color: var(--gold); font-weight: 400; }
   .rules { gap: 14px; }
+  .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  html { scroll-padding-bottom: 72px; }
+  .peek {
+    display: flex; align-items: center; gap: 12px; position: fixed; z-index: 6; left: 0; right: 0; bottom: 0;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) max(10px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    background: var(--surface-2); border-top: 1.5px solid var(--ink); box-shadow: 0 -8px 18px -12px var(--shadow);
+    transform: translateY(110%); visibility: hidden;
+  }
+  .peek.show { transform: none; visibility: visible; }
+  .pk-num { font: 400 34px/0.85 var(--display); color: var(--bar); min-width: 0.6em; text-align: center; }
+  .pk-name { font: 700 17px/1.15 var(--body); }
+  .pk-note { margin-left: auto; font: 400 14px/1.2 var(--label); letter-spacing: 0.08em; color: var(--ink-2); text-align: right; }
 }
 @media (max-width: 640px) {
   .hud { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 16px 20px; }
@@ -366,6 +393,12 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
 @media (max-width: 560px) {
   body { font-size: 17px; }
   .fields { grid-template-columns: minmax(0, 1fr); }
+}
+@media print {
+  section { display: block; }
+  section > * + * { margin-top: 18px; }
+  .hud, tbody tr, .legend li { break-inside: avoid; }
+  .erase, .toast, .peek, .spark, .mote { display: none !important; }
 }
 </style>
 </head>
@@ -427,6 +460,15 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     <div class="sec-head">
       <h2 id="chart-h">The Level Chart</h2>
     </div>
+    <div class="chart-lede">
+      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
+      <ul class="legend" aria-label="Scores against a level">
+        <li><b>1</b><span><b>Bad:</b> marked two or more levels below</span></li>
+        <li><b>2</b><span><b>Good, but inconsistent:</b> one level below</span></li>
+        <li><b>3</b><span><b>Good and consistent:</b> at the level. 3 is the job.</span></li>
+        <li><b>4</b><span><b>Exceptional:</b> one level above</span></li>
+      </ul>
+    </div>
     <div class="chart">
       <table id="levels">
         <thead>
@@ -449,7 +491,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
         </thead>
         <tbody>
           <tr data-s="str">
-            <th scope="row"><div class="rh"><div><span class="ab">STR/INT</span>Outcome Focus</div><output class="rs roll" id="rs-str" aria-label="Outcome Focus level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">STR/INT</span>Outcome Focus</div><output class="rs roll" id="rs-str" aria-hidden="true"></output></div></th>
             <td>Does what the ticket says</td>
             <td>Finds the goal behind the ticket and prioritizes by it</td>
             <td>Trades scope, quality and time against what the business needs now</td>
@@ -457,7 +499,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Decides which goals and technical bets are worth pursuing across teams</td>
           </tr>
           <tr data-s="dex">
-            <th scope="row"><div class="rh"><div><span class="ab">DEX</span>Technology as Leverage</div><output class="rs roll" id="rs-dex" aria-label="Technology as Leverage level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">DEX</span>Technology as Leverage</div><output class="rs roll" id="rs-dex" aria-hidden="true"></output></div></th>
             <td>Uses the team's tools and AI to unblock themselves</td>
             <td>Automates their own repetitive work</td>
             <td>Builds or adopts tools that lift their team</td>
@@ -465,7 +507,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Changes how the org builds; teams adopt their tools unprompted</td>
           </tr>
           <tr data-s="sta">
-            <th scope="row"><div class="rh"><div><span class="ab">STA</span>Stewardship &amp; Execution</div><output class="rs roll" id="rs-sta" aria-label="Stewardship and Execution level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">STA</span>Stewardship &amp; Execution</div><output class="rs roll" id="rs-sta" aria-hidden="true"></output></div></th>
             <td>Ships well-defined tasks; fixes their bugs when pointed at them</td>
             <td>Breaks down and estimates a loose problem, then ships it; debugs what they broke without being chased</td>
             <td>Takes an open problem to production and keeps it healthy: leads its incidents, leaves a care manual</td>
@@ -473,7 +515,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Their reliability practices run in teams they never joined, or they land migrations that stalled before them</td>
           </tr>
           <tr data-s="agi">
-            <th scope="row"><div class="rh"><div><span class="ab">AGI</span>Growth</div><output class="rs roll" id="rs-agi" aria-label="Growth level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">AGI</span>Growth</div><output class="rs roll" id="rs-agi" aria-hidden="true"></output></div></th>
             <td>Takes feedback without defensiveness; the change shows next time</td>
             <td>Asks for feedback and gives it to peers</td>
             <td>Steers their own growth; engineers around them visibly improve</td>
@@ -481,7 +523,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Sponsors engineers into bigger work, and teaches beyond their own team</td>
           </tr>
           <tr data-s="wis">
-            <th scope="row"><div class="rh"><div><span class="ab">WIS</span>Technical Judgment</div><output class="rs roll" id="rs-wis" aria-label="Technical Judgment level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">WIS</span>Technical Judgment</div><output class="rs roll" id="rs-wis" aria-hidden="true"></output></div></th>
             <td>Writes correct, readable code to a spec</td>
             <td>Writes specs that survive review without major rework; their reviews catch real bugs</td>
             <td>Designs that hold up as needs change and account for failure, security and cost</td>
@@ -489,7 +531,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Teams design to standards they wrote, or they solve problems that stalled other senior engineers</td>
           </tr>
           <tr data-s="cha">
-            <th scope="row"><div class="rh"><div><span class="ab">CHA</span>Trust</div><output class="rs roll" id="rs-cha" aria-label="Trust level"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">CHA</span>Trust</div><output class="rs roll" id="rs-cha" aria-hidden="true"></output></div></th>
             <td>Flags status and blockers early</td>
             <td>Socializes decisions before acting; disagrees and commits; works directly with PM and design</td>
             <td>Delivers bad news early; works directly with their users; their writing moves non-eng decisions</td>
@@ -498,25 +540,26 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
           </tr>
         </tbody>
       </table>
-      <div class="hud" id="hud" aria-label="Rolled level">
+      <div class="hud" id="hud" role="group" aria-label="Rolled level">
         <figure class="radar-fig">
           <svg class="radar" id="radar" viewBox="0 0 300 276" role="img" aria-label="Attribute radar, blank until levels are marked in the chart."></svg>
         </figure>
         <div class="hud-side">
           <p class="hud-cap">Rolled level</p>
-          <div class="hud-lv" id="hud-lv" aria-live="polite"><span class="hl-num" id="hl-num">–</span><span class="hl-name" id="hl-name">Unrolled</span><span class="hl-next" id="hl-next">0 of 6 marked</span></div>
+          <div class="hud-lv" id="hud-lv" aria-live="polite" aria-atomic="true"><span class="hl-num" id="hl-num">–</span><span class="hl-name" id="hl-name">Unrolled</span><span class="hl-next" id="hl-next">0 of 6 marked</span></div>
           <p class="radar-note" id="radar-cap"></p>
         </div>
       </div>
       <p class="toast" id="toast" aria-hidden="true"></p>
     </div>
     <div class="chart-foot">
-      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
       <button class="erase" id="erase" type="button" disabled>Nothing to erase</button>
     </div>
+    <div class="peek" id="peek" aria-hidden="true"><span class="pk-num" id="pk-num">–</span><span class="pk-name" id="pk-name">Unrolled</span><span class="pk-note" id="pk-note">0 of 6 marked</span></div>
   </section>
 
   <footer class="colophon">
+    <p><a href="/">Andrew Lum</a></p>
     <p>November 2026</p>
   </footer>
 
@@ -580,16 +623,36 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     var n = ix.map(function (i) { return SHORT[i]; });
     return n.length < 2 ? n.join("") : n.slice(0, -1).join(", ") + " " + conj + " " + n[n.length - 1];
   }
+  /* The fewest cells to move so the next level clears. Tries every combination of lifts (at most 6^6),
+     keeps the cheapest, and prefers lifting the lowest marks. Says "one way" when other cheapest routes exist. */
   function blockers(vals, L) {
     if (!L || L >= 5) return null;
-    var T = L + 1, ones = [], twos = [], fours = 0;
-    vals.forEach(function (m, i) {
-      var sc = scoreAt(m, T);
-      if (sc === 1) ones.push(i); else if (sc === 2) twos.push(i); else if (sc === 4) fours++;
-    });
-    if (ones.length) return { need: ones, text: "lift " + list(ones, "and") };
-    var d = twos.length - fours;
-    return { need: twos, text: d >= twos.length ? "lift " + list(twos, "and") : "lift " + WORDS[d] + " of " + list(twos, "or") };
+    var T = L + 1, best = null, bestCost = 99, bestTie = 1e9, ways = 0, lift = [0, 0, 0, 0, 0, 0];
+    (function walk(i, cost) {
+      if (cost > bestCost) return;
+      if (i === 6) {
+        var w = vals.map(function (m, k) { return m + lift[k]; });
+        if (!clears(w, T)) return;
+        var tie = 0;
+        lift.forEach(function (d, k) { tie += d * vals[k]; });
+        if (cost < bestCost) { bestCost = cost; ways = 0; bestTie = 1e9; }
+        ways++;
+        if (tie < bestTie) { bestTie = tie; best = lift.slice(); }
+        return;
+      }
+      for (var d = 0; vals[i] + d <= 5; d++) { lift[i] = d; walk(i + 1, cost + d); }
+      lift[i] = 0;
+    })(0, 0);
+    if (!best) return null;
+    var need = [], parts = [], same = true;
+    best.forEach(function (d, k) { if (d) { need.push(k); if (d !== best[need[0]]) same = false; } });
+    if (same) {
+      var d0 = best[need[0]];
+      parts.push("lift " + list(need, "and") + " " + WORDS[d0] + (d0 > 1 ? " cells" : " cell") + (need.length > 1 ? " each" : ""));
+    } else {
+      parts.push("lift " + need.map(function (k) { return SHORT[k] + " " + WORDS[best[k]] + (best[k] > 1 ? " cells" : " cell"); }).join(", ").replace(/, ([^,]*)$/, " and $1"));
+    }
+    return { need: need, text: (ways > 1 ? "one way is to " : "") + parts[0] };
   }
 
   /* Radar */
@@ -620,6 +683,9 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   var hudLv = document.getElementById("hud-lv");
   var hlNum = document.getElementById("hl-num"), hlName = document.getElementById("hl-name"), hlNext = document.getElementById("hl-next");
   var toast = document.getElementById("toast");
+  var peek = document.getElementById("peek");
+  var pkNum = document.getElementById("pk-num"), pkName = document.getElementById("pk-name"), pkNote = document.getElementById("pk-note");
+
   var rowScores = STATS.map(function (s) { return document.getElementById("rs-" + s); });
 
   var cur = [0, 0, 0, 0, 0, 0], target = cur.slice(), frame = null;
@@ -755,6 +821,9 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       b.className = "cell";
       b.id = "cell-" + s + "-" + (i + 1);
       b.setAttribute("aria-pressed", "false");
+      var vh = document.createElement("span");
+      vh.className = "vh";
+      vh.textContent = SHORT[si] + ", level ";
       var cl = document.createElement("span");
       cl.className = "cl";
       cl.innerHTML = "<span></span><i></i>";
@@ -769,6 +838,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       var ck = document.createElement("span");
       ck.className = "ck";
       ck.setAttribute("aria-hidden", "true");
+      b.appendChild(vh);
       b.appendChild(cl);
       b.appendChild(tx);
       b.appendChild(gt);
@@ -789,6 +859,22 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       cells[s].push(b);
     });
   });
+
+  /* Phones lay the table out as blocks, which drops its semantics; name the roles outright */
+  var tbl = document.getElementById("levels");
+  tbl.setAttribute("role", "table");
+  tbl.querySelectorAll("thead, tbody").forEach(function (g) { g.setAttribute("role", "rowgroup"); });
+  tbl.querySelectorAll("tr").forEach(function (r) { r.setAttribute("role", "row"); });
+  tbl.querySelectorAll("th").forEach(function (h) { h.setAttribute("role", h.getAttribute("scope") === "row" ? "rowheader" : "columnheader"); });
+  tbl.querySelectorAll("td").forEach(function (d) { d.setAttribute("role", "cell"); });
+
+  /* Phones: a level bar rides the bottom edge while the chart is on screen and the full readout is not */
+  function peekCheck() {
+    var vh = window.innerHeight;
+    peek.classList.toggle("show", tbl.getBoundingClientRect().top < vh * 0.6 && hud.getBoundingClientRect().top > vh);
+  }
+  window.addEventListener("scroll", peekCheck, { passive: true });
+  window.addEventListener("resize", peekCheck);
 
   var erase = document.getElementById("erase");
   erase.addEventListener("click", function () {
@@ -820,7 +906,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
         b.classList.toggle("need", goal && need);
         b.classList.toggle("past", v > 0 && j < v - 1);
         b.parentNode.classList.toggle("col-cur", L === j + 1);
-        if (goal) b.querySelector(".gt").firstChild.textContent = need ? "needed for " + NAMES[L] : "next goal";
+        if (goal) b.querySelector(".gt").firstChild.textContent = need ? "toward " + NAMES[L] : "next goal";
       });
       labels[i].classList.toggle("on", v > 0);
     });
@@ -842,8 +928,8 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       if (!reduce) restart(ping, "go");
     }
     svg.classList.toggle("blank", !n);
-    var next = L ? (L < 5 ? "Next, " + NAMES[L] + ": " + info.text + "." : "Top of the chart.") : "";
-    cap.textContent = L ? "Blue is the character. The green ring is the level it clears; the dashed purple ring is the next one." : n ? "Mark all six rows to roll a level." : "Pencil in one cell per row and the hexagon draws itself.";
+    var next = L ? (L < 5 ? "Next, " + NAMES[L] + (info ? ": " + info.text : "") + "." : "Top of the chart.") : "";
+    cap.textContent = L ? "The blue shape is the character. The solid green ring is the level it clears; the dashed purple ring is the next one." : n ? "Mark all six rows to roll a level." : "Pencil in one cell per row and the hexagon draws itself.";
     svg.setAttribute("aria-label", n
       ? "Attribute radar. " + AXES.map(function (a, i) { return a + " " + (vals[i] || "unmarked"); }).join(", ") + "."
       : "Attribute radar, blank until levels are marked in the chart.");
@@ -853,6 +939,9 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       hlNum.textContent = L || "–";
       hlName.textContent = L ? NAMES[L - 1] + " · " + TIERS[L - 1] : "Unrolled";
       hlNext.textContent = L ? next : n + " of 6 marked";
+      pkNum.textContent = L || "–";
+      pkName.textContent = L ? NAMES[L - 1] : "Unrolled";
+      pkNote.textContent = L ? (L < 5 ? "Next: " + NAMES[L] : "Top of the chart") : n + " of 6 marked";
       if (up) celebrate(L, first, at);
       else if (down) stamp(at, "Drops to", NAMES[L - 1] + " · " + TIERS[L - 1], true);
     }, landing);
@@ -874,6 +963,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   });
 
   render(false);
+  peekCheck();
 })();
 </script>
 </body>
