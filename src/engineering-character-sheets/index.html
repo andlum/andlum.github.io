@@ -238,6 +238,9 @@ tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid v
 .legend li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15.5px; line-height: 1.3; color: var(--ink-2); }
 .legend b { display: grid; place-items: center; height: 2.2rem; border: 1.5px solid var(--rule-strong); border-radius: 3px; background: var(--surface); font: 700 22px/1 var(--hand); color: var(--pencil); }
 .legend span b { display: inline; border: 0; background: none; font: inherit; font-weight: 700; color: var(--ink); }
+.scoring { display: grid; gap: 12px; padding-top: 18px; border-top: 1px solid var(--rule); }
+.scoring h3 { margin: 0; font: 400 15px/1.3 var(--label); letter-spacing: 0.1em; color: var(--ink-2); }
+.scoring > p { margin: 0; max-width: 46rem; font-size: 17px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
 .chart-foot { display: flex; justify-content: flex-end; margin-top: -8px; }
 .peek { display: none; }
 .erase {
@@ -439,13 +442,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       <h2 id="chart-h">The Level Chart</h2>
     </div>
     <div class="chart-lede">
-      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
-      <ul class="legend" aria-label="Scores against a level">
-        <li><b>1</b><span><b>Off track:</b> falling short, and it's a pattern</span></li>
-        <li><b>2</b><span><b>Uneven:</b> good at some of it, not yet consistent</span></li>
-        <li><b>3</b><span><b>Reliable:</b> good and consistent. 3 is the job.</span></li>
-        <li><b>4</b><span><b>Exceptional:</b> already doing the next level's work</span></li>
-      </ul>
+      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level.</p>
     </div>
     <div class="chart">
       <table id="levels">
@@ -532,6 +529,16 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     </div>
     <div class="chart-foot">
       <button class="erase" id="erase" type="button" disabled>Nothing to erase</button>
+    </div>
+    <div class="scoring">
+      <h3>How I score</h3>
+      <p>The promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
+      <ul class="legend" aria-label="Scores against a level">
+        <li><b>1</b><span><b>Off track:</b> falling short, and it's a pattern</span></li>
+        <li><b>2</b><span><b>Uneven:</b> good at some of it, not yet consistent</span></li>
+        <li><b>3</b><span><b>Reliable:</b> good and consistent. 3 is the job.</span></li>
+        <li><b>4</b><span><b>Exceptional:</b> already doing the next level's work</span></li>
+      </ul>
     </div>
     <div class="peek" id="peek" aria-hidden="true"><span class="pk-name" id="pk-name">Unrolled</span><span class="pk-note" id="pk-note">0 of 6 marked</span></div>
   </section>
