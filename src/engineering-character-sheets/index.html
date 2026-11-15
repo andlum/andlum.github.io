@@ -194,9 +194,7 @@ thead tr:first-child > :first-child { width: 10.6rem; vertical-align: bottom; }
 tbody tr + tr { border-top: 1px solid var(--rule); }
 tbody th { text-align: left; vertical-align: top; padding: 14px 12px; font: 700 16px/1.2 var(--body); background: var(--surface-2); }
 tbody th .ab { display: block; font: 400 20px/1.1 var(--label); letter-spacing: 0.04em; color: var(--accent); margin-bottom: 4px; }
-.rh { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 8px; }
-.rs { display: grid; place-items: center; overflow: hidden; width: 2.5rem; height: 2.6rem; margin-top: -2px; border: 1.5px solid var(--rule-strong); border-radius: 3px; background: var(--surface); font: 700 27px/1 var(--hand); color: var(--pencil); }
-.rs:empty::before { content: ""; width: 12px; border-bottom: 1.5px dashed var(--rule-strong); }
+.rh { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; }
 tbody td.col-cur::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-inline: 3px solid color-mix(in srgb, var(--gold) 75%, transparent); }
 tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid var(--rule); vertical-align: top; }
 .cell {
@@ -236,10 +234,6 @@ tbody td { position: relative; height: 1px; padding: 0; border-left: 1px solid v
 .cell.goal .gt { display: block; }
 .chart-lede { display: grid; gap: 14px; }
 .chart-lede > p { margin: 0; max-width: 46rem; font-size: 17px; line-height: 1.45; color: var(--ink-2); text-wrap: pretty; }
-.legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 20px; margin: 0; padding: 0; list-style: none; }
-.legend li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); align-items: center; gap: 10px; font-size: 15.5px; line-height: 1.3; color: var(--ink-2); }
-.legend b { display: grid; place-items: center; height: 2.2rem; border: 1.5px solid var(--rule-strong); border-radius: 3px; background: var(--surface); font: 700 22px/1 var(--hand); color: var(--pencil); }
-.legend span b { display: inline; border: 0; background: none; font: inherit; font-weight: 700; color: var(--ink); }
 .chart-foot { display: flex; justify-content: flex-end; margin-top: -8px; }
 .peek { display: none; }
 .erase {
@@ -275,7 +269,6 @@ thead th.lvl-cur { background: color-mix(in srgb, var(--head-gold) 14%, var(--he
 thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 38%, transparent); }
 .cell.goal.need::after { border-style: solid; border-color: var(--gold); opacity: 1; }
 .cell.need .gt { color: var(--gold); }
-.roll > .d { grid-area: 1 / 1; display: block; }
 
 /* Result band: the chart's bottom edge, where the roll lands */
 .hud {
@@ -302,20 +295,9 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
 .toast.down { background: var(--head-bg); color: var(--head-fg); }
 .toast.show { animation: toast-fade 2400ms linear both; }
 @keyframes toast-fade { 0%, 100% { opacity: 0; } 6%, 85% { opacity: 1; } }
-.spark { position: fixed; z-index: 30; left: 0; top: 0; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 1.5px; background: var(--accent); pointer-events: none; box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 65%, transparent); }
 .mote { position: absolute; left: 30px; top: 50%; width: 6px; height: 6px; margin: -3px; background: var(--gold); pointer-events: none; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .roll > .d.in-up { animation: d-in-up 420ms cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
-  .roll > .d.in-down { animation: d-in-down 420ms cubic-bezier(0.2, 0.9, 0.25, 1.15) both; }
-  .roll > .d.out-up { animation: d-out-up 300ms ease-in both; }
-  .roll > .d.out-down { animation: d-out-down 300ms ease-in both; }
-  @keyframes d-in-up { from { transform: translateY(95%); opacity: 0; } }
-  @keyframes d-in-down { from { transform: translateY(-95%); opacity: 0; } }
-  @keyframes d-out-up { to { transform: translateY(-95%); opacity: 0; } }
-  @keyframes d-out-down { to { transform: translateY(95%); opacity: 0; } }
-  .rs.hit { animation: rs-hit 700ms ease-out; }
-  @keyframes rs-hit { 0% { border-color: var(--accent); background: var(--mark-fill); transform: scale(1.12); } 100% { transform: none; } }
   .ring.flare { animation: flare 1100ms ease-out; }
   @keyframes flare { 0% { stroke-width: 2; } 22% { stroke-width: 6; opacity: 1; } 100% { stroke-width: 2.25; } }
   thead th.flare { animation: th-flare 1300ms ease-out; }
@@ -353,8 +335,6 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   .rh { align-items: center; }
   .rh > div { display: flex; align-items: baseline; gap: 12px; }
   tbody th .ab { color: var(--head-gold); margin: 0; flex: none; }
-  .rs { background: transparent; border-color: var(--head-rule); color: var(--head-fg); margin: 0; }
-  .rs:empty::before { border-color: var(--head-rule); }
   tbody td { height: auto; border-left: 0; border-top: 1px solid var(--rule); }
   .cl { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; display: flex; justify-content: space-between; gap: 12px; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--accent); margin-bottom: 4px; padding-right: 26px; }
   .cl i { font-style: normal; color: var(--gold); }
@@ -366,7 +346,6 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   .to { grid-column: 2; }
   .to h3::before { content: "\2192\00a0"; color: var(--gold); font-weight: 400; }
   .rules { gap: 14px; }
-  .legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   html { scroll-padding-bottom: 72px; }
   .peek {
     display: flex; align-items: center; gap: 12px; position: fixed; z-index: 6; left: 0; right: 0; bottom: 0;
@@ -391,8 +370,8 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
 @media print {
   section { display: block; }
   section > * + * { margin-top: 18px; }
-  .hud, tbody tr, .legend li { break-inside: avoid; }
-  .erase, .toast, .peek, .spark, .mote { display: none !important; }
+  .hud, tbody tr { break-inside: avoid; }
+  .erase, .toast, .peek, .mote { display: none !important; }
 }
 </style>
 </head>
@@ -415,7 +394,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     <h1>Engineering <em>Character Sheets</em></h1>
     <div class="intro">
       <p>This is my framework for evaluating engineers before I consider an organization's own leveling framework.</p>
-      <p>Every engineer gets a sheet: six attributes, five levels, and a score for each attribute that ties to a real example. Their class is the role they play, like product, data or platform engineer. Class and level are separate: any class can reach any level.</p>
+      <p>Every engineer gets a sheet: six attributes across five levels, each marked at the cell that matches a real example of their work. Their class is the role they play, like product, data or platform engineer. Class and level are separate: any class can reach any level.</p>
     </div>
     <div class="fields">
       <div class="field"><span class="fill">Andrew Lum</span><span class="cap">Dungeon Master</span></div>
@@ -426,7 +405,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
 
   <section aria-labelledby="abilities-h">
     <div class="sec-head">
-      <h2 id="abilities-h">The Six Ability Scores</h2>
+      <h2 id="abilities-h">The Six Abilities</h2>
     </div>
     <div class="map" role="table" aria-label="How each stat maps to an attribute">
       <div class="map-row map-head" role="row"><span role="columnheader">Stat</span><span role="columnheader">Why it maps</span><span aria-hidden="true"></span><span role="columnheader">Attribute: what it measures</span></div>
@@ -445,8 +424,8 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     </div>
     <ol class="rules">
       <li><span><b>Set goals:</b> The next cell to the right is the goal.</span></li>
-      <li><span><b>Give feedback:</b> Every score ties to a cell and a real example.</span></li>
-      <li><span><b>Validate my vibes:</b> A scorecard to test my hypothesis about an engineer.</span></li>
+      <li><span><b>Give feedback:</b> Every mark ties to a real example.</span></li>
+      <li><span><b>Validate my vibes:</b> A sheet to test my hypothesis about an engineer.</span></li>
     </ol>
   </section>
 
@@ -455,13 +434,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       <h2 id="chart-h">The Level Chart</h2>
     </div>
     <div class="chart-lede">
-      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
-      <ul class="legend" aria-label="Scores against a level">
-        <li><b>1</b><span><b>Off track:</b> marked two or more levels below</span></li>
-        <li><b>2</b><span><b>Uneven:</b> one level below</span></li>
-        <li><b>3</b><span><b>Reliable:</b> at the level. 3 is the job.</span></li>
-        <li><b>4</b><span><b>Exceptional:</b> one level above</span></li>
-      </ul>
+      <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level.</p>
     </div>
     <div class="chart">
       <table id="levels">
@@ -485,7 +458,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
         </thead>
         <tbody>
           <tr data-s="str">
-            <th scope="row"><div class="rh"><div><span class="ab">STR/INT</span>Outcome Focus</div><output class="rs roll" id="rs-str" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">STR/INT</span>Outcome Focus</div></div></th>
             <td>Does what the ticket says</td>
             <td>Finds the goal behind the ticket and prioritizes by it</td>
             <td>Trades scope, quality and time against what the business needs now</td>
@@ -493,7 +466,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Decides which goals and technical bets are worth pursuing across teams</td>
           </tr>
           <tr data-s="dex">
-            <th scope="row"><div class="rh"><div><span class="ab">DEX</span>Technology as Leverage</div><output class="rs roll" id="rs-dex" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">DEX</span>Technology as Leverage</div></div></th>
             <td>Uses the team's tools and AI to unblock themselves</td>
             <td>Automates their own repetitive work</td>
             <td>Builds or adopts tools that lift their team</td>
@@ -501,7 +474,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Changes how the org builds; teams adopt their tools unprompted</td>
           </tr>
           <tr data-s="sta">
-            <th scope="row"><div class="rh"><div><span class="ab">STA</span>Stewardship &amp; Execution</div><output class="rs roll" id="rs-sta" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">STA</span>Stewardship &amp; Execution</div></div></th>
             <td>Ships well-defined tasks; fixes their bugs when pointed at them</td>
             <td>Breaks down and estimates a loose problem, then ships it; debugs what they broke without being chased</td>
             <td>Takes an open problem to production and keeps it healthy: leads its incidents, leaves a care manual</td>
@@ -509,7 +482,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Their reliability practices run in teams they never joined, or they land migrations that stalled before them</td>
           </tr>
           <tr data-s="agi">
-            <th scope="row"><div class="rh"><div><span class="ab">AGI</span>Growth</div><output class="rs roll" id="rs-agi" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">AGI</span>Growth</div></div></th>
             <td>Takes feedback without defensiveness; the change shows next time</td>
             <td>Asks for feedback and gives it to peers</td>
             <td>Steers their own growth; engineers around them visibly improve</td>
@@ -517,7 +490,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Sponsors engineers into bigger work, and teaches beyond their own team</td>
           </tr>
           <tr data-s="wis">
-            <th scope="row"><div class="rh"><div><span class="ab">WIS</span>Technical Judgment</div><output class="rs roll" id="rs-wis" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">WIS</span>Technical Judgment</div></div></th>
             <td>Writes correct, readable code to a spec</td>
             <td>Writes specs that survive review without major rework; their reviews catch real bugs</td>
             <td>Designs that hold up as needs change and account for failure, security and cost</td>
@@ -525,7 +498,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
             <td>Teams design to standards they wrote, or they solve problems that stalled other senior engineers</td>
           </tr>
           <tr data-s="cha">
-            <th scope="row"><div class="rh"><div><span class="ab">CHA</span>Trust</div><output class="rs roll" id="rs-cha" aria-hidden="true"></output></div></th>
+            <th scope="row"><div class="rh"><div><span class="ab">CHA</span>Trust</div></div></th>
             <td>Flags status and blockers early</td>
             <td>Socializes decisions before acting; disagrees and commits; works directly with PM and design</td>
             <td>Delivers bad news early; works directly with their users; their writing moves non-eng decisions</td>
@@ -680,7 +653,6 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   var peek = document.getElementById("peek");
   var pkName = document.getElementById("pk-name"), pkNote = document.getElementById("pk-note");
 
-  var rowScores = STATS.map(function (s) { return document.getElementById("rs-" + s); });
 
   var cur = [0, 0, 0, 0, 0, 0], target = cur.slice(), frame = null;
   function draw(vals) {
@@ -720,46 +692,6 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     ghost.classList.toggle("show", !!level);
   }
 
-  /* Odometer digits: the old number rolls out as the new one rolls in */
-  function roll(el, v, animate) {
-    var curD = null;
-    Array.prototype.forEach.call(el.querySelectorAll(".d"), function (d) { if (d.classList.contains("out")) d.remove(); else curD = d; });
-    var old = curD ? +curD.textContent : 0;
-    if (v === old) return false;
-    if (!v) { el.textContent = ""; return true; }
-    var d = document.createElement("span");
-    d.className = "d";
-    d.textContent = v;
-    if (animate && !reduce) {
-      var up = v > old;
-      d.classList.add(up ? "in-up" : "in-down");
-      if (curD) {
-        curD.classList.add("out", up ? "out-up" : "out-down");
-        setTimeout(function () { curD.remove(); }, 320);
-      }
-    } else if (curD) curD.remove();
-    el.appendChild(d);
-    return true;
-  }
-
-  /* A mark flies from its cell into the HUD */
-  function spark(from, to) {
-    var a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
-    var x0 = a.right - 19, y0 = a.top + 19, x1 = b.left + b.width / 2, y1 = b.top + b.height / 2;
-    var dx = x1 - x0, dy = y1 - y0, lift = Math.min(140, 50 + Math.abs(dx) * 0.25);
-    var el = document.createElement("span");
-    el.className = "spark";
-    el.style.left = x0 + "px";
-    el.style.top = y0 + "px";
-    document.body.appendChild(el);
-    if (!el.animate) { el.remove(); return; }
-    var an = el.animate([
-      { transform: "translate(0, 0) rotate(45deg) scale(0.4)", opacity: 0 },
-      { transform: "translate(" + dx * 0.45 + "px," + (dy * 0.45 - lift) + "px) rotate(225deg) scale(1.25)", opacity: 1, offset: 0.45 },
-      { transform: "translate(" + dx + "px," + dy + "px) rotate(405deg) scale(0.5)", opacity: 0.9 }
-    ], { duration: 560, easing: "cubic-bezier(0.45, 0, 0.3, 1)" });
-    an.onfinish = function () { el.remove(); };
-  }
   function burst() {
     if (!hudLv.animate) return;
     for (var k = 0; k < 12; k++) {
@@ -878,20 +810,13 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     cells.str[0].focus({ preventScroll: true });
   });
 
-  var prevL = 0, hudTimer = null, rowTimers = [];
+  var prevL = 0, hudTimer = null;
   function render(save, hit) {
     var vals = STATS.map(function (s) { var v = +marks[s]; return v >= 1 && v <= 5 ? v : 0; });
     var n = vals.filter(Boolean).length;
     var L = levelOf(vals), info = blockers(vals, L);
-    var landing = 0;
-    if (hit && hit.from && !reduce) { spark(hit.from, rowScores[hit.i]); landing = 480; }
     STATS.forEach(function (s, i) {
       var v = vals[i];
-      clearTimeout(rowTimers[i]);
-      var delay = hit && hit.i === i ? landing : 0;
-      rowTimers[i] = setTimeout(function () {
-        if (roll(rowScores[i], v, save) && save && v && !reduce && hit && hit.i === i) restart(rowScores[i], "hit");
-      }, delay);
       var need = !!(info && info.need.indexOf(i) >= 0);
       cells[s].forEach(function (b, j) {
         b.setAttribute("aria-pressed", String(v === j + 1));
@@ -936,7 +861,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       pkNote.textContent = L ? (L < 5 ? "Next: " + NAMES[L] : "Top of the chart") : n + " of 6 marked";
       if (up) celebrate(L, first, at);
       else if (down) stamp(at, "Drops to", NAMES[L - 1] + " · " + TIERS[L - 1], true);
-    }, landing);
+    }, 0);
     prevL = L;
     erase.disabled = !n;
     erase.textContent = n ? "Erase " + n + (n === 1 ? " mark" : " marks") : "Nothing to erase";
