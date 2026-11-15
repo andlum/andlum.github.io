@@ -185,7 +185,6 @@ thead th, thead td { background: var(--head-bg); color: var(--head-fg); font-wei
 thead tr > * + * { border-left: 1px solid var(--head-rule); }
 thead tr:first-child > :first-child { width: 10.6rem; vertical-align: bottom; }
 .corner { font: 400 14px/1.2 var(--label); letter-spacing: 0.1em; color: var(--head-fg-2); }
-.num { display: block; font: 400 40px/0.9 var(--display); color: var(--head-gold); margin-bottom: 8px; }
 .lv { display: block; font: 700 17px/1.15 var(--body); }
 .tier { display: block; font: 400 15px/1.2 var(--label); letter-spacing: 0.06em; color: var(--head-gold); margin-top: 2px; }
 .why { display: block; font-size: 14px; line-height: 1.3; margin-top: 6px; color: var(--head-fg-2); }
@@ -287,9 +286,8 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
 .hud > * { min-width: 0; }
 .hud-side { display: grid; gap: 12px; align-content: center; }
 .hud-cap { margin: 0; font: 400 14px/1.2 var(--label); letter-spacing: 0.12em; color: var(--ink-2); }
-.hud-lv { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; align-items: center; }
-.hl-num { grid-row: span 2; font: 400 64px/0.85 var(--display); color: var(--bar); min-width: 0.6em; text-align: center; }
-.hl-name { font: 700 22px/1.15 var(--body); }
+.hud-lv { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 6px; }
+.hl-name { font: 400 38px/1 var(--display); text-wrap: balance; }
 .hl-next { font: 400 16px/1.35 var(--body); color: var(--ink-2); }
 .radar-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--rule); font: italic 400 15.5px/1.4 var(--body); color: var(--ink-2); max-width: 30rem; }
 /* Level stamp: pops on the cell that was just marked */
@@ -322,9 +320,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   @keyframes flare { 0% { stroke-width: 2; } 22% { stroke-width: 6; opacity: 1; } 100% { stroke-width: 2.25; } }
   thead th.flare { animation: th-flare 1300ms ease-out; }
   @keyframes th-flare { 0%, 20% { background: color-mix(in srgb, var(--head-gold) 50%, var(--head-bg)); } }
-  .hud-lv.flash .hl-num { animation: num-pop 760ms cubic-bezier(0.3, 1.7, 0.5, 1); }
   .hud-lv.flash .hl-name { animation: glint 1200ms ease; }
-  @keyframes num-pop { 0% { transform: scale(0.4) rotate(-12deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
   @keyframes glint { 0% { color: var(--ink); } 20% { color: var(--gold); text-shadow: 0 0 18px color-mix(in srgb, var(--gold) 60%, transparent); } 100% { color: var(--ink); } }
   .toast.show { animation: toast-rise 2400ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
   @keyframes toast-rise {
@@ -379,15 +375,13 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     transform: translateY(110%); visibility: hidden;
   }
   .peek.show { transform: none; visibility: visible; }
-  .pk-num { font: 400 34px/0.85 var(--display); color: var(--bar); min-width: 0.6em; text-align: center; }
-  .pk-name { font: 700 17px/1.15 var(--body); }
+  .pk-name { font: 400 24px/1 var(--display); }
   .pk-note { margin-left: auto; font: 400 14px/1.2 var(--label); letter-spacing: 0.08em; color: var(--ink-2); text-align: right; }
 }
 @media (max-width: 640px) {
   .hud { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px 16px 20px; }
   .radar-fig { justify-self: center; width: min(100%, 20rem); }
-  .hl-num { font-size: 52px; }
-  .hl-name { font-size: 19px; }
+  .hl-name { font-size: 30px; }
   .hl-next { font-size: 15px; }
 }
 @media (max-width: 560px) {
@@ -463,9 +457,9 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     <div class="chart-lede">
       <p>Pencil in the cell that matches the work you see. Pick it again to rub it out. Once all six are marked, the sheet rolls a level with the promotion rule: score each attribute against a level, no 1s, and every 2 offset by a 4.</p>
       <ul class="legend" aria-label="Scores against a level">
-        <li><b>1</b><span><b>Bad:</b> marked two or more levels below</span></li>
-        <li><b>2</b><span><b>Good, but inconsistent:</b> one level below</span></li>
-        <li><b>3</b><span><b>Good and consistent:</b> at the level. 3 is the job.</span></li>
+        <li><b>1</b><span><b>Off track:</b> marked two or more levels below</span></li>
+        <li><b>2</b><span><b>Uneven:</b> one level below</span></li>
+        <li><b>3</b><span><b>Reliable:</b> at the level. 3 is the job.</span></li>
         <li><b>4</b><span><b>Exceptional:</b> one level above</span></li>
       </ul>
     </div>
@@ -474,11 +468,11 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
         <thead>
           <tr>
             <th scope="col" class="corner">Attribute</th>
-            <th scope="col"><span class="num">1</span><span class="lv">Junior</span><span class="tier">Apprentice</span><span class="why">lots of support; reaches their own tasks</span></th>
-            <th scope="col"><span class="num">2</span><span class="lv">Mid</span><span class="tier">Journeyman</span><span class="why">some support; reaches their own projects</span></th>
-            <th scope="col"><span class="num">3</span><span class="lv">Senior</span><span class="tier">Expert</span><span class="why">runs a project alone; lifts their team</span></th>
-            <th scope="col"><span class="num">4</span><span class="lv">Senior II</span><span class="tier">Artisan</span><span class="why">lifts the teams around their domain</span></th>
-            <th scope="col"><span class="num">5</span><span class="lv">Staff</span><span class="tier">Master</span><span class="why">lifts the whole org, broad or deep</span></th>
+            <th scope="col"><span class="lv">Junior</span><span class="tier">Apprentice</span><span class="why">lots of support; reaches their own tasks</span></th>
+            <th scope="col"><span class="lv">Mid</span><span class="tier">Journeyman</span><span class="why">some support; reaches their own projects</span></th>
+            <th scope="col"><span class="lv">Senior</span><span class="tier">Expert</span><span class="why">runs a project alone; lifts their team</span></th>
+            <th scope="col"><span class="lv">Senior II</span><span class="tier">Artisan</span><span class="why">lifts the teams around their domain</span></th>
+            <th scope="col"><span class="lv">Staff</span><span class="tier">Master</span><span class="why">lifts the whole org, broad or deep</span></th>
           </tr>
           <tr class="range-row">
             <th scope="row">Range<small>who else gets the buff</small></th>
@@ -546,7 +540,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
         </figure>
         <div class="hud-side">
           <p class="hud-cap">Rolled level</p>
-          <div class="hud-lv" id="hud-lv" aria-live="polite" aria-atomic="true"><span class="hl-num" id="hl-num">–</span><span class="hl-name" id="hl-name">Unrolled</span><span class="hl-next" id="hl-next">0 of 6 marked</span></div>
+          <div class="hud-lv" id="hud-lv" aria-live="polite" aria-atomic="true"><span class="hl-name" id="hl-name">Unrolled</span><span class="hl-next" id="hl-next">0 of 6 marked</span></div>
           <p class="radar-note" id="radar-cap"></p>
         </div>
       </div>
@@ -555,7 +549,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     <div class="chart-foot">
       <button class="erase" id="erase" type="button" disabled>Nothing to erase</button>
     </div>
-    <div class="peek" id="peek" aria-hidden="true"><span class="pk-num" id="pk-num">–</span><span class="pk-name" id="pk-name">Unrolled</span><span class="pk-note" id="pk-note">0 of 6 marked</span></div>
+    <div class="peek" id="peek" aria-hidden="true"><span class="pk-name" id="pk-name">Unrolled</span><span class="pk-note" id="pk-note">0 of 6 marked</span></div>
   </section>
 
   <footer class="colophon">
@@ -662,7 +656,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     rings.push(add(svg, "polygon", { "class": r === 5 ? "ring outer" : "ring", points: poly([r, r, r, r, r, r]) }));
     var p = pt(0, r);
     var t = add(svg, "text", { "class": "tick", x: p[0] + 4, y: p[1] + 1 });
-    t.textContent = r;
+    t.textContent = NAMES[r - 1];
     ticks.push(t);
   });
   var labels = AXES.map(function (label, i) {
@@ -681,10 +675,10 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
   /* HUD */
   var hud = document.getElementById("hud");
   var hudLv = document.getElementById("hud-lv");
-  var hlNum = document.getElementById("hl-num"), hlName = document.getElementById("hl-name"), hlNext = document.getElementById("hl-next");
+  var hlName = document.getElementById("hl-name"), hlNext = document.getElementById("hl-next");
   var toast = document.getElementById("toast");
   var peek = document.getElementById("peek");
-  var pkNum = document.getElementById("pk-num"), pkName = document.getElementById("pk-name"), pkNote = document.getElementById("pk-note");
+  var pkName = document.getElementById("pk-name"), pkNote = document.getElementById("pk-note");
 
   var rowScores = STATS.map(function (s) { return document.getElementById("rs-" + s); });
 
@@ -827,7 +821,7 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
       var cl = document.createElement("span");
       cl.className = "cl";
       cl.innerHTML = "<span></span><i></i>";
-      cl.firstChild.textContent = (i + 1) + " · " + NAMES[i];
+      cl.firstChild.textContent = NAMES[i];
       cl.lastChild.textContent = RANGES[i];
       var tx = document.createElement("span");
       tx.className = "tx";
@@ -931,15 +925,13 @@ thead th.lvl-nx { box-shadow: inset 0 4px 0 color-mix(in srgb, var(--head-gold) 
     var next = L ? (L < 5 ? "Next, " + NAMES[L] + (info ? ": " + info.text : "") + "." : "Top of the chart.") : "";
     cap.textContent = L ? "The blue shape is the character. The solid green ring is the level it clears; the dashed purple ring is the next one." : n ? "Mark all six rows to roll a level." : "Pencil in one cell per row and the hexagon draws itself.";
     svg.setAttribute("aria-label", n
-      ? "Attribute radar. " + AXES.map(function (a, i) { return a + " " + (vals[i] || "unmarked"); }).join(", ") + "."
+      ? "Attribute radar. " + AXES.map(function (a, i) { return a + " " + (vals[i] ? NAMES[vals[i] - 1] : "unmarked"); }).join(", ") + "."
       : "Attribute radar, blank until levels are marked in the chart.");
     clearTimeout(hudTimer);
     var first = !prevL, up = save && L > prevL, down = save && L && L < prevL, at = hit && hit.from;
     hudTimer = setTimeout(function () {
-      hlNum.textContent = L || "–";
       hlName.textContent = L ? NAMES[L - 1] + " · " + TIERS[L - 1] : "Unrolled";
       hlNext.textContent = L ? next : n + " of 6 marked";
-      pkNum.textContent = L || "–";
       pkName.textContent = L ? NAMES[L - 1] : "Unrolled";
       pkNote.textContent = L ? (L < 5 ? "Next: " + NAMES[L] : "Top of the chart") : n + " of 6 marked";
       if (up) celebrate(L, first, at);
