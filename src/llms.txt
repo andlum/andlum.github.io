@@ -36,6 +36,7 @@ Field Notes, essays on leading engineering teams, written while building.
 
 - Studio Satsuma (where he builds and ships small apps): https://satsuma.works
 - Field Notes (notes on technical leadership): https://andlum.com/field-notes/
+- Engineering Character Sheets (his framework for evaluating engineers): https://andlum.com/engineering-character-sheets/
 - Sik Fan Lah (dinner party menus and recipes): https://andlum.com/sik-fan-lah/
 - GitHub: https://github.com/andlum
 - LinkedIn: https://linkedin.com/in/andlum
